@@ -1,0 +1,8 @@
+version = 0.26.1
+profile = conventional
+break-cases = toplevel
+break-infix = fit-or-vertical
+exp-grouping = preserve
+if-then-else = fit-or-vertical
+margin = 100
+type-decl = sparse
