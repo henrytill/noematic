@@ -12,3 +12,18 @@
   (:js smoke.mjs))
  (action
   (run %{bin:node} --test %{js})))
+
+(executable
+ (name min)
+ (modules min)
+ (libraries brr)
+ (modes js))
+
+(rule
+ (alias runmin)
+ (package noematic)
+ (deps
+  min.bc.js
+  (:js min.mjs))
+ (action
+  (run %{bin:node} --test %{js})))
