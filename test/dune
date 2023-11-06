@@ -1,19 +1,4 @@
 (executable
- (name smoke)
- (modules smoke)
- (libraries brr)
- (modes js))
-
-(rule
- (alias runsmoke)
- (package noematic)
- (deps
-  smoke.bc.js
-  (:js smoke.mjs))
- (action
-  (run %{bin:node} --test %{js})))
-
-(executable
  (name min)
  (modules min)
  (libraries brr)
@@ -28,12 +13,27 @@
  (action
   (run %{bin:node} --test %{js})))
 
-; ; Another possiblity
+(executable
+ (name smoke)
+ (modules smoke)
+ (libraries brr)
+ (modes js))
+
+(rule
+ (alias runsmoke)
+ (package noematic)
+ (deps
+  smoke.bc.js
+  (:js smoke.mjs))
+ (action
+  (run %{bin:node} --test %{js})))
+
+; ; Another possibility
 ; (alias
 ;  (name nodetest)
 ;  (deps
-;   (alias runsmoke)
-;   (alias runmin)))
+;   (alias runmin)
+;   (alias runsmoke)))
 
 (rule
  (alias nodetest)
