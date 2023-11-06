@@ -27,3 +27,20 @@
   (:js min.mjs))
  (action
   (run %{bin:node} --test %{js})))
+
+; ; Another possiblity
+; (alias
+;  (name nodetest)
+;  (deps
+;   (alias runsmoke)
+;   (alias runmin)))
+
+(rule
+ (alias nodetest)
+ (deps
+  min.bc.js
+  (:min min.mjs)
+  smoke.bc.js
+  (:smoke smoke.mjs))
+ (action
+  (run %{bin:node} --test %{min} %{smoke})))
