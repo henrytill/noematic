@@ -1,0 +1,35 @@
+body {
+  width: 400px;
+}
+
+.panel {
+  font-family: sans-serif;
+  font-size: 1.2rem;
+  padding: 10px;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer-button {
+  border: none;
+  height: 100%;
+  width: 49%;
+  text-align: center;
+  padding: 4px;
+  background-color: #eee;
+}
+
+.footer-button:hover {
+  background-color: #ddd;
+}
+
+.footer-button:active {
+  background-color: #aaa;
+}
+
+.hidden {
+  display: none;
+}

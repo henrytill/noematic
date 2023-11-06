@@ -17,7 +17,6 @@
  (name noematic)
  (synopsis "A short synopsis")
  (description "A longer description")
- (allow_empty)
  (depends
   ocaml
   dune

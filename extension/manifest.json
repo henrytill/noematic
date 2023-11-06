@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "noematic",
+  "version": "0.1",
+  "description": "does some stuff",
+  "icons": {
+    "48": "icons/noematic-48.png"
+  },
+  "background": {
+    "service_worker": "background/background.bc.js"
+  },
+  "action": {
+    "default_icon": {
+      "48": "icons/noematic-48.png"
+    },
+    "default_popup": "popup/popup.html",
+    "default_title": "do it"
+  },
+  "permissions": ["tabs"],
+  "host_permissions": ["<all_urls>"]
+}
