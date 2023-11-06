@@ -17,7 +17,12 @@
  (name noematic)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune)
+ (allow_empty)
+ (depends
+  ocaml
+  dune
+  (js_of_ocaml
+   (>= 5.4.0)))
  (tags
   (topics "to describe" your project)))
 

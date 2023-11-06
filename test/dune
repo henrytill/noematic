@@ -1,2 +1,14 @@
-(test
- (name noematic))
+(executable
+ (name smoke)
+ (modules smoke)
+ (libraries js_of_ocaml)
+ (modes js))
+
+(rule
+ (alias runsmoke)
+ (package noematic)
+ (deps
+  smoke.bc.js
+  (:js smoke.mjs))
+ (action
+  (run %{bin:node} --test %{js})))

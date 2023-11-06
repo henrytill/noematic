@@ -11,6 +11,7 @@ bug-reports: "https://github.com/henrytill/noematic/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.11"}
+  "js_of_ocaml" {>= "5.4.0"}
   "odoc" {with-doc}
 ]
 build: [

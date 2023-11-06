@@ -5,7 +5,7 @@ ARG DEFAULT_SWITCH=4.14.1
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -qq && \
-    apt-get install -yqq ocaml opam pkg-config libgmp-dev
+    apt-get install -yqq ocaml opam pkg-config libgmp-dev nodejs npm
 
 USER vscode
 
