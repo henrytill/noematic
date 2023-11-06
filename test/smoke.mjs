@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert';
 
-import smoke from './smoke.bc.js';
+import './smoke.bc.js';
+
+const smoke = globalThis.smoke;
 
 test('smoke.hello should contain "Hello, world!"', () => {
   assert.strictEqual(smoke.hello, 'Hello, world!');
