@@ -1,20 +1,13 @@
-open Js_of_ocaml
+external js_expr : string -> 'a = "caml_js_expr"
 
-let hello = Js.string "Hello, world!"
+let hello = Jv.of_string "Hello, world!"
 
 let add x y =
-  let x = Js.parseInt x in
-  let y = Js.parseInt y in
-  x + y
-
-let exports =
-  if Js.Unsafe.js_expr "typeof exports !== 'undefined'" then
-    Js.Unsafe.js_expr "exports"
-  else
-    let exports = Js.Unsafe.obj [||] in
-    Js.Unsafe.set Js.Unsafe.global "smoke" exports;
-    exports
+  let x = Jv.to_int x in
+  let y = Jv.to_int y in
+  Jv.of_int (x + y)
 
 let () =
-  Js.Unsafe.set exports "hello" hello;
-  Js.Unsafe.set exports "add" (Js.wrap_callback add)
+  let exports = js_expr "exports" in
+  Jv.set exports "hello" hello;
+  Jv.set exports "add" (Jv.callback ~arity:2 add)

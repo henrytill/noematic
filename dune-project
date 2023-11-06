@@ -21,7 +21,9 @@
  (depends
   ocaml
   dune
-  (js_of_ocaml
+  (brr
+   (>= 0.0.6))
+  (js_of_ocaml-compiler
    (>= 5.4.0)))
  (tags
   (topics "to describe" your project)))

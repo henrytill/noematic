@@ -1,7 +1,7 @@
 (executable
  (name smoke)
  (modules smoke)
- (libraries js_of_ocaml)
+ (libraries brr)
  (modes js))
 
 (rule
