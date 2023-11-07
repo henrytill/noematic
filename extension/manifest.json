@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "noematic",
   "version": "0.1",
-  "description": "does some stuff",
+  "description": "Search your backlog",
   "icons": {
     "48": "icons/noematic-48.png"
   },
