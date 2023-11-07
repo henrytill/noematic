@@ -1,5 +1,8 @@
 open Brr
 open Fut.Syntax
+module Runtime = Chrome.Runtime
+module Port = Chrome.Runtime.Port
+module Tabs = Chrome.Tabs
 
 module State : sig
   type t = {
@@ -34,7 +37,7 @@ end
 
 let lookup port state =
   let message = Jv.obj [| ("action", Jv.of_string "save"); ("key", State.to_jv state) |] in
-  Chrome.Runtime.Port.post_message port message
+  Port.post_message port message
 
 let create_button bid class_name text ~on_click =
   let button = El.button ~d:G.document ~at:At.[ id bid; class' class_name ] [ El.txt' text ] in
@@ -72,12 +75,11 @@ let render port state =
   El.append_children (Option.get main_div) [ footer ]
 
 let main () =
-  let port = Chrome.runtime |> Chrome.Runtime.connect in
-  let+ active = Chrome.tabs |> Chrome.Tabs.active in
+  let port = Chrome.runtime |> Runtime.connect in
+  let+ active = Chrome.tabs |> Tabs.active in
   match active with
   | Error err -> Console.error [ Jv.Error.message err ]
-  | Ok res ->
-      let tab = State.make res.(0) in
-      render port tab
+  | Ok [| res |] -> render port (State.make res)
+  | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
 
 let () = Fut.await (main ()) ignore
