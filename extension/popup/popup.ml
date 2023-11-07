@@ -83,7 +83,7 @@ let render port state =
   (* add search button to footer *)
   let search = Jstr.v "search" in
   let on_click _ = launch_search () in
-  let search_button = create_button search footer_button "Search" ~on_click in
+  let search_button = create_button search footer_button "Open Search..." ~on_click in
   El.append_children footer [ search_button ];
   (* add save button to footer *)
   let save = Jstr.v "save" in
