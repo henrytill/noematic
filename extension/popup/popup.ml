@@ -49,6 +49,16 @@ let create_button bid class_name text ~on_click =
   ignore (Ev.listen Ev.click on_click (El.as_target button));
   button
 
+let abbreviate_uri width uri =
+  (* If length of uri is greater than width, then trim to width and add ellipsis *)
+  let uri_len = String.length uri in
+  if uri_len > width then
+    let ellipsis = "..." in
+    let uri = String.sub uri 0 width in
+    String.cat uri ellipsis
+  else
+    uri
+
 let render port state =
   let main_div = Document.find_el_by_id G.document (Jstr.v "main") in
   let open State in
@@ -56,9 +66,10 @@ let render port state =
   (match state.uri with
   | None -> ()
   | Some uri ->
-      let tab = Uri.to_jstr uri |> Jstr.to_string in
+      let uri_str = Uri.to_jstr uri |> Jstr.to_string in
+      let uri_str = abbreviate_uri 50 uri_str in
       let origin_div =
-        El.div ~at:At.[ id (Jstr.v "origin"); class' (Jstr.v "panel") ] El.[ txt' tab ]
+        El.div ~at:At.[ id (Jstr.v "origin"); class' (Jstr.v "panel") ] El.[ txt' uri_str ]
       in
       El.append_children (Option.get main_div) [ origin_div ]);
   (* create footer *)
