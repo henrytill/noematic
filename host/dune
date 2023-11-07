@@ -1,0 +1,3 @@
+(executable
+ (name noematic)
+ (public_name noematic))

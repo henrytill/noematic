@@ -16,6 +16,6 @@
     "default_popup": "popup/popup.html",
     "default_title": "do it"
   },
-  "permissions": ["tabs"],
+  "permissions": ["tabs", "nativeMessaging"],
   "host_permissions": ["<all_urls>"]
 }

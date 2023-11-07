@@ -34,6 +34,7 @@ module Runtime : sig
   end
 
   val connect : t -> Port.t
+  val connect_native : t -> string -> Port.t
 
   module Event : sig
     type t

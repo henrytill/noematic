@@ -39,9 +39,8 @@ module Runtime = struct
     let on_disconnect t = Jv.get t "onDisconnect"
   end
 
-  let connect t =
-    let port = Jv.call t "connect" [||] in
-    port
+  let connect t = Jv.call t "connect" [||]
+  let connect_native t name = Jv.call t "connectNative" [| Jv.of_jstr (Jstr.v name) |]
 
   module Event = struct
     type t = Jv.t
