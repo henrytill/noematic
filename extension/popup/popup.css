@@ -1,11 +1,16 @@
 body {
+  font-family: 'Noto Sans', sans-serif;
   width: 400px;
 }
 
-.panel {
-  font-family: sans-serif;
-  font-size: 0.8rem;
+#main {
   padding: 10px;
+}
+
+.panel {
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 14px;
+  margin-bottom: 15px;
 }
 
 footer {
@@ -14,16 +19,20 @@ footer {
 }
 
 .footer-button {
-  border: none;
-  height: 100%;
+  font-family: 'Noto Sans', sans-serif;
+  border: 1px solid #dfe1e5;
+  height: 32px;
   width: 32%;
   text-align: center;
-  padding: 4px;
   background-color: #eee;
+  border-radius: 6px;
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
 }
 
 .footer-button:hover {
-  background-color: #ddd;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
 }
 
 .footer-button:active {
