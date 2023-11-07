@@ -35,6 +35,11 @@ end = struct
     Jv.obj [| ("uri", uri); ("tab_id", Jv.of_int t.tab_id) |]
 end
 
+let launch_search () =
+  let url = "/search/index.html" in
+  let fut_tab = Chrome.tabs |> Tabs.create url in
+  Fut.await fut_tab ignore
+
 let lookup port state =
   let message = Jv.obj [| ("action", Jv.of_string "save"); ("key", State.to_jv state) |] in
   Port.post_message port message
@@ -64,6 +69,11 @@ let render port state =
   let on_click _ = Window.close G.window in
   let cancel_button = create_button cancel footer_button "Cancel" ~on_click in
   El.append_children footer [ cancel_button ];
+  (* add search button to footer *)
+  let search = Jstr.v "search" in
+  let on_click _ = launch_search () in
+  let search_button = create_button search footer_button "Search" ~on_click in
+  El.append_children footer [ search_button ];
   (* add save button to footer *)
   let save = Jstr.v "save" in
   let on_click _ = lookup port state in
@@ -75,7 +85,8 @@ let render port state =
   El.append_children (Option.get main_div) [ footer ]
 
 let main () =
-  let port = Chrome.runtime |> Runtime.connect in
+  let name = "popup" in
+  let port = Chrome.runtime |> Runtime.connect ~name in
   let+ active = Chrome.tabs |> Tabs.active in
   match active with
   | Error err -> Console.error [ Jv.Error.message err ]

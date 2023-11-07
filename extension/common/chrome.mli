@@ -9,6 +9,7 @@ module Tabs : sig
   type t
 
   val active : t -> Tab.t array Fut.or_error
+  val create : string -> t -> Tab.t Fut.or_error
 end
 
 val tabs : Tabs.t
@@ -28,13 +29,15 @@ module Runtime : sig
       val add_listener : t -> (Jv.t -> unit) -> unit
     end
 
+    val name : t -> string
     val post_message : t -> Jv.t -> unit
     val on_message : t -> Event.t
     val on_disconnect : t -> Event.t
   end
 
-  val connect : t -> Port.t
+  val connect : ?name:string -> t -> Port.t
   val connect_native : t -> string -> Port.t
+  val id : t -> string
 
   module Event : sig
     type t

@@ -14,9 +14,11 @@ let connect_host runtime =
   Port.Event.add_listener (Port.on_disconnect host_port) handle_host_disconnect;
   host_port
 
-let handle_message host_port message =
+let handle_popup_message host_port message =
   Port.post_message host_port message;
   Console.(log [ str "Received message: "; message ])
+
+let handle_search_message _ message = Console.(log [ str "Received search message: "; message ])
 
 let handle_disconnects connected port =
   connected := List.filter (fun p -> not (Port.equal p (Port.of_jv port))) !connected;
@@ -24,8 +26,17 @@ let handle_disconnects connected port =
 
 let listener connected host_port port =
   connected := port :: !connected;
-  Port.Event.add_listener (Port.on_message port) (handle_message host_port);
-  Port.Event.add_listener (Port.on_disconnect port) (handle_disconnects connected)
+  Console.(log [ str "Connected to port:"; str (Port.name port) ]);
+  match Port.name port with
+  | "popup" ->
+      Port.Event.add_listener (Port.on_message port) (handle_popup_message host_port);
+      Port.Event.add_listener (Port.on_disconnect port) (handle_disconnects connected)
+  | "search" ->
+      Port.Event.add_listener (Port.on_message port) (handle_search_message host_port);
+      Port.Event.add_listener (Port.on_disconnect port) (handle_disconnects connected)
+  | _ ->
+      Console.(log [ str "Unknown port: "; str (Port.name port) ]);
+      Port.Event.add_listener (Port.on_disconnect port) (handle_disconnects connected)
 
 let () =
   let connected_ports = ref [] in
