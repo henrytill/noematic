@@ -6,7 +6,7 @@ module Port = Chrome.Runtime.Port
 let native_messaging_host = "com.github.henrytill.noematic"
 
 let handle_disconnects connected port =
-  connected := List.filter (fun p -> Port.equal p (Port.of_jv port)) !connected;
+  connected := List.filter (fun p -> not (Port.equal p (Port.of_jv port))) !connected;
   Console.(log [ str "Disconnected"; port ])
 
 let handle_message host_port message =
