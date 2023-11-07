@@ -8,6 +8,8 @@ let () =
       let bytes_read = input stdin buffer 0 buffer_size in
       if bytes_read = 0 then raise End_of_file;
       output oc buffer 0 bytes_read;
-      flush oc
+      flush oc;
+      output stdout buffer 0 bytes_read;
+      flush stdout
     done
   with End_of_file -> close_out_noerr oc
