@@ -35,7 +35,7 @@ module Runtime = struct
     module Event = struct
       type t = Jv.t
 
-      let add_listener t f = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
+      let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
     end
 
     let name t = Jv.to_string (Jv.get t "name")
@@ -58,7 +58,7 @@ module Runtime = struct
   module Event = struct
     type t = Jv.t
 
-    let add_listener t f = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
+    let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
   end
 
   let on_connect t = Jv.get t "onConnect"

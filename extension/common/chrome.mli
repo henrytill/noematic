@@ -26,7 +26,7 @@ module Runtime : sig
     module Event : sig
       type t
 
-      val add_listener : t -> (Jv.t -> unit) -> unit
+      val add_listener : (Jv.t -> unit) -> t -> unit
     end
 
     val name : t -> string
@@ -42,7 +42,7 @@ module Runtime : sig
   module Event : sig
     type t
 
-    val add_listener : t -> (Port.t -> unit) -> unit
+    val add_listener : (Port.t -> unit) -> t -> unit
   end
 
   val on_connect : t -> Event.t
