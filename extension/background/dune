@@ -1,4 +1,4 @@
 (executable
  (name background)
  (modes js)
- (libraries brr))
+ (libraries brr chrome))

@@ -1,4 +1,4 @@
 (executable
  (name popup)
  (modes js)
- (libraries brr))
+ (libraries brr chrome))
