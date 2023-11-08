@@ -6,7 +6,7 @@ let read_length chan =
   | 4 -> Some (Bytes.get_int32_ne buffer 0)
   | _ -> None
 
-let read_json_message chan length =
+let read_message chan length =
   let length = Int32.to_int length in
   let message_buffer = Buffer.create length in
   let read_buffer = Bytes.create buffer_size in
@@ -23,12 +23,12 @@ let read_json_message chan length =
   go length;
   Buffer.to_bytes message_buffer
 
-let handle_message oc length json_message =
-  output_string oc (Bytes.to_string json_message);
+let handle_message oc length message =
+  output_string oc (Bytes.to_string message);
   flush oc;
   let length_buf = Bytes.create 4 in
   Bytes.set_int32_ne length_buf 0 length;
-  print_bytes (Bytes.cat length_buf json_message);
+  print_bytes (Bytes.cat length_buf message);
   flush stdout
 
 let main () =
@@ -39,8 +39,8 @@ let main () =
       match read_length stdin with
       | None -> raise End_of_file
       | Some length ->
-          let json_message = read_json_message stdin length in
-          handle_message oc length json_message
+          let message = read_message stdin length in
+          handle_message oc length message
     done
   with End_of_file -> close_out_noerr oc
 
