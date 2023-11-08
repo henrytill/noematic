@@ -35,14 +35,15 @@ end = struct
     Jv.obj [| ("uri", uri); ("tab_id", Jv.of_int t.tab_id) |]
 end
 
-let launch_search () =
+let search_handler () =
   let url = "/search/index.html" in
   let fut_tab = Chrome.tabs |> Tabs.create url in
   Fut.await fut_tab ignore
 
-let lookup port state =
+let save_handler port state =
   let message = Jv.obj [| ("action", Jv.of_string "save"); ("key", State.to_jv state) |] in
-  Port.post_message port message
+  Port.post_message port message;
+  Window.close G.window
 
 let create_button bid class_name text ~on_click =
   let button = El.button ~d:G.document ~at:At.[ id bid; class' class_name ] [ El.txt' text ] in
@@ -82,12 +83,12 @@ let render port state =
   El.append_children footer [ cancel_button ];
   (* add search button to footer *)
   let search = Jstr.v "search" in
-  let on_click _ = launch_search () in
+  let on_click _ = search_handler () in
   let search_button = create_button search footer_button "Open Search..." ~on_click in
   El.append_children footer [ search_button ];
   (* add save button to footer *)
   let save = Jstr.v "save" in
-  let on_click _ = lookup port state in
+  let on_click _ = save_handler port state in
   let save_button = create_button save footer_button "Save" ~on_click in
   if Option.is_none state.uri then
     El.set_at (Jstr.v "disabled") (Some (Jstr.v "true")) save_button;
