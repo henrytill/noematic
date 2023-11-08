@@ -97,7 +97,7 @@ let render runtime state =
   let on_click _ = save_handler runtime state in
   let save_button = create_button save footer_button "Save" ~on_click in
   if Option.is_none state.uri then
-    El.set_at (Jstr.v "disabled") (Some (Jstr.v "true")) save_button;
+    El.(set_at At.Name.disabled) (Some (Jstr.v "true")) save_button;
   El.append_children footer [ save_button ];
   (* add footer to main div *)
   El.append_children (Option.get main_div) [ footer ]
