@@ -5,13 +5,11 @@ module Port = Chrome.Runtime.Port
 module Tabs = Chrome.Tabs
 
 module State : sig
-  type t = {
-    uri : Uri.t option;
-    tab_id : int;
-  }
+  type t
 
   val make : Chrome.Tab.t -> t
   val to_jv : t -> Jv.t
+  val uri : t -> Uri.t option
 end = struct
   type t = {
     uri : Uri.t option;
@@ -33,6 +31,8 @@ end = struct
   let to_jv t =
     let uri : Jv.t = Option.fold ~some:Uri.to_jv ~none:Jv.null t.uri in
     Jv.obj [| ("uri", uri); ("tab_id", Jv.of_int t.tab_id) |]
+
+  let uri t = t.uri
 end
 
 let search_handler () =
@@ -68,9 +68,8 @@ let abbreviate_uri width uri =
 
 let render runtime state =
   let main_div = Document.find_el_by_id G.document (Jstr.v "main") in
-  let open State in
   (* add origin to main div *)
-  (match state.uri with
+  (match State.uri state with
   | None -> ()
   | Some uri ->
       let uri_str = Uri.to_jstr uri |> Jstr.to_string in
@@ -96,13 +95,13 @@ let render runtime state =
   let save = Jstr.v "save" in
   let on_click _ = save_handler runtime state in
   let save_button = create_button save footer_button "Save" ~on_click in
-  if Option.is_none state.uri then
+  if Option.is_none (State.uri state) then
     El.(set_at At.Name.disabled) (Some (Jstr.v "true")) save_button;
   El.append_children footer [ save_button ];
   (* add footer to main div *)
   El.append_children (Option.get main_div) [ footer ]
 
-let main () =
+let main () : unit Fut.t =
   let runtime = Chrome.runtime in
   let+ active = Chrome.tabs |> Tabs.active in
   match active with
