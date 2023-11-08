@@ -31,13 +31,13 @@ module Runtime = struct
 
     let equal = Jv.strict_equal
 
-    module OnMessage = struct
+    module On_message = struct
       type t = Jv.t
 
       let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
     end
 
-    module OnDisconnect = struct
+    module On_disconnect = struct
       type t = Jv.t
 
       let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
@@ -65,7 +65,7 @@ module Runtime = struct
 
   let id t = Jv.to_string (Jv.get t "id")
 
-  module OnConnect = struct
+  module On_connect = struct
     type t = Jv.t
 
     let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
@@ -73,13 +73,13 @@ module Runtime = struct
 
   let on_connect t = Jv.get t "onConnect"
 
-  module MessageSender = struct
+  module Message_sender = struct
     type t = Jv.t
 
     let tab t = Jv.find t "tab"
   end
 
-  module OnMessage = struct
+  module On_message = struct
     type t = Jv.t
 
     let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:3 f |])

@@ -27,22 +27,22 @@ module Runtime : sig
     val post_message : t -> Jv.t -> unit
 
     (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/Port#onmessage}} *)
-    module OnMessage : sig
+    module On_message : sig
       type t
 
       val add_listener : (Jv.t -> unit) -> t -> unit
     end
 
-    val on_message : t -> OnMessage.t
+    val on_message : t -> On_message.t
 
     (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/Port#ondisconnect}} *)
-    module OnDisconnect : sig
+    module On_disconnect : sig
       type t
 
       val add_listener : (Port.t -> unit) -> t -> unit
     end
 
-    val on_disconnect : t -> OnDisconnect.t
+    val on_disconnect : t -> On_disconnect.t
   end
 
   val connect : ?name:string -> t -> Port.t
@@ -51,29 +51,29 @@ module Runtime : sig
   val send_native_message : string -> Jv.t -> t -> Jv.t Fut.or_error
 
   (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onConnect}} *)
-  module OnConnect : sig
+  module On_connect : sig
     type t
 
     val add_listener : (Port.t -> unit) -> t -> unit
   end
 
-  val on_connect : t -> OnConnect.t
+  val on_connect : t -> On_connect.t
 
   (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/MessageSender}} *)
-  module MessageSender : sig
+  module Message_sender : sig
     type t
 
     val tab : t -> Tab.t option
   end
 
   (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage}} *)
-  module OnMessage : sig
+  module On_message : sig
     type t
 
-    val add_listener : (Jv.t -> MessageSender.t -> Jv.t -> Jv.t) -> t -> unit
+    val add_listener : (Jv.t -> Message_sender.t -> Jv.t -> Jv.t) -> t -> unit
   end
 
-  val on_message : t -> OnMessage.t
+  val on_message : t -> On_message.t
 end
 
 val runtime : Runtime.t
