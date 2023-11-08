@@ -30,9 +30,14 @@ module Runtime = struct
     type t = Jv.t
 
     let equal = Jv.strict_equal
-    let of_jv = Fun.id
 
-    module Event = struct
+    module OnMessage = struct
+      type t = Jv.t
+
+      let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
+    end
+
+    module OnDisconnect = struct
       type t = Jv.t
 
       let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
@@ -52,16 +57,35 @@ module Runtime = struct
         let connect_info = Jv.obj [| ("name", name) |] in
         Jv.call t "connect" [| connect_info |]
 
-  let connect_native t name = Jv.call t "connectNative" [| Jv.of_jstr (Jstr.v name) |]
+  let connect_native name t = Jv.call t "connectNative" [| Jv.of_jstr (Jstr.v name) |]
+  let send_message msg t = Fut.of_promise ~ok:Fun.id (Jv.call t "sendMessage" [| msg |])
+
+  let send_native_message name msg t =
+    Fut.of_promise ~ok:Fun.id (Jv.call t "sendNativeMessage" [| Jv.of_jstr (Jstr.v name); msg |])
+
   let id t = Jv.to_string (Jv.get t "id")
 
-  module Event = struct
+  module OnConnect = struct
     type t = Jv.t
 
     let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:1 f |])
   end
 
   let on_connect t = Jv.get t "onConnect"
+
+  module MessageSender = struct
+    type t = Jv.t
+
+    let tab t = Jv.find t "tab"
+  end
+
+  module OnMessage = struct
+    type t = Jv.t
+
+    let add_listener f t = ignore (Jv.call t "addListener" [| Jv.callback ~arity:3 f |])
+  end
+
+  let on_message t = Jv.get t "onMessage"
 end
 
 let runtime = Jv.get v "runtime"

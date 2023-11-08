@@ -17,35 +17,63 @@ val tabs : Tabs.t
 module Runtime : sig
   type t
 
-  module Port : sig
+  val id : t -> string
+
+  module rec Port : sig
     type t
 
     val equal : t -> t -> bool
-    val of_jv : Jv.t -> t
+    val name : t -> string
+    val post_message : t -> Jv.t -> unit
 
-    module Event : sig
+    (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/Port#onmessage}} *)
+    module OnMessage : sig
       type t
 
       val add_listener : (Jv.t -> unit) -> t -> unit
     end
 
-    val name : t -> string
-    val post_message : t -> Jv.t -> unit
-    val on_message : t -> Event.t
-    val on_disconnect : t -> Event.t
+    val on_message : t -> OnMessage.t
+
+    (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/Port#ondisconnect}} *)
+    module OnDisconnect : sig
+      type t
+
+      val add_listener : (Port.t -> unit) -> t -> unit
+    end
+
+    val on_disconnect : t -> OnDisconnect.t
   end
 
   val connect : ?name:string -> t -> Port.t
-  val connect_native : t -> string -> Port.t
-  val id : t -> string
+  val connect_native : string -> t -> Port.t
+  val send_message : Jv.t -> t -> Jv.t Fut.or_error
+  val send_native_message : string -> Jv.t -> t -> Jv.t Fut.or_error
 
-  module Event : sig
+  (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onConnect}} *)
+  module OnConnect : sig
     type t
 
     val add_listener : (Port.t -> unit) -> t -> unit
   end
 
-  val on_connect : t -> Event.t
+  val on_connect : t -> OnConnect.t
+
+  (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/MessageSender}} *)
+  module MessageSender : sig
+    type t
+
+    val tab : t -> Tab.t option
+  end
+
+  (** {{:https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage}} *)
+  module OnMessage : sig
+    type t
+
+    val add_listener : (Jv.t -> MessageSender.t -> Jv.t -> Jv.t) -> t -> unit
+  end
+
+  val on_message : t -> OnMessage.t
 end
 
 val runtime : Runtime.t

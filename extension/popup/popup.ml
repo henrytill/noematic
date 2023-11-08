@@ -40,9 +40,16 @@ let search_handler () =
   let fut_tab = Chrome.tabs |> Tabs.create url in
   Fut.await fut_tab ignore
 
-let save_handler port state =
+let save_handler runtime state =
   let message = Jv.obj [| ("action", Jv.of_string "save"); ("key", State.to_jv state) |] in
-  Port.post_message port message;
+  let go runtime message =
+    let+ send_fut = Runtime.send_message message runtime in
+    match send_fut with
+    | Error err -> Console.error [ Jv.Error.message err ]
+    | Ok res -> Console.(log [ res ])
+  in
+  let fut = go runtime message in
+  Fut.await fut ignore;
   Window.close G.window
 
 let create_button bid class_name text ~on_click =
@@ -60,7 +67,7 @@ let abbreviate_uri width uri =
   else
     uri
 
-let render port state =
+let render runtime state =
   let main_div = Document.find_el_by_id G.document (Jstr.v "main") in
   let open State in
   (* add origin to main div *)
@@ -88,7 +95,7 @@ let render port state =
   El.append_children footer [ search_button ];
   (* add save button to footer *)
   let save = Jstr.v "save" in
-  let on_click _ = save_handler port state in
+  let on_click _ = save_handler runtime state in
   let save_button = create_button save footer_button "Save" ~on_click in
   if Option.is_none state.uri then
     El.set_at (Jstr.v "disabled") (Some (Jstr.v "true")) save_button;
@@ -97,12 +104,11 @@ let render port state =
   El.append_children (Option.get main_div) [ footer ]
 
 let main () =
-  let name = "popup" in
-  let port = Chrome.runtime |> Runtime.connect ~name in
+  let runtime = Chrome.runtime in
   let+ active = Chrome.tabs |> Tabs.active in
   match active with
   | Error err -> Console.error [ Jv.Error.message err ]
-  | Ok [| res |] -> render port (State.make res)
+  | Ok [| res |] -> render runtime (State.make res)
   | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
 
 let () = Fut.await (main ()) ignore
