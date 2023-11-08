@@ -9,10 +9,13 @@
 Refer to the [native messaging documentation](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/) for more information, including manifest file locations for various platforms.
 
 The manifest file should be named:
+
 ```
 com.github.henrytill.noematic.json
 ```
+
 It should look like:
+
 ```json
 {
   "name": "com.github.henrytill.noematic",
