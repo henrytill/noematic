@@ -37,8 +37,8 @@ end
 
 let search_handler () =
   let url = "/search/index.html" in
-  let fut_tab = Chrome.tabs |> Tabs.create url in
-  Fut.await fut_tab ignore
+  let _ = Chrome.tabs |> Tabs.create url in
+  Window.close G.window
 
 let save_handler runtime state =
   let message = Jv.obj [| ("action", Jv.of_string "save"); ("key", State.to_jv state) |] in
@@ -48,8 +48,7 @@ let save_handler runtime state =
     | Error err -> Console.error [ Jv.Error.message err ]
     | Ok res -> Console.(log [ res ])
   in
-  let fut = go runtime message in
-  Fut.await fut ignore;
+  let _ = go runtime message in
   Window.close G.window
 
 let create_button bid class_name text ~on_click =
@@ -111,4 +110,4 @@ let main () =
   | Ok [| res |] -> render runtime (State.make res)
   | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
 
-let () = Fut.await (main ()) ignore
+let () = ignore (main ())

@@ -21,7 +21,7 @@ let listener runtime e =
   match query with
   | None -> ()
   | Some query when Jstr.is_empty query -> ()
-  | Some query -> Fut.await (send_query runtime query) ignore
+  | Some query -> ignore (send_query runtime query)
 
 let () =
   let runtime = Chrome.runtime in
