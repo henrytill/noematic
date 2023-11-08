@@ -30,3 +30,9 @@ It should look like:
 > You will need to modify the `path` and `allowed_origins` values.
 >
 > The `name` and `type` values **must** match the example.
+
+### Documentation
+
+- <https://developer.chrome.com/docs/extensions/reference/runtime/>
+- <https://developer.chrome.com/docs/extensions/mv3/messaging/>
+- <https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/>
