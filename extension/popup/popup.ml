@@ -37,7 +37,7 @@ let search_handler () =
   Window.close G.window
 
 let check_content_script_active tab : bool Fut.or_error =
-  let ping_message = Jv.obj [| ("type", Jv.of_string "ping") |] in
+  let ping_message = Jv.obj [| ("action", Jv.of_string "ping") |] in
   let+ result = Tabs.send_message tab ping_message Chrome.tabs in
   match result with
   | Ok _ -> Ok true
@@ -67,12 +67,7 @@ let save_handler state =
   | None -> ()
   | Some uri ->
       let payload = Jv.obj [| ("uri", Uri.to_jv uri) |] in
-      let message =
-        Jv.obj
-          [|
-            ("type", Jv.of_string "request"); ("action", Jv.of_string "save"); ("payload", payload);
-          |]
-      in
+      let message = Jv.obj [| ("action", Jv.of_string "saveRequest"); ("payload", payload) |] in
       let go tabs message =
         let* _inject_result = maybe_inject_content_script (State.tab state) in
         let+ send_fut = tabs |> Tabs.send_message (State.tab state) message in

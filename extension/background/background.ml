@@ -27,8 +27,8 @@ let generate_uuid () =
   let random_uuid = Jv.call crypto "randomUUID" [||] in
   Jv.to_string random_uuid
 
-let message_listener response_map host_port request sender send_response =
-  Console.(log [ str "request"; request; str "sender"; sender ]);
+let message_listener response_map host_port request _sender send_response =
+  Console.(log [ str "request"; request ]);
   let correlation_id = generate_uuid () in
   Jv.set request "correlationId" (Jv.of_string correlation_id);
   Hashtbl.add response_map correlation_id send_response;
