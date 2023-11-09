@@ -117,7 +117,7 @@ let main () : unit Fut.t =
   match active with
   | Error err -> Console.error [ Jv.Error.message err ]
   | Ok [| res |] ->
-      inject_content_script res;
+      ignore (inject_content_script res);
       render tabs (State.make res)
   | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
 

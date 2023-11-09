@@ -38,7 +38,7 @@ module Scripting = struct
           ("files", Jv.of_list Jv.of_string files);
         |]
     in
-    ignore (Jv.call t "executeScript" [| details |])
+    Fut.of_promise ~ok:Jv.to_jv_array (Jv.call t "executeScript" [| details |])
 end
 
 let scripting = Jv.get v "scripting"
