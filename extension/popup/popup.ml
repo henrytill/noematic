@@ -32,9 +32,35 @@ end = struct
 end
 
 let search_handler () =
-  let url = "/search/index.html" in
-  let _ = Chrome.tabs |> Tabs.create url in
+  let path = "/search/index.html" in
+  let _ = Chrome.tabs |> Tabs.create path in
   Window.close G.window
+
+let check_content_script_active tab : bool Fut.or_error =
+  let ping_message = Jv.obj [| ("type", Jv.of_string "ping") |] in
+  let+ result = Tabs.send_message tab ping_message Chrome.tabs in
+  match result with
+  | Ok _ -> Ok true
+  | Error _ -> Ok false
+
+let inject_content_script tab =
+  let+ inject_results =
+    Chrome.(
+      let tab_id = Tab.id tab in
+      let files = [ "./content/content.bc.js" ] in
+      scripting |> Scripting.execute_script ~tab_id ~files)
+  in
+  match inject_results with
+  | Ok [| _ |] as ret -> ret
+  | Ok _ -> Error (Jv.Error.v (Jstr.v "Unexpected number of results"))
+  | Error _ as err -> err
+
+let maybe_inject_content_script tab =
+  let* content_script_active = check_content_script_active tab in
+  match content_script_active with
+  | Ok true -> Fut.ok [||]
+  | Ok false -> inject_content_script tab
+  | Error _ as err -> Fut.return err
 
 let save_handler state =
   match State.uri state with
@@ -48,6 +74,7 @@ let save_handler state =
           |]
       in
       let go tabs message =
+        let* _inject_result = maybe_inject_content_script (State.tab state) in
         let+ send_fut = tabs |> Tabs.send_message (State.tab state) message in
         match send_fut with
         | Error err -> Console.error [ Jv.Error.message err ]
@@ -105,28 +132,12 @@ let render state =
   (* add footer to main div *)
   El.append_children (Option.get main_div) [ footer ]
 
-let inject_content_script active_tab =
-  let+ inject_results =
-    Chrome.(
-      let tab_id = Tab.id active_tab in
-      let files = [ "./content/content.bc.js" ] in
-      scripting |> Scripting.execute_script ~tab_id ~files)
-  in
-  match inject_results with
-  | Ok [| _ |] as ret -> ret
-  | Ok _ -> Error (Jv.Error.v (Jstr.v "Unexpected number of results"))
-  | Error _ as err -> err
-
 let main () : unit Fut.or_error =
-  let* active_tabs = Chrome.tabs |> Tabs.active in
+  let+ active_tabs = Chrome.tabs |> Tabs.active in
   match active_tabs with
-  | Ok [| active_tab |] ->
-      let* _inject_result = inject_content_script active_tab in
-      (* Injection fails on chrome://*/* pages, so we can't open more search pages
-         and the popup looks broken, so we ignore the result of injections *)
-      Fut.ok (render (State.make active_tab))
-  | Ok _ -> Fut.error (Jv.Error.v (Jstr.v "Unexpected number of active tabs"))
-  | Error err -> Fut.error err
+  | Ok [| active_tab |] -> Ok (render (State.make active_tab))
+  | Ok _ -> Error (Jv.Error.v (Jstr.v "Unexpected number of active tabs"))
+  | Error _ as err -> err
 
 let () =
   Fut.await (main ()) @@ function

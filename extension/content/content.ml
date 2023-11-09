@@ -1,3 +1,4 @@
+open Brr
 open Fut.Syntax
 module Runtime = Chrome.Runtime
 
@@ -20,7 +21,7 @@ let send runtime request send_response =
       let result = ("result", res) in
       Jv.apply send_response [| Jv.obj [| message_type; message_action; result |] |]
 
-let listener runtime request _sender send_response =
+let handle_requests runtime request _sender send_response =
   let title, inner_text = scrape_page () in
   let payload = Jv.get request "payload" in
   Jv.set payload "title" title;
@@ -28,6 +29,15 @@ let listener runtime request _sender send_response =
   let _ = send runtime request send_response in
   Jv.of_bool true
 
+let listener runtime request _sender send_response =
+  match Jv.get request "type" |> Jv.to_string with
+  | "ping" ->
+      let response = Jv.obj [| ("type", Jv.of_string "pong") |] in
+      ignore (Jv.apply send_response [| response |]);
+      Jv.of_bool true
+  | _ -> handle_requests runtime request _sender send_response
+
 let () =
   let runtime = Chrome.runtime in
-  Runtime.(runtime |> on_message |> On_message.add_listener (listener runtime))
+  Runtime.(runtime |> on_message |> On_message.add_listener (listener runtime));
+  Console.(log [ str "Noematic scrape handler installed" ])
