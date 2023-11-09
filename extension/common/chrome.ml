@@ -1,3 +1,5 @@
+let v = Jv.get Jv.global "chrome"
+
 module Tab = struct
   type t = Jv.t
 
@@ -23,7 +25,6 @@ module Tabs = struct
     Fut.of_promise ~ok:Fun.id (Jv.call t "sendMessage" [| Jv.get tab "id"; msg |])
 end
 
-let v = Jv.get Jv.global "chrome"
 let tabs = Jv.get v "tabs"
 
 module Scripting = struct
