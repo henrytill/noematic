@@ -1,0 +1,4 @@
+(executable
+ (name content)
+ (modes js)
+ (libraries brr chrome))

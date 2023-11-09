@@ -9,8 +9,12 @@ module State : sig
 
   val make : Chrome.Tab.t -> t
   val uri : t -> Uri.t option
+  val tab : t -> Chrome.Tab.t
 end = struct
-  type t = { uri : Uri.t option }
+  type t = {
+    tab : Chrome.Tab.t;
+    uri : Uri.t option;
+  }
 
   let is_web uri =
     let scheme = Uri.scheme uri in
@@ -21,9 +25,10 @@ end = struct
   let make tab =
     let open Chrome in
     let uri = Tab.url tab in
-    { uri = (if is_web uri then Some uri else None) }
+    { tab; uri = (if is_web uri then Some uri else None) }
 
   let uri t = t.uri
+  let tab t = t.tab
 end
 
 let search_handler () =
@@ -31,19 +36,24 @@ let search_handler () =
   let _ = Chrome.tabs |> Tabs.create url in
   Window.close G.window
 
-let save_handler runtime state =
+let save_handler tabs state =
   match State.uri state with
   | None -> ()
   | Some uri ->
       let payload = Jv.obj [| ("uri", Uri.to_jv uri) |] in
-      let message = Jv.obj [| ("action", Jv.of_string "save"); ("payload", payload) |] in
-      let go runtime message =
-        let+ send_fut = Runtime.send_message message runtime in
+      let message =
+        Jv.obj
+          [|
+            ("type", Jv.of_string "request"); ("action", Jv.of_string "save"); ("payload", payload);
+          |]
+      in
+      let go tabs message =
+        let+ send_fut = tabs |> Tabs.send_message (State.tab state) message in
         match send_fut with
         | Error err -> Console.error [ Jv.Error.message err ]
-        | Ok res -> Console.(log [ res ])
+        | Ok res -> Console.(log [ str "response"; res ])
       in
-      ignore (go runtime message)
+      ignore (go tabs message)
 
 let create_button bid class_name text ~on_click =
   let button = El.button ~d:G.document ~at:At.[ id bid; class' class_name ] [ El.txt' text ] in
@@ -96,11 +106,11 @@ let render runtime state =
   El.append_children (Option.get main_div) [ footer ]
 
 let main () : unit Fut.t =
-  let runtime = Chrome.runtime in
-  let+ active = Chrome.tabs |> Tabs.active in
+  let tabs = Chrome.tabs in
+  let+ active = tabs |> Tabs.active in
   match active with
   | Error err -> Console.error [ Jv.Error.message err ]
-  | Ok [| res |] -> render runtime (State.make res)
+  | Ok [| res |] -> render tabs (State.make res)
   | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
 
 let () = ignore (main ())

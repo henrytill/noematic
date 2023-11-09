@@ -18,6 +18,9 @@ module Tabs = struct
   let create url t =
     let params = Jv.obj [| ("url", Jv.of_string url) |] in
     Fut.of_promise ~ok:Fun.id (Jv.call t "create" [| params |])
+
+  let send_message tab msg t =
+    Fut.of_promise ~ok:Fun.id (Jv.call t "sendMessage" [| Jv.get tab "id"; msg |])
 end
 
 let v = Jv.get Jv.global "chrome"

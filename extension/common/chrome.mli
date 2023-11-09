@@ -10,6 +10,7 @@ module Tabs : sig
 
   val active : t -> Tab.t array Fut.or_error
   val create : string -> t -> Tab.t Fut.or_error
+  val send_message : Tab.t -> Jv.t -> t -> Jv.t Fut.or_error
 end
 
 val tabs : Tabs.t

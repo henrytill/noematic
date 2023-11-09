@@ -10,7 +10,12 @@ let attach_search_listener listener =
 
 let send_query runtime query =
   let payload = Jv.obj [| ("query", Jv.of_jstr query) |] in
-  let message = Jv.obj [| ("action", Jv.of_string "search"); ("payload", payload) |] in
+  let message =
+    Jv.obj
+      [|
+        ("type", Jv.of_string "request"); ("action", Jv.of_string "search"); ("payload", payload);
+      |]
+  in
   let+ fut = Runtime.(runtime |> send_message message) in
   match fut with
   | Error err -> Console.error [ Jv.Error.message err ]
