@@ -36,7 +36,7 @@ let search_handler () =
   let _ = Chrome.tabs |> Tabs.create url in
   Window.close G.window
 
-let save_handler tabs state =
+let save_handler state =
   match State.uri state with
   | None -> ()
   | Some uri ->
@@ -53,7 +53,7 @@ let save_handler tabs state =
         | Error err -> Console.error [ Jv.Error.message err ]
         | Ok res -> Console.(log [ str "response"; res ])
       in
-      ignore (go tabs message)
+      ignore (go Chrome.tabs message)
 
 let create_button bid class_name text ~on_click =
   let button = El.button ~d:G.document ~at:At.[ id bid; class' class_name ] [ El.txt' text ] in
@@ -70,7 +70,7 @@ let abbreviate_uri width uri =
   else
     uri
 
-let render runtime state =
+let render state =
   let main_div = Document.find_el_by_id G.document (Jstr.v "main") in
   (* add origin to main div *)
   (match State.uri state with
@@ -97,7 +97,7 @@ let render runtime state =
   El.append_children footer [ search_button ];
   (* add save button to footer *)
   let save = Jstr.v "save" in
-  let on_click _ = save_handler runtime state in
+  let on_click _ = save_handler state in
   let save_button = create_button save footer_button "Save" ~on_click in
   if Option.is_none (State.uri state) then
     El.(set_at At.Name.disabled) (Some (Jstr.v "true")) save_button;
@@ -105,20 +105,30 @@ let render runtime state =
   (* add footer to main div *)
   El.append_children (Option.get main_div) [ footer ]
 
-let inject_content_script tab =
-  Chrome.(
-    let tab_id = Tab.id tab in
-    let files = [ "./content/content.bc.js" ] in
-    scripting |> Scripting.execute_script ~tab_id ~files)
+let inject_content_script active_tab =
+  let+ inject_results =
+    Chrome.(
+      let tab_id = Tab.id active_tab in
+      let files = [ "./content/content.bc.js" ] in
+      scripting |> Scripting.execute_script ~tab_id ~files)
+  in
+  match inject_results with
+  | Ok [| _ |] as ret -> ret
+  | Ok _ -> Error (Jv.Error.v (Jstr.v "Unexpected number of results"))
+  | Error _ as err -> err
 
-let main () : unit Fut.t =
-  let tabs = Chrome.tabs in
-  let+ active = tabs |> Tabs.active in
-  match active with
-  | Error err -> Console.error [ Jv.Error.message err ]
-  | Ok [| res |] ->
-      ignore (inject_content_script res);
-      render tabs (State.make res)
-  | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
+let main () : unit Fut.or_error =
+  let* active_tabs = Chrome.tabs |> Tabs.active in
+  match active_tabs with
+  | Ok [| active_tab |] ->
+      let* _inject_result = inject_content_script active_tab in
+      (* Injection fails on chrome://*/* pages, so we can't open more search pages
+         and the popup looks broken, so we ignore the result of injections *)
+      Fut.ok (render (State.make active_tab))
+  | Ok _ -> Fut.error (Jv.Error.v (Jstr.v "Unexpected number of active tabs"))
+  | Error err -> Fut.error err
 
-let () = ignore (main ())
+let () =
+  Fut.await (main ()) @@ function
+  | Ok () -> Console.(log [ str "Loaded" ])
+  | Error err -> Console.(error [ Jv.Error.message err ])
