@@ -15,6 +15,14 @@ end
 
 val tabs : Tabs.t
 
+module Scripting : sig
+  type t
+
+  val execute_script : tab_id:int -> files:string list -> t -> unit
+end
+
+val scripting : Scripting.t
+
 module Runtime : sig
   type t
 

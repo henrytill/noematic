@@ -105,12 +105,20 @@ let render runtime state =
   (* add footer to main div *)
   El.append_children (Option.get main_div) [ footer ]
 
+let inject_content_script tab =
+  Chrome.(
+    let tab_id = Tab.id tab in
+    let files = [ "./content/content.bc.js" ] in
+    scripting |> Scripting.execute_script ~tab_id ~files)
+
 let main () : unit Fut.t =
   let tabs = Chrome.tabs in
   let+ active = tabs |> Tabs.active in
   match active with
   | Error err -> Console.error [ Jv.Error.message err ]
-  | Ok [| res |] -> render tabs (State.make res)
+  | Ok [| res |] ->
+      inject_content_script res;
+      render tabs (State.make res)
   | Ok _ -> Console.(error [ str "Unexpected number of tabs" ])
 
 let () = ignore (main ())

@@ -26,6 +26,22 @@ end
 let v = Jv.get Jv.global "chrome"
 let tabs = Jv.get v "tabs"
 
+module Scripting = struct
+  type t = Jv.t
+
+  let execute_script ~tab_id ~files t =
+    let details =
+      Jv.obj
+        [|
+          ("target", Jv.obj [| ("tabId", Jv.of_int tab_id) |]);
+          ("files", Jv.of_list Jv.of_string files);
+        |]
+    in
+    ignore (Jv.call t "executeScript" [| details |])
+end
+
+let scripting = Jv.get v "scripting"
+
 module Runtime = struct
   type t = Jv.t
 
