@@ -13,7 +13,7 @@ let send_query runtime query =
   let+ fut = Runtime.(runtime |> send_message message) in
   match fut with
   | Error err -> Console.error [ Jv.Error.message err ]
-  | Ok response -> Console.log [ response ]
+  | Ok response -> Console.(log [ str "response"; response ])
 
 let listener runtime e =
   Ev.prevent_default e;
