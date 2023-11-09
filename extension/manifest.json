@@ -14,7 +14,7 @@
       "48": "icons/noematic-48.png"
     },
     "default_popup": "popup/popup.html",
-    "default_title": "do it"
+    "default_title": "noematic"
   },
   "permissions": ["activeTab", "nativeMessaging", "scripting"]
 }
