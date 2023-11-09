@@ -8,13 +8,9 @@ module State : sig
   type t
 
   val make : Chrome.Tab.t -> t
-  val to_jv : t -> Jv.t
   val uri : t -> Uri.t option
 end = struct
-  type t = {
-    uri : Uri.t option;
-    tab_id : int;
-  }
+  type t = { uri : Uri.t option }
 
   let is_web uri =
     let scheme = Uri.scheme uri in
@@ -25,12 +21,7 @@ end = struct
   let make tab =
     let open Chrome in
     let uri = Tab.url tab in
-    let tab_id = Tab.id tab in
-    { uri = (if is_web uri then Some uri else None); tab_id }
-
-  let to_jv t =
-    let uri : Jv.t = Option.fold ~some:Uri.to_jv ~none:Jv.null t.uri in
-    Jv.obj [| ("uri", uri); ("tab_id", Jv.of_int t.tab_id) |]
+    { uri = (if is_web uri then Some uri else None) }
 
   let uri t = t.uri
 end
@@ -41,15 +32,18 @@ let search_handler () =
   Window.close G.window
 
 let save_handler runtime state =
-  let message = Jv.obj [| ("action", Jv.of_string "save"); ("key", State.to_jv state) |] in
-  let go runtime message =
-    let+ send_fut = Runtime.send_message message runtime in
-    match send_fut with
-    | Error err -> Console.error [ Jv.Error.message err ]
-    | Ok res -> Console.(log [ res ])
-  in
-  let _ = go runtime message in
-  Window.close G.window
+  match State.uri state with
+  | None -> ()
+  | Some uri ->
+      let payload = Jv.obj [| ("uri", Uri.to_jv uri) |] in
+      let message = Jv.obj [| ("action", Jv.of_string "save"); ("payload", payload) |] in
+      let go runtime message =
+        let+ send_fut = Runtime.send_message message runtime in
+        match send_fut with
+        | Error err -> Console.error [ Jv.Error.message err ]
+        | Ok res -> Console.(log [ res ])
+      in
+      ignore (go runtime message)
 
 let create_button bid class_name text ~on_click =
   let button = El.button ~d:G.document ~at:At.[ id bid; class' class_name ] [ El.txt' text ] in

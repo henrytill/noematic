@@ -9,7 +9,8 @@ let attach_search_listener listener =
   | Some seach_form -> ignore (Ev.listen Brr_io.Form.Ev.submit listener (El.as_target seach_form))
 
 let send_query runtime query =
-  let message = Jv.obj [| ("search", Jv.of_jstr query) |] in
+  let payload = Jv.obj [| ("query", Jv.of_jstr query) |] in
+  let message = Jv.obj [| ("action", Jv.of_string "search"); ("payload", payload) |] in
   let+ fut = Runtime.(runtime |> send_message message) in
   match fut with
   | Error err -> Console.error [ Jv.Error.message err ]
