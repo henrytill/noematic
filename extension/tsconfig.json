@@ -7,11 +7,5 @@
     "strict": true,
     "target": "ES2022"
   },
-  "include": [
-    "./background/**/*",
-    "./common/**/*",
-    "./content/**/*",
-    "./popup/**/*",
-    "./search/**/*"
-  ]
+  "include": ["src/**/*"]
 }
