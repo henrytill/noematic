@@ -41,11 +41,6 @@ struct SavePayload {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct SearchPayload {
-    query: Query,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Query {
     query: String,
 }
 
