@@ -1,4 +1,0 @@
-(executable
- (name search)
- (modes js)
- (libraries brr chrome))

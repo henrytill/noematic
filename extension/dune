@@ -9,5 +9,5 @@
   (popup/popup.html as extension/popup/popup.html)
   (popup/popup.mjs as extension/popup/popup.mjs)
   (search/index.html as extension/search/search.html)
-  (search/search.bc.js as extension/search/search.bc.js)
+  (search/search.mjs as extension/search/search.mjs)
   (search/search.css as extension/search/search.css)))
