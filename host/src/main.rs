@@ -94,28 +94,33 @@ fn read_message(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
 fn handle_json_message(
     writer: &mut impl Write,
     message: &[u8],
-    correlation_id: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let json_message: Request = serde_json::from_slice(message)?;
+    let request: Request = serde_json::from_slice(message)?;
 
-    let response = match json_message.action {
-        Action::SaveRequest { payload: _ } => Response {
-            action: ResponseAction::SaveResponse {
-                payload: SaveResponsePayload {
-                    status: "Success".to_string(),
-                    details: "Item saved".to_string(),
-                },
-            },
-            correlation_id: correlation_id.to_owned(),
-        },
-        Action::SearchRequest { payload: _ } => Response {
-            action: ResponseAction::SearchResponse {
-                payload: SearchResponsePayload {
-                    results: vec!["Item1".to_string(), "Item2".to_string()],
-                },
-            },
-            correlation_id: correlation_id.to_owned(),
-        },
+    let correlation_id = request.correlation_id;
+
+    let response = match request.action {
+        Action::SaveRequest { payload: _ } => {
+            let payload = SaveResponsePayload {
+                status: "Success".to_string(),
+                details: "Item saved".to_string(),
+            };
+            let action = ResponseAction::SaveResponse { payload };
+            Response {
+                action,
+                correlation_id,
+            }
+        }
+        Action::SearchRequest { payload: _ } => {
+            let payload = SearchResponsePayload {
+                results: vec!["Item1".to_string(), "Item2".to_string()],
+            };
+            let action = ResponseAction::SearchResponse { payload };
+            Response {
+                action,
+                correlation_id,
+            }
+        }
     };
 
     let response_string = serde_json::to_string(&response)?;
@@ -146,8 +151,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(length) = read_length(&mut reader)? {
         let message = read_message(&mut reader, length)?;
 
-        let correlation_id = extract_correlation_id(&message)?;
-        if let Err(e) = handle_json_message(&mut writer, &message, &correlation_id) {
+        let _correlation_id = extract_correlation_id(&message)?;
+        if let Err(e) = handle_json_message(&mut writer, &message) {
             eprintln!("Error handling JSON message: {:?}", e);
         }
     }
