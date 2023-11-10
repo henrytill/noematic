@@ -1,8 +1,5 @@
 open Brr
 open Fut.Syntax
-module Runtime = Chrome.Runtime
-module Port = Chrome.Runtime.Port
-module Tabs = Chrome.Tabs
 
 module State : sig
   type t
@@ -33,12 +30,12 @@ end
 
 let search_handler () =
   let path = "/search/index.html" in
-  let _ = Chrome.tabs |> Tabs.create path in
+  let _ = Chrome.(tabs |> Tabs.create path) in
   Window.close G.window
 
 let check_content_script_active tab : bool Fut.or_error =
   let ping_message = Jv.obj [| ("action", Jv.of_string "ping") |] in
-  let+ result = Tabs.send_message tab ping_message Chrome.tabs in
+  let+ result = Chrome.(tabs |> Tabs.send_message tab ping_message) in
   match result with
   | Ok _ -> Ok true
   | Error _ -> Ok false
@@ -68,9 +65,10 @@ let save_handler state =
     let message = Jv.obj [| ("action", Jv.of_string "saveRequest"); ("payload", payload) |] in
     ignore
       begin
-        let* _inject_result = maybe_inject_content_script (State.tab state) in
-        let+ send_fut = Chrome.tabs |> Tabs.send_message (State.tab state) message in
-        match send_fut with
+        let tab = State.tab state in
+        let* _inject_result = maybe_inject_content_script tab in
+        let+ send_result = Chrome.(tabs |> Tabs.send_message tab message) in
+        match send_result with
         | Error err -> Console.error [ Jv.Error.message err ]
         | Ok res -> Console.(log [ str "response"; res ])
       end
@@ -128,7 +126,7 @@ let render state =
   El.append_children (Option.get main_div) [ footer ]
 
 let main () : unit Fut.or_error =
-  let+ active_tabs = Chrome.tabs |> Tabs.active in
+  let+ active_tabs = Chrome.(tabs |> Tabs.active) in
   match active_tabs with
   | Ok [| active_tab |] -> Ok (render (State.make active_tab))
   | Ok _ -> Error (Jv.Error.v (Jstr.v "Unexpected number of active tabs"))

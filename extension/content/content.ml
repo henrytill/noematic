@@ -13,10 +13,10 @@ let handle_save_requests runtime request _sender send_response =
   let payload = Jv.get request "payload" in
   Jv.set payload "title" title;
   Jv.set payload "body" inner_text;
-  let _ =
+  ignore
     begin
-      let+ send_fut = Runtime.send_message request runtime in
-      match send_fut with
+      let+ send_result = Runtime.(runtime |> send_message request) in
+      match send_result with
       | Error err ->
           let res = Jv.obj [| ("error", Jv.of_jstr (Jv.Error.message err)) |] in
           Jv.set res "action" (Jv.of_string "saveResult");
@@ -24,8 +24,7 @@ let handle_save_requests runtime request _sender send_response =
       | Ok res ->
           Jv.set res "action" (Jv.of_string "saveResult");
           Jv.apply send_response [| res |]
-    end
-  in
+    end;
   Jv.of_bool true
 
 let handle_ping_requests send_response =
