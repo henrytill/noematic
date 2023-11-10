@@ -13,13 +13,17 @@ const kNativeMessagingHost = 'com.github.henrytill.noematic';
  */
 const handleHostMessage = (responderMap, message) => {
   const correlationId = message.correlationId;
-  const response = responderMap.get(correlationId);
-  if (response !== undefined) {
-    responderMap.delete(correlationId);
-    response(message);
-  } else {
-    console.error('No response handler for correlation id', correlationId);
+  if (correlationId === undefined) {
+    console.error('No correlation id in message', message);
+    return;
   }
+  const response = responderMap.get(correlationId);
+  if (response === undefined) {
+    console.error('No response handler for correlation id', correlationId);
+    return;
+  }
+  responderMap.delete(correlationId);
+  response(message);
 };
 
 /**
