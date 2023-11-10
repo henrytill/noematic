@@ -35,8 +35,8 @@ let search_handler () =
 
 let check_content_script_active tab : bool Fut.or_error =
   let ping_message = Jv.obj [| ("action", Jv.of_string "ping") |] in
-  let+ result = Chrome.(tabs |> Tabs.send_message tab ping_message) in
-  match result with
+  let+ ping_result = Chrome.(tabs |> Tabs.send_message tab ping_message) in
+  match ping_result with
   | Ok _ -> Ok true
   | Error _ -> Ok false
 
@@ -66,7 +66,7 @@ let save_handler state =
     ignore
       begin
         let tab = State.tab state in
-        let* _inject_result = maybe_inject_content_script tab in
+        let* _ = maybe_inject_content_script tab in
         let+ send_result = Chrome.(tabs |> Tabs.send_message tab message) in
         match send_result with
         | Error err -> Console.error [ Jv.Error.message err ]
