@@ -1,4 +1,4 @@
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// This is the JSON format of the messages that are sent to the host.
 #[derive(Serialize, Deserialize, Debug)]
