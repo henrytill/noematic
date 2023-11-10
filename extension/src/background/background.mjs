@@ -17,6 +17,8 @@ const handleHostMessage = (responderMap, message) => {
   if (response !== undefined) {
     responderMap.delete(correlationId);
     response(message);
+  } else {
+    console.error('No response handler for correlation id', correlationId);
   }
 };
 
@@ -24,7 +26,7 @@ const handleHostMessage = (responderMap, message) => {
  * @param {chrome.runtime.Port} _
  */
 const handleHostDisconnect = (_) => {
-  console.log('Disconnected from native messaging host');
+  console.debug('Disconnected from native messaging host');
 };
 
 /**
@@ -63,7 +65,7 @@ const main = () => {
   const responderMap = new Map();
   const hostPort = connectHost(responderMap);
   chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
-  console.log('Noematic background handler installed');
+  console.debug('Noematic background handler installed');
 };
 
 main();

@@ -2,28 +2,6 @@
  * @typedef {import('../common/common.ts').State} State
  */
 
-/**
- * Abbreviates a string to a given length if it is longer than the length.
- * @param {string} str
- * @param {number} length
- * @returns {string}
- */
-const abbreviate = (str, length) => {
-  if (str.length <= length) {
-    return str;
-  } else {
-    return str.slice(0, length - 3) + '...';
-  }
-};
-
-/**
- * @param {URL} url
- * @returns {boolean}
- */
-const isWebUrl = (url) => {
-  return ['http:', 'https:'].includes(url.protocol);
-};
-
 const handleSearch = () => {
   chrome.tabs.create({ url: '/search/index.html' });
   window.close();
@@ -51,7 +29,7 @@ const checkContentScriptActive = async (tab) => {
  */
 const installContentScript = (tab) => {
   if (tab.id === undefined) {
-    return Promise.reject(Error('No tab id'));
+    return Promise.reject(new Error('No tab id'));
   }
   return chrome.scripting.executeScript({
     target: { tabId: tab.id },
@@ -75,6 +53,20 @@ const handleSave = (tab) => {
 };
 
 /**
+ * Abbreviates a string to a given length if it is longer than the length.
+ * @param {string} str
+ * @param {number} length
+ * @returns {string}
+ */
+const abbreviate = (str, length) => {
+  if (str.length <= length) {
+    return str;
+  } else {
+    return str.slice(0, length - 3) + '...';
+  }
+};
+
+/**
  * @param {URL} url
  * @returns {HTMLDivElement}
  */
@@ -87,19 +79,45 @@ const createPanel = (url) => {
 };
 
 /**
- * @param {string} id
- * @param {string} className
- * @param {string} textContent
+ * @param {{id: string, className: string, textContent: string, disabled?: boolean}} attributes
  * @param {EventListener} onClick
  * @returns {HTMLButtonElement}
  */
-const createButton = (id, className, textContent, onClick) => {
+const createButton = (attributes, onClick) => {
+  const { id, className, textContent } = attributes;
   const button = document.createElement('button');
   button.id = id;
   button.className = className;
   button.textContent = textContent;
+  if (attributes.disabled) {
+    button.disabled = attributes.disabled;
+  }
   button.addEventListener('click', onClick);
   return button;
+};
+
+/**
+ * Creates a footer with buttons and appends it to the main div.
+ * @param {State} state
+ * @param {HTMLElement} mainDiv
+ * @returns {void}
+ */
+const createFooter = (state, mainDiv) => {
+  const cancel = createButton(
+    { id: 'cancel', className: 'footer-button', textContent: 'Cancel' },
+    window.close,
+  );
+  const search = createButton(
+    { id: 'search', className: 'footer-button', textContent: 'Open Search...' },
+    handleSearch,
+  );
+  const save = createButton(
+    { id: 'save', className: 'footer-button', textContent: 'Save', disabled: state.url === null },
+    handleSave.bind(null, state.tab),
+  );
+  const footer = document.createElement('footer');
+  [cancel, search, save].forEach((elt) => footer.appendChild(elt));
+  mainDiv.appendChild(footer);
 };
 
 /**
@@ -111,40 +129,33 @@ const render = (state) => {
   if (!mainDiv) {
     throw new Error('No main div');
   }
-  if (isWebUrl(state.url)) {
+  if (state.url !== null) {
     const panel = createPanel(state.url);
     mainDiv.appendChild(panel);
   }
-  const footer = document.createElement('footer');
-  const cancelButton = createButton('cancel', 'footer-button', 'Cancel', window.close);
-  const openSearchButton = createButton('search', 'footer-button', 'Open Search...', handleSearch);
-  const saveButton = createButton(
-    'save',
-    'footer-button',
-    'Save',
-    handleSave.bind(null, state.tab),
-  );
-  saveButton.disabled = !isWebUrl(state.url);
-  footer.appendChild(cancelButton);
-  footer.appendChild(openSearchButton);
-  footer.appendChild(saveButton);
-  mainDiv.appendChild(footer);
+  createFooter(state, mainDiv);
 };
+
+/**
+ * @param {URL} url
+ * @returns {boolean}
+ */
+const isWeb = (url) => ['http:', 'https:'].includes(url.protocol);
 
 /**
  * @returns {Promise<void>}
  */
 const main = async () => {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs.length === 0) {
-    throw new Error('No active tab');
+  if (tabs.length !== 1) {
+    throw new Error(`Expected 1 active tab, got ${tabs.length}`);
   }
   const activeTab = tabs[0];
-  if (!activeTab.url) {
+  if (activeTab.url == undefined) {
     throw new Error('No active tab url');
   }
   const url = new URL(activeTab.url);
-  const state = { url: url, tab: activeTab };
+  const state = { url: isWeb(url) ? url : null, tab: activeTab };
   render(state);
 };
 
