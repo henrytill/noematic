@@ -1,3 +1,11 @@
+/**
+ * @typedef {import('../common/common.ts').State} State
+ */
+
+/**
+ * @param {URL} url
+ * @returns {boolean}
+ */
 const isWebUrl = (url) => {
   return ['http:', 'https:'].includes(url.protocol);
 };
@@ -7,8 +15,15 @@ const handleSearch = () => {
   window.close();
 };
 
+/**
+ * @param {chrome.tabs.Tab} tab
+ * @returns {Promise<boolean>}
+ */
 const checkContentScriptActive = async (tab) => {
   try {
+    if (!tab.id) {
+      throw Error('No tab id');
+    }
     await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
     return true;
   } catch (_) {
@@ -16,30 +31,54 @@ const checkContentScriptActive = async (tab) => {
   }
 };
 
+/**
+ * @param {chrome.tabs.Tab} tab
+ * @returns {Promise<chrome.scripting.InjectionResult<any>[]>}
+ */
 const installContentScript = (tab) => {
+  if (tab.id === undefined) {
+    return Promise.reject(Error('No tab id'));
+  }
   return chrome.scripting.executeScript({
     target: { tabId: tab.id },
     files: ['./content/content.js'],
   });
 };
 
+/**
+ * @param {chrome.tabs.Tab} tab
+ */
 const handleSave = (tab) => {
-  console.log('tab', tab);
+  if (tab.id === undefined) {
+    throw Error('No tab id');
+  }
+  const tabId = tab.id; // for TypeScript
   const message = { action: 'saveRequest', payload: { url: tab.url } };
   checkContentScriptActive(tab)
     .then((isActive) => (isActive ? Promise.resolve([]) : installContentScript(tab)))
-    .then((_) => chrome.tabs.sendMessage(tab.id, message))
-    .then((response) => console.log(response));
+    .then((_) => chrome.tabs.sendMessage(tabId, message))
+    .then((response) => console.log('response', response));
 };
 
+/**
+ * @param {URL} url
+ * @returns {HTMLDivElement}
+ */
 const createPanel = (url) => {
   const panel = document.createElement('div');
   panel.id = 'origin';
   panel.className = 'panel';
-  panel.textContent = url;
+  panel.textContent = url.toString();
   return panel;
 };
 
+/**
+ * @param {string} id
+ * @param {string} className
+ * @param {string} textContent
+ * @param {EventListener} onClick
+ * @returns {HTMLButtonElement}
+ */
 const createButton = (id, className, textContent, onClick) => {
   const button = document.createElement('button');
   button.id = id;
@@ -49,6 +88,10 @@ const createButton = (id, className, textContent, onClick) => {
   return button;
 };
 
+/**
+ * @param {State} state
+ * @returns {void}
+ */
 const render = (state) => {
   const mainDiv = document.getElementById('main');
   if (!mainDiv) {
@@ -74,12 +117,18 @@ const render = (state) => {
   mainDiv.appendChild(footer);
 };
 
+/**
+ * @returns {Promise<void>}
+ */
 const main = async () => {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tabs.length === 0) {
     throw new Error('No active tab');
   }
   const activeTab = tabs[0];
+  if (!activeTab.url) {
+    throw new Error('No active tab url');
+  }
   const url = new URL(activeTab.url);
   const state = { url: url, tab: activeTab };
   render(state);
