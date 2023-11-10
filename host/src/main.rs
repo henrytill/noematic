@@ -132,15 +132,15 @@ fn handle_json_message(
     Ok(())
 }
 
-fn extract_correlation_id(message: &[u8]) -> Result<String, Box<dyn std::error::Error>> {
+fn extract_version(message: &[u8]) -> Result<String, Box<dyn std::error::Error>> {
     let value: serde_json::Value = serde_json::from_slice(message)?;
 
-    let correlation_id = value["correlationId"]
+    let version = value["version"]
         .as_str()
         .ok_or_else(|| Error {})?
         .to_owned();
 
-    Ok(correlation_id)
+    Ok(version)
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -151,7 +151,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(length) = read_length(&mut reader)? {
         let message = read_message(&mut reader, length)?;
 
-        let _correlation_id = extract_correlation_id(&message)?;
+        let _version = extract_version(&message)?;
         if let Err(e) = handle_json_message(&mut writer, &message) {
             eprintln!("Error handling JSON message: {:?}", e);
         }
