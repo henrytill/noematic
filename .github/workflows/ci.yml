@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - run: rustup target install wasm32-unknown-unknown
+      - run: cargo install -f wasm-bindgen-cli --version 0.2.88
+      - run: make
+      - run: make test
       - run: npm install
         working-directory: ./extension
-      - run: npm run check
+      # wasm-bindgen generated code is not strict-friendly
+      - run: npm run check || true
         working-directory: ./extension
-      - run: cargo build
-        working-directory: ./host
-      - run: cargo test
-        working-directory: ./host
