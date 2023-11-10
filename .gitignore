@@ -1,4 +1,3 @@
-/_build/
-/_opam/
+/target/
 /node_modules/
 com.github.henrytill.noematic.json

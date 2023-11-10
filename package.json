@@ -1,6 +1,9 @@
 {
   "name": "noematic",
   "private": true,
+  "scripts": {
+    "check": "tsc"
+  },
   "devDependencies": {
     "@types/chrome": "^0.0.251",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
