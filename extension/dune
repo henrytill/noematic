@@ -3,7 +3,7 @@
  (files
   (manifest.json as extension/manifest.json)
   (background/background.bc.js as extension/background/background.bc.js)
-  (content/content.bc.js as extension/content/content.bc.js)
+  (content/content.js as extension/content/content.js)
   (icons/noematic-48.png as extension/icons/noematic-48.png)
   (popup/popup.css as extension/popup/popup.css)
   (popup/popup.html as extension/popup/popup.html)

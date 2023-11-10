@@ -19,7 +19,7 @@ const checkContentScriptActive = async (tab) => {
 const installContentScript = (tab) => {
   return chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    files: ['./content/content.bc.js'],
+    files: ['./content/content.js'],
   });
 };
 
