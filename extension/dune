@@ -2,7 +2,7 @@
  (section share)
  (files
   (manifest.json as extension/manifest.json)
-  (background/background.bc.js as extension/background/background.bc.js)
+  (background/background.mjs as extension/background/background.mjs)
   (content/content.js as extension/content/content.js)
   (icons/noematic-48.png as extension/icons/noematic-48.png)
   (popup/popup.css as extension/popup/popup.css)
