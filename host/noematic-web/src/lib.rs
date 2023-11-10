@@ -13,6 +13,8 @@ pub fn execute(input: JsValue) -> JsValue {
 
     let correlation_id = request.correlation_id;
 
+    web_sys::console::log_2(&"execute".into(), &correlation_id.clone().into());
+
     let response = match request.action {
         Action::SaveRequest { payload: _ } => {
             let payload = SaveResponsePayload {
