@@ -63,19 +63,19 @@ let maybe_inject_content_script tab =
   | Error _ as err -> Fut.return err
 
 let save_handler state =
-  match State.uri state with
-  | None -> ()
-  | Some uri ->
-      let payload = Jv.obj [| ("uri", Uri.to_jv uri) |] in
-      let message = Jv.obj [| ("action", Jv.of_string "saveRequest"); ("payload", payload) |] in
-      let go tabs message =
+  let go uri =
+    let payload = Jv.obj [| ("uri", Uri.to_jv uri) |] in
+    let message = Jv.obj [| ("action", Jv.of_string "saveRequest"); ("payload", payload) |] in
+    ignore
+      begin
         let* _inject_result = maybe_inject_content_script (State.tab state) in
-        let+ send_fut = tabs |> Tabs.send_message (State.tab state) message in
+        let+ send_fut = Chrome.tabs |> Tabs.send_message (State.tab state) message in
         match send_fut with
         | Error err -> Console.error [ Jv.Error.message err ]
         | Ok res -> Console.(log [ str "response"; res ])
-      in
-      ignore (go Chrome.tabs message)
+      end
+  in
+  Option.iter go (State.uri state)
 
 let create_button bid class_name text ~on_click =
   let button = El.button ~d:G.document ~at:At.[ id bid; class' class_name ] [ El.txt' text ] in

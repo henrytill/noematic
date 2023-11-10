@@ -28,9 +28,9 @@ let generate_uuid () =
   Jv.to_string random_uuid
 
 let message_listener response_map host_port request _sender send_response =
-  Console.(log [ str "request"; request ]);
   let correlation_id = generate_uuid () in
   Jv.set request "correlationId" (Jv.of_string correlation_id);
+  Console.(log [ str "request"; request ]);
   Hashtbl.add response_map correlation_id send_response;
   Port.post_message host_port request;
   Jv.of_bool true
