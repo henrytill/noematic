@@ -3,6 +3,20 @@
  */
 
 /**
+ * Abbreviates a string to a given length if it is longer than the length.
+ * @param {string} str
+ * @param {number} length
+ * @returns {string}
+ */
+const abbreviate = (str, length) => {
+  if (str.length <= length) {
+    return str;
+  } else {
+    return str.slice(0, length - 3) + '...';
+  }
+};
+
+/**
  * @param {URL} url
  * @returns {boolean}
  */
@@ -68,7 +82,7 @@ const createPanel = (url) => {
   const panel = document.createElement('div');
   panel.id = 'origin';
   panel.className = 'panel';
-  panel.textContent = url.toString();
+  panel.textContent = abbreviate(url.toString(), 50);
   return panel;
 };
 
