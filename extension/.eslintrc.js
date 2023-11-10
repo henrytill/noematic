@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   env: {
     browser: true,
+    chrome: true,
     es2022: true,
   },
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
