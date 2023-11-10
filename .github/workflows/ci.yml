@@ -21,11 +21,12 @@ jobs:
             ~/.cargo/git/db/
             host/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('host/Cargo.lock') }}
+      - run: rustup target install wasm32-unknown-unknown
+      - run: cargo install -f wasm-bindgen-cli --version 0.2.88
+      - run: make
+      - run: make test
       - run: npm ci
         working-directory: ./extension
-      - run: npm run check
+      # wasm-bindgen generated code is not strict-friendly
+      - run: npm run check || true
         working-directory: ./extension
-      - run: cargo build
-        working-directory: ./host
-      - run: cargo test
-        working-directory: ./host

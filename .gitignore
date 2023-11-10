@@ -1,3 +1,4 @@
 target/
 node_modules/
+extension/src/generated/
 com.github.henrytill.noematic.json

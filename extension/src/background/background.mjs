@@ -1,75 +1,32 @@
+// @ts-ignore
+import init, { execute } from '../generated/noematic_web.js';
+
 /**
  * @typedef {import('../common/common.ts').UUID} UUID
- * @typedef {import('../common/common.ts').Responder} Responder
- * @typedef {import('../common/common.ts').ResponderMap} ResponderMap
  */
 
-const kNativeMessagingHost = 'com.github.henrytill.noematic';
-
 /**
- * @param {ResponderMap} responderMap
- * @param {any} message
- * @returns {void}
- */
-const handleHostMessage = (responderMap, message) => {
-  const correlationId = message.correlationId;
-  if (correlationId === undefined) {
-    console.error('No correlation id in message', message);
-    return;
-  }
-  const response = responderMap.get(correlationId);
-  if (response === undefined) {
-    console.error('No response handler for correlation id', correlationId);
-    return;
-  }
-  responderMap.delete(correlationId);
-  response(message);
-};
-
-/**
- * @param {chrome.runtime.Port} _
- */
-const handleHostDisconnect = (_) => {
-  console.debug('Disconnected from native messaging host');
-};
-
-/**
- * @param {ResponderMap} responderMap
- * @returns {chrome.runtime.Port}
- */
-const connectHost = (responderMap) => {
-  const port = chrome.runtime.connectNative(kNativeMessagingHost);
-  port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
-  port.onDisconnect.addListener(handleHostDisconnect);
-  return port;
-};
-
-/**
- * @param {ResponderMap} responderMap
- * @param {chrome.runtime.Port} hostPort
  * @param {any} request
  * @param {chrome.runtime.MessageSender} _sender
  * @param {Responder} sendResponse
- * @returns {boolean}
+ * @returns {void}
  */
-const messageListener = (responderMap, hostPort, request, _sender, sendResponse) => {
+const messageListener = (request, _sender, sendResponse) => {
+  /** @type {UUID} */
   const correlationId = crypto.randomUUID();
   request.correlationId = correlationId;
   console.log('request', request);
-  responderMap.set(correlationId, sendResponse);
-  hostPort.postMessage(request);
-  return true;
+  const response = execute(request);
+  sendResponse(response);
+  return;
 };
 
 /**
- * @returns {void}
+ * @returns {Promise<void>}
  */
-const main = () => {
-  /** @type {ResponderMap} */
-  const responderMap = new Map();
-  const hostPort = connectHost(responderMap);
-  chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
-  console.debug('Noematic background handler installed');
+const main = async () => {
+  await init();
+  chrome.runtime.onMessage.addListener(messageListener);
 };
 
 main();
