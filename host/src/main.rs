@@ -1,7 +1,10 @@
 use std::io::{self, BufReader, BufWriter, Read, Write};
 
-use serde_derive::{Deserialize, Serialize};
 use tempfile::NamedTempFile;
+
+use noematic::message::{
+    Action, Request, Response, ResponseAction, SaveResponsePayload, SearchResponsePayload,
+};
 
 #[derive(Debug)]
 struct Error {}
@@ -13,65 +16,6 @@ impl std::fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
-
-/// This is the JSON format of the messages that are sent to the host.
-#[derive(Serialize, Deserialize, Debug)]
-struct Request {
-    #[serde(flatten)]
-    action: Action,
-    #[serde(rename = "correlationId")]
-    correlation_id: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "action")]
-enum Action {
-    #[serde(rename = "saveRequest")]
-    SaveRequest { payload: SavePayload },
-    #[serde(rename = "searchRequest")]
-    SearchRequest { payload: SearchPayload },
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct SavePayload {
-    title: String,
-    #[serde(rename = "innerText")]
-    inner_text: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct SearchPayload {
-    query: String,
-}
-
-/// This is the JSON format of the messages that are sent from the host.
-#[derive(Serialize, Deserialize, Debug)]
-struct Response {
-    #[serde(flatten)]
-    action: ResponseAction,
-    #[serde(rename = "correlationId")]
-    correlation_id: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "action")]
-enum ResponseAction {
-    #[serde(rename = "saveResponse")]
-    SaveResponse { payload: SaveResponsePayload },
-    #[serde(rename = "searchResponse")]
-    SearchResponse { payload: SearchResponsePayload },
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct SaveResponsePayload {
-    status: String,
-    details: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct SearchResponsePayload {
-    results: Vec<String>,
-}
 
 /// Reads the length of the message from the reader.
 fn read_length(reader: &mut impl Read) -> io::Result<Option<u32>> {
