@@ -7,7 +7,7 @@
   (icons/noematic-48.png as extension/icons/noematic-48.png)
   (popup/popup.css as extension/popup/popup.css)
   (popup/popup.html as extension/popup/popup.html)
-  (popup/popup.bc.js as extension/popup/popup.bc.js)
+  (popup/popup.mjs as extension/popup/popup.mjs)
   (search/index.html as extension/search/search.html)
   (search/search.bc.js as extension/search/search.bc.js)
   (search/search.css as extension/search/search.css)))
