@@ -20,9 +20,9 @@ It should look like:
 {
   "name": "com.github.henrytill.noematic",
   "description": "Search your backlog",
-  "path": "/home/ht/src/noematic/_build/default/host/noematic.exe",
+  "path": "/home/ht/src/noematic/host/target/debug/noematic",
   "type": "stdio",
-  "allowed_origins": ["chrome-extension://coeiohafhkjnkgibglpnbpojgcmacego/"]
+  "allowed_origins": ["chrome-extension://nhpmniahkjglmdbkbbolkakgfbgdiplj/"]
 }
 ```
 
