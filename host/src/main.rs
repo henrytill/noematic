@@ -96,8 +96,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let message = read_message(&mut reader, length)?;
 
         let _version = extract_version(&message)?;
+
         if let Err(e) = handle_json_message(&mut writer, &message) {
-            eprintln!("Error handling JSON message: {:?}", e);
+            panic!("Error handling JSON message: {:?}", e);
         }
     }
 
