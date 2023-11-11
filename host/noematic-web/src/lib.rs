@@ -8,8 +8,9 @@ use noematic::message::{
 
 /// Dew it
 #[wasm_bindgen]
-pub fn execute(input: JsValue) -> JsValue {
-    let request: Request = serde_wasm_bindgen::from_value(input).unwrap();
+pub async fn execute(input: JsValue) -> Result<JsValue, JsError> {
+    let request: Request = serde_wasm_bindgen::from_value(input)
+        .or(Err(JsError::new("Failed to deserialize request")))?;
 
     let correlation_id = request.correlation_id;
 
@@ -40,5 +41,7 @@ pub fn execute(input: JsValue) -> JsValue {
     };
 
     let serializer = Serializer::new().serialize_maps_as_objects(true);
-    response.serialize(&serializer).unwrap()
+    response
+        .serialize(&serializer)
+        .or(Err(JsError::new("Failed to serialize response")))
 }

@@ -9,16 +9,15 @@ import init, { execute } from '../generated/noematic_web.js';
  * @param {any} request
  * @param {chrome.runtime.MessageSender} _sender
  * @param {Responder} sendResponse
- * @returns {void}
+ * @returns {boolean}
  */
 const messageListener = (request, _sender, sendResponse) => {
   /** @type {UUID} */
   const correlationId = crypto.randomUUID();
   request.correlationId = correlationId;
   console.log('request', request);
-  const response = execute(request);
-  sendResponse(response);
-  return;
+  execute(request).then(sendResponse).catch(console.error);
+  return true;
 };
 
 /**

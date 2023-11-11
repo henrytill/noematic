@@ -17,9 +17,10 @@ build:
 	cargo build $(MANIFEST_PATH) --target wasm32-unknown-unknown -p noematic-web
 	wasm-bindgen --target web --out-dir $(WASM_OUT_DIR)  $(WASM_DEBUG_BUILD)
 
-.PHONY: check test
-check test:
+.PHONY: test
+test:
 	cargo $@ $(MANIFEST_PATH)
+	cd $(CARGO_WORKSPACE_ROOT) && cargo $@ --target wasm32-unknown-unknown -p noematic-web
 
 .PHONY: clean
 clean:
