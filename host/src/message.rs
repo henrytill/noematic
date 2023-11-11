@@ -1,9 +1,25 @@
 use serde_derive::{Deserialize, Serialize};
 
-/// This is the JSON format of the messages that are sent to the host.
+/// The version of the message format.
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Version(u64);
+
+impl Version {
+    pub const fn new(version: u64) -> Self {
+        Version(version)
+    }
+}
+
+impl From<u64> for Version {
+    fn from(version: u64) -> Self {
+        Version(version)
+    }
+}
+
+/// Messages that are sent from the client (extension) to the host.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Request {
-    pub version: u64,
+    pub version: Version,
     #[serde(flatten)]
     pub action: Action,
     #[serde(rename = "correlationId")]
@@ -31,10 +47,10 @@ pub struct SearchPayload {
     pub query: String,
 }
 
-/// This is the JSON format of the messages that are sent from the host.
+/// Messages that are sent from the host to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Response {
-    pub version: u64,
+    pub version: Version,
     #[serde(flatten)]
     pub action: ResponseAction,
     #[serde(rename = "correlationId")]
