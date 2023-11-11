@@ -50,7 +50,7 @@ const connectHost = (responderMap) => {
  * @param {any} request
  * @param {chrome.runtime.MessageSender} _sender
  * @param {Responder} sendResponse
- * @returns {boolean}
+ * @returns {boolean | undefined}
  */
 const messageListener = (responderMap, hostPort, request, _sender, sendResponse) => {
   const correlationId = crypto.randomUUID();

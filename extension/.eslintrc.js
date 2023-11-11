@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   env: {
     browser: true,
-    chrome: true,
+    webextensions: true,
     es2022: true,
   },
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
@@ -11,6 +11,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
   },
   globals: {},

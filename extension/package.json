@@ -2,7 +2,8 @@
   "name": "noematic",
   "private": true,
   "scripts": {
-    "check": "tsc"
+    "check": "tsc",
+    "lint": "eslint src --ext .mjs,.js,.ts"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.251",
