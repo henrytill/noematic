@@ -1,7 +1,5 @@
 use std::io::{self, BufReader, BufWriter, Read, Write};
 
-use tempfile::NamedTempFile;
-
 use noematic::message::{
     Action, Request, Response, ResponseAction, SaveResponsePayload, SearchResponsePayload,
 };
@@ -88,7 +86,6 @@ fn extract_version(message: &[u8]) -> Result<u64, Box<dyn std::error::Error>> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let _temp_file = NamedTempFile::with_prefix("noematic-")?;
     let mut reader = BufReader::new(io::stdin());
     let mut writer = BufWriter::new(io::stdout());
 
@@ -96,7 +93,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let message = read_message(&mut reader, length)?;
 
         let version = extract_version(&message)?;
-
         if version != EXPECTED_VERSION {
             panic!("Unsupported version: {}", version);
         }
