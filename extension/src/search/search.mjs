@@ -1,3 +1,5 @@
+import { kSchemaVersion } from '../common/common.mjs';
+
 /** @type  {EventListener} */
 const listener = (event) => {
   event.preventDefault();
@@ -10,7 +12,7 @@ const listener = (event) => {
     return;
   }
   chrome.runtime
-    .sendMessage({ action: 'searchRequest', payload: { query: value } })
+    .sendMessage({ version: kSchemaVersion, action: 'searchRequest', payload: { query: value } })
     .then((response) => console.log('response', response));
 };
 

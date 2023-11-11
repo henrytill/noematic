@@ -6,12 +6,14 @@ use noematic::message::{
     Action, Request, Response, ResponseAction, SaveResponsePayload, SearchResponsePayload,
 };
 
+const EXPECTED_VERSION: u64 = 1;
+
 #[derive(Debug)]
-struct Error {}
+struct Error;
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self)
+        write!(f, "{:?}", self)
     }
 }
 
@@ -41,6 +43,7 @@ fn handle_json_message(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let request: Request = serde_json::from_slice(message)?;
 
+    let version = request.version;
     let correlation_id = request.correlation_id;
 
     let response = match request.action {
@@ -51,6 +54,7 @@ fn handle_json_message(
             };
             let action = ResponseAction::SaveResponse { payload };
             Response {
+                version,
                 action,
                 correlation_id,
             }
@@ -61,6 +65,7 @@ fn handle_json_message(
             };
             let action = ResponseAction::SearchResponse { payload };
             Response {
+                version,
                 action,
                 correlation_id,
             }
@@ -76,14 +81,9 @@ fn handle_json_message(
     Ok(())
 }
 
-fn extract_version(message: &[u8]) -> Result<String, Box<dyn std::error::Error>> {
+fn extract_version(message: &[u8]) -> Result<u64, Box<dyn std::error::Error>> {
     let value: serde_json::Value = serde_json::from_slice(message)?;
-
-    let version = value["version"]
-        .as_str()
-        .ok_or_else(|| Error {})?
-        .to_owned();
-
+    let version = value["version"].as_u64().ok_or(Error)?.to_owned();
     Ok(version)
 }
 
@@ -95,7 +95,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(length) = read_length(&mut reader)? {
         let message = read_message(&mut reader, length)?;
 
-        let _version = extract_version(&message)?;
+        let version = extract_version(&message)?;
+
+        if version != EXPECTED_VERSION {
+            panic!("Unsupported version: {}", version);
+        }
 
         if let Err(e) = handle_json_message(&mut writer, &message) {
             panic!("Error handling JSON message: {:?}", e);

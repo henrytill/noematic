@@ -1,3 +1,5 @@
+import { kSchemaVersion } from '../common/common.mjs';
+
 /**
  * @typedef {import('../common/common.ts').State} State
  */
@@ -45,7 +47,7 @@ const handleSave = (tab) => {
     throw Error('No tab id');
   }
   const tabId = tab.id; // for TypeScript
-  const message = { action: 'saveRequest', payload: { url: tab.url } };
+  const message = { version: kSchemaVersion, action: 'saveRequest', payload: { url: tab.url } };
   checkContentScriptActive(tab)
     .then((isActive) => (isActive ? Promise.resolve([]) : installContentScript(tab)))
     .then((_) => chrome.tabs.sendMessage(tabId, message))
