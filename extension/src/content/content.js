@@ -1,5 +1,5 @@
 /**
- * @typedef {import('../common/common.ts').Responder} Responder
+ * @typedef {import('../common/types.js').Responder} Responder
  */
 
 /**

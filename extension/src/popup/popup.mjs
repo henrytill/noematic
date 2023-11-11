@@ -1,7 +1,7 @@
 import { kSchemaVersion } from '../common/common.mjs';
 
 /**
- * @typedef {import('../common/common.ts').State} State
+ * @typedef {import('../common/types.js').State} State
  */
 
 const handleSearch = () => {

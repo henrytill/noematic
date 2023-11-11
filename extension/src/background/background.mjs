@@ -1,7 +1,7 @@
 /**
- * @typedef {import('../common/common.ts').UUID} UUID
- * @typedef {import('../common/common.ts').Responder} Responder
- * @typedef {import('../common/common.ts').ResponderMap} ResponderMap
+ * @typedef {import('../common/types.js').UUID} UUID
+ * @typedef {import('../common/types.js').Responder} Responder
+ * @typedef {import('../common/types.js').ResponderMap} ResponderMap
  */
 
 const kNativeMessagingHost = 'com.github.henrytill.noematic';
