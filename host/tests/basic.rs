@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 
 #[derive(Debug)]
 enum Error {
-    IoError(io::Error),
+    Io(io::Error),
     MissingParent(PathBuf),
     MissingExe(PathBuf),
 }
@@ -15,7 +15,7 @@ enum Error {
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Error::IoError(e) => write!(f, "IO error: {}", e),
+            Error::Io(e) => write!(f, "IO error: {}", e),
             Error::MissingParent(path) => write!(f, "Missing parent: {}", path.display()),
             Error::MissingExe(path) => write!(f, "Missing exe: {}", path.display()),
         }
@@ -24,7 +24,7 @@ impl std::fmt::Display for Error {
 
 impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
-        Error::IoError(other)
+        Error::Io(other)
     }
 }
 
