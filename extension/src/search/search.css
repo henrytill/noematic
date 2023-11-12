@@ -33,7 +33,7 @@ main {
 
 #search-input {
   width: 50%;
-  max-width: 600px; /
+  max-width: 600px;
 }
 
 input[type='submit'] {
