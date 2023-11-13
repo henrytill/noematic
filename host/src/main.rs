@@ -1,6 +1,4 @@
 use std::io::{self, BufReader, BufWriter, Read, Write};
-use std::sync::mpsc;
-use std::thread;
 
 use serde_json::Value;
 
@@ -94,18 +92,9 @@ fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Err
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut reader = BufReader::new(io::stdin());
     let mut writer = BufWriter::new(io::stdout());
-    let (tx, rx) = mpsc::channel::<Result<Vec<u8>, Error>>();
-
-    thread::spawn(move || loop {
-        let result: Result<Vec<u8>, Error> = read(&mut reader);
-        match tx.send(result) {
-            Ok(_) => {}
-            Err(_) => return,
-        }
-    });
 
     loop {
-        let message = match rx.recv()? {
+        let message = match read(&mut reader) {
             Ok(message) => message,
             Err(Error::EndOfStream) => {
                 break;
