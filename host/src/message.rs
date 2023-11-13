@@ -16,6 +16,21 @@ impl From<u64> for Version {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CorrelationId(String);
+
+impl CorrelationId {
+    pub const fn new(correlation_id: String) -> Self {
+        CorrelationId(correlation_id)
+    }
+}
+
+impl From<String> for CorrelationId {
+    fn from(correlation_id: String) -> Self {
+        CorrelationId(correlation_id)
+    }
+}
+
 /// Messages that are sent from the client (extension) to the host.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Request {
@@ -23,7 +38,7 @@ pub struct Request {
     #[serde(flatten)]
     pub action: Action,
     #[serde(rename = "correlationId")]
-    pub correlation_id: String,
+    pub correlation_id: CorrelationId,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -54,7 +69,7 @@ pub struct Response {
     #[serde(flatten)]
     pub action: ResponseAction,
     #[serde(rename = "correlationId")]
-    pub correlation_id: String,
+    pub correlation_id: CorrelationId,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
