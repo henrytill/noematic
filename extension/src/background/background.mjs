@@ -24,6 +24,7 @@ const handleHostMessage = (responderMap, message) => {
   }
   responderMap.delete(correlationId);
   response(message);
+  console.log('response', message);
 };
 
 /**
