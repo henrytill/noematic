@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS schema_version (
-    major INTEGER NOT NULL,
-    minor INTEGER NOT NULL,
-    patch INTEGER NOT NULL,
-    applied_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);

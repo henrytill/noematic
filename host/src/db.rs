@@ -5,15 +5,9 @@ use crate::message::{SavePayload, SearchPayload, Site};
 
 const CURRENT_SCHEMA_VERSION: Version = Version::new(0, 1, 0);
 
-const CREATE_SCHEMA_VERSION_SQL: &str = include_str!("create_schema_version.sql");
-const CREATE_SITES_SQL: &str = include_str!("create_sites.sql");
-const CREATE_SITES_FTS_SQL: &str = include_str!("create_sites_fts.sql");
-const CREATE_SITES_AI_SQL: &str = include_str!("create_sites_ai.sql");
-const CREATE_SITES_AU_SQL: &str = include_str!("create_sites_au.sql");
-const CREATE_SITES_AD_SQL: &str = include_str!("create_sites_ad.sql");
+const CREATE_SQL: &str = include_str!("create.sql");
 
-const _: () = assert!(!CREATE_SCHEMA_VERSION_SQL.is_empty());
-const _: () = assert!(!CREATE_SITES_SQL.is_empty());
+const _: () = assert!(!CREATE_SQL.is_empty());
 
 const SELECT_VERSION_TABLE_EXISTS: &'static str =
     "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')";
@@ -46,16 +40,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
             return Err(Error::InvalidVersion);
         }
         None => {
-            let batch = [
-                CREATE_SCHEMA_VERSION_SQL,
-                CREATE_SITES_SQL,
-                CREATE_SITES_FTS_SQL,
-                CREATE_SITES_AI_SQL,
-                CREATE_SITES_AU_SQL,
-                CREATE_SITES_AD_SQL,
-            ]
-            .concat();
-            tx.execute_batch(&batch)?;
+            tx.execute_batch(CREATE_SQL)?;
             insert_version(&tx, CURRENT_SCHEMA_VERSION)?;
         }
     }
