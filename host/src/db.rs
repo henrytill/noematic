@@ -113,6 +113,7 @@ pub fn search_sites(
     connection: &Connection,
     search_payload: SearchPayload,
 ) -> Result<Vec<Site>, Error> {
+    let quoted_query = format!("\"{}\"", search_payload.query.into_inner());
     let mut stmt = connection.prepare(
         "
         SELECT s.url, s.title, s.inner_text
@@ -123,7 +124,7 @@ pub fn search_sites(
         ",
     )?;
 
-    let mut rows = stmt.query([search_payload.query])?;
+    let mut rows = stmt.query([quoted_query])?;
 
     let mut results = Vec::new();
     while let Some(row) = rows.next()? {
