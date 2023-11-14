@@ -1,4 +1,4 @@
-use rusqlite::{types::ToSqlOutput, ToSql};
+use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 use serde_derive::{Deserialize, Serialize};
 
 pub enum Error {
@@ -52,15 +52,21 @@ macro_rules! wrap_string {
             }
         }
 
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                Self(value)
+            }
+        }
+
         impl ToSql for $name {
             fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
                 self.0.to_sql()
             }
         }
 
-        impl From<String> for $name {
-            fn from(value: String) -> Self {
-                Self(value)
+        impl FromSql for $name {
+            fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
+                String::column_result(value).map(Self)
             }
         }
     };
@@ -128,10 +134,10 @@ pub struct SaveResponsePayload {}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Site {
-    pub url: String,
-    pub title: String,
+    pub url: Url,
+    pub title: Title,
     #[serde(rename = "innerText")]
-    pub inner_text: String,
+    pub inner_text: InnerText,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
