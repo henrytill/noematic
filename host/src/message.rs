@@ -1,3 +1,4 @@
+use rusqlite::{types::ToSqlOutput, ToSql};
 use serde_derive::{Deserialize, Serialize};
 
 pub enum Error {
@@ -31,20 +32,45 @@ impl From<semver::Version> for Version {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub struct CorrelationId(String);
+/// macro to wrap a String in a newtype
+macro_rules! wrap_string {
+    ($name:ident) => {
+        #[derive(Serialize, Deserialize, Debug)]
+        pub struct $name(String);
 
-impl CorrelationId {
-    pub const fn new(correlation_id: String) -> Self {
-        CorrelationId(correlation_id)
-    }
+        impl $name {
+            pub const fn new(value: String) -> Self {
+                Self(value)
+            }
+
+            pub fn into_inner(self) -> String {
+                self.0
+            }
+
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
+        }
+
+        impl ToSql for $name {
+            fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
+                self.0.to_sql()
+            }
+        }
+
+        impl From<String> for $name {
+            fn from(value: String) -> Self {
+                Self(value)
+            }
+        }
+    };
 }
 
-impl From<String> for CorrelationId {
-    fn from(correlation_id: String) -> Self {
-        CorrelationId(correlation_id)
-    }
-}
+wrap_string!(CorrelationId);
+wrap_string!(Url);
+wrap_string!(Title);
+wrap_string!(InnerText);
+wrap_string!(Query);
 
 /// Messages that are sent from the client (extension) to the host.
 #[derive(Serialize, Deserialize, Debug)]
@@ -67,14 +93,15 @@ pub enum Action {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SavePayload {
-    pub title: String,
+    pub url: Url,
+    pub title: Title,
     #[serde(rename = "innerText")]
-    pub inner_text: String,
+    pub inner_text: InnerText,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SearchPayload {
-    pub query: String,
+    pub query: Query,
 }
 
 /// Messages that are sent from the host to the client (extension).

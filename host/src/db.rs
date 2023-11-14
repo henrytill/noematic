@@ -1,5 +1,7 @@
-use rusqlite::{Connection, Transaction};
+use rusqlite::{params, Connection, Transaction};
 use semver::Version;
+
+use crate::message::SavePayload;
 
 const CURRENT_SCHEMA_VERSION: Version = Version::new(0, 1, 0);
 
@@ -89,4 +91,23 @@ fn insert_version(tx: &Transaction, version: Version) -> Result<Version, rusqlit
         tx.prepare("INSERT INTO schema_version (major, minor, patch) VALUES (?, ?, ?)")?;
     statement.execute([version.major, version.minor, version.patch])?;
     Ok(version)
+}
+
+pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result<(), Error> {
+    let mut statement = connection.prepare(
+        "
+        INSERT INTO sites (url, title, inner_text)
+        VALUES (?, ?, ?)
+        ON CONFLICT (url) DO UPDATE SET
+            title = excluded.title,
+            inner_text = excluded.inner_text,
+            updated_at = CURRENT_TIMESTAMP
+        ",
+    )?;
+    statement.execute(params![
+        save_payload.url,
+        save_payload.title,
+        save_payload.inner_text
+    ])?;
+    Ok(())
 }

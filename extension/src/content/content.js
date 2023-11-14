@@ -9,7 +9,8 @@
  * @returns {boolean}
  */
 const handleSaveRequests = (request, _sender, sendResponse) => {
-  request.payload = { title: document.title, innerText: document.body.innerText };
+  request.payload.title = document.title;
+  request.payload.innerText = document.body.innerText;
   chrome.runtime.sendMessage(request).then((response) => {
     response.action = 'saveResponse';
     sendResponse(response);

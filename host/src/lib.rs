@@ -71,26 +71,25 @@ impl From<message::Error> for Error {
 impl std::error::Error for Error {}
 
 pub struct Context {
-    _connection: rusqlite::Connection,
+    connection: rusqlite::Connection,
 }
 
 impl Context {
     pub fn new() -> Result<Self, Error> {
         let mut connection = Connection::open_in_memory()?;
         db::init_tables(&mut connection)?;
-        let context = Self {
-            _connection: connection,
-        };
+        let context = Self { connection };
         Ok(context)
     }
 }
 
-pub fn handle_request(_context: &mut Context, request: Request) -> Result<Response, Error> {
+pub fn handle_request(context: &mut Context, request: Request) -> Result<Response, Error> {
     let version = request.version;
     let correlation_id = request.correlation_id;
 
     match request.action {
-        Action::SaveRequest { payload: _ } => {
+        Action::SaveRequest { payload } => {
+            db::upsert_site(&context.connection, payload)?;
             let payload = SaveResponsePayload {
                 status: "Success".to_string(),
                 details: "Item saved".to_string(),

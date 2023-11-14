@@ -60,7 +60,11 @@ fn test_integration() {
     let request = json!({
         "version": "0.1.0",
         "action": "saveRequest",
-        "payload": { "title": "Title", "innerText": "Inner text" },
+        "payload": {
+            "url": "https://en.wikipedia.org/wiki/Burn_My_Eyes",
+            "title": "Title",
+            "innerText": "Inner text"
+        },
         "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
     });
     let request_bytes = request.to_string().into_bytes();
