@@ -1,11 +1,13 @@
 mod db;
 pub mod message;
 
+use regex::Regex;
 use rusqlite::Connection;
 use serde_json::Value;
 
 use message::{
-    Action, Request, Response, ResponseAction, SaveResponsePayload, SearchResponsePayload, Version,
+    Action, Query, Request, Response, ResponseAction, SaveResponsePayload, SearchResponsePayload,
+    Version,
 };
 
 #[derive(Debug)]
@@ -72,13 +74,26 @@ impl std::error::Error for Error {}
 
 pub struct Context {
     connection: rusqlite::Connection,
+    process: Box<dyn Fn(Query) -> String>,
+}
+
+fn make_process(re: Regex) -> impl Fn(Query) -> String {
+    move |query| {
+        let input = query.as_str();
+        re.replace_all(input, " ").trim().to_string()
+    }
 }
 
 impl Context {
     pub fn new() -> Result<Self, Error> {
         let mut connection = Connection::open_in_memory()?;
         db::init_tables(&mut connection)?;
-        let context = Self { connection };
+        let process_regex = Regex::new(r"\W+").unwrap();
+        let process = Box::new(make_process(process_regex));
+        let context = Self {
+            connection,
+            process,
+        };
         Ok(context)
     }
 }
@@ -100,7 +115,8 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
             Ok(response)
         }
         Action::SearchRequest { payload } => {
-            let results = db::search_sites(&context.connection, payload)?;
+            let process = context.process.as_ref();
+            let results = db::search_sites(&context.connection, payload, process)?;
             let payload = SearchResponsePayload { results };
             let action = ResponseAction::SearchResponse { payload };
             let response = Response {

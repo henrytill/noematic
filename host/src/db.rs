@@ -1,7 +1,7 @@
 use rusqlite::{params, Connection, Transaction};
 use semver::Version;
 
-use crate::message::{SavePayload, SearchPayload, Site};
+use crate::message::{Query, SavePayload, SearchPayload, Site};
 
 const CURRENT_SCHEMA_VERSION: Version = Version::new(0, 1, 0);
 
@@ -114,19 +114,14 @@ pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result
     Ok(())
 }
 
-fn stringify(query: String) -> String {
-    let escaped_query = query.replace('"', "\"\"");
-    if query.starts_with('"') && query.ends_with('"') {
-        escaped_query
-    } else {
-        format!("\"{}\"", escaped_query)
-    }
-}
-
-pub fn search_sites(
+pub fn search_sites<F>(
     connection: &Connection,
     search_payload: SearchPayload,
-) -> Result<Vec<Site>, Error> {
+    process: F,
+) -> Result<Vec<Site>, Error>
+where
+    F: Fn(Query) -> String,
+{
     let mut stmt = connection.prepare(
         "
         SELECT s.url, s.title, s.inner_text
@@ -136,8 +131,8 @@ pub fn search_sites(
         ORDER BY rank
         ",
     )?;
-    let query = stringify(search_payload.query.into_inner());
-    let mut rows = stmt.query([query])?;
+    let query_string = process(search_payload.query);
+    let mut rows = stmt.query([query_string])?;
     let mut results = Vec::new();
     while let Some(row) = rows.next()? {
         results.push(Site {
