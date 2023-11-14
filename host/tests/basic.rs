@@ -58,7 +58,7 @@ fn test_integration() {
         .expect("Failed to start child process");
 
     let request = json!({
-        "version": 1,
+        "version": "0.1.0",
         "action": "saveRequest",
         "payload": { "title": "Title", "innerText": "Inner text" },
         "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
@@ -82,7 +82,7 @@ fn test_integration() {
     let output = child.wait_with_output().expect("Failed to read stdout");
 
     let expected = json!({
-        "version": 1,
+        "version": "0.1.0",
         "action": "saveResponse",
         "payload": { "status": "Success", "details": "Item saved" },
         "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"

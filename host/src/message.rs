@@ -1,17 +1,32 @@
 use serde_derive::{Deserialize, Serialize};
 
-/// The version of the message format.
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Version(u64);
+pub enum Error {
+    Semver(semver::Error),
+}
 
-impl Version {
-    pub const fn new(version: u64) -> Self {
-        Version(version)
+impl From<semver::Error> for Error {
+    fn from(other: semver::Error) -> Self {
+        Error::Semver(other)
     }
 }
 
-impl From<u64> for Version {
-    fn from(version: u64) -> Self {
+/// The version of the message format.
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Version(semver::Version);
+
+impl Version {
+    pub const fn new(major: u64, minor: u64, patch: u64) -> Self {
+        Version(semver::Version::new(major, minor, patch))
+    }
+
+    pub fn parse(version: &str) -> Result<Self, Error> {
+        let version = semver::Version::parse(version)?;
+        Ok(Version(version))
+    }
+}
+
+impl From<semver::Version> for Version {
+    fn from(version: semver::Version) -> Self {
         Version(version)
     }
 }

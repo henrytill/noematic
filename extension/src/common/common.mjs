@@ -1,1 +1,1 @@
-export const kSchemaVersion = 1;
+export const kSchemaVersion = '0.1.0';

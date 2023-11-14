@@ -2,16 +2,19 @@ use std::io::{self, BufReader, BufWriter, Read, Write};
 
 use serde_json::Value;
 
-use noematic::message::{Request, Response, Version};
+use noematic::{
+    message::{Request, Response, Version},
+    Context,
+};
 
-const EXPECTED_VERSION: Version = Version::new(1);
+const EXPECTED_VERSION: Version = Version::new(0, 1, 0);
 
 #[derive(Debug)]
 enum Error {
     Io(io::Error),
     Json(serde_json::Error),
+    Noematic(noematic::Error),
     EndOfStream,
-    MissingVersion,
     UnsupportedVersion,
     UnsupportedLength,
 }
@@ -21,8 +24,8 @@ impl std::fmt::Display for Error {
         match self {
             Error::Io(e) => write!(f, "IO error: {}", e),
             Error::Json(e) => write!(f, "JSON error: {}", e),
+            Error::Noematic(e) => write!(f, "{}", e),
             Error::EndOfStream => write!(f, "End of stream"),
-            Error::MissingVersion => write!(f, "Missing version"),
             Error::UnsupportedVersion => write!(f, "Unsupported version"),
             Error::UnsupportedLength => write!(f, "Unsupported length"),
         }
@@ -38,6 +41,12 @@ impl From<io::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(other: serde_json::Error) -> Self {
         Error::Json(other)
+    }
+}
+
+impl From<noematic::Error> for Error {
+    fn from(other: noematic::Error) -> Self {
+        Error::Noematic(other)
     }
 }
 
@@ -68,15 +77,6 @@ fn read(reader: &mut impl Read) -> Result<Vec<u8>, Error> {
     read_message(reader, length).map_err(Into::into)
 }
 
-/// Extracts the version from the message.
-fn extract_version(value: &Value) -> Result<Version, Error> {
-    let version = value["version"]
-        .as_u64()
-        .ok_or(Error::MissingVersion)?
-        .to_owned();
-    Ok(Version::new(version))
-}
-
 /// Writes the response to the writer.
 fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Error> {
     let response_bytes = serde_json::to_string(&response)?.into_bytes();
@@ -89,9 +89,11 @@ fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Err
     Ok(())
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Error> {
     let mut reader = BufReader::new(io::stdin());
     let mut writer = BufWriter::new(io::stdout());
+
+    let mut context = Context::new()?;
 
     loop {
         let message = match read(&mut reader) {
@@ -104,13 +106,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let json: Value = serde_json::from_slice(&message)?;
 
-        let version = extract_version(&json)?;
+        let version = noematic::extract_version(&json)?;
         if version != EXPECTED_VERSION {
             return Err(Error::UnsupportedVersion.into());
         }
 
         let request: Request = serde_json::from_value(json)?;
-        let response = noematic::handle_request(request);
+        let response = noematic::handle_request(&mut context, request)?;
         write_response(&mut writer, response)?;
     }
 
