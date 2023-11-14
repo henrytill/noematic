@@ -35,6 +35,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
         Some(version) if version == CURRENT_SCHEMA_VERSION => {}
         Some(version) if version < CURRENT_SCHEMA_VERSION => {
             migrate(&tx, version, CURRENT_SCHEMA_VERSION)?;
+            insert_version(&tx, CURRENT_SCHEMA_VERSION)?;
         }
         Some(_) => {
             return Err(Error::InvalidVersion);
