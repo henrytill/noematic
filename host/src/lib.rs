@@ -90,10 +90,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
     match request.action {
         Action::SaveRequest { payload } => {
             db::upsert_site(&context.connection, payload)?;
-            let payload = SaveResponsePayload {
-                status: "Success".to_string(),
-                details: "Item saved".to_string(),
-            };
+            let payload = SaveResponsePayload {};
             let action = ResponseAction::SaveResponse { payload };
             let response = Response {
                 version,
@@ -102,10 +99,9 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
             };
             Ok(response)
         }
-        Action::SearchRequest { payload: _ } => {
-            let payload = SearchResponsePayload {
-                results: vec!["Item1".to_string(), "Item2".to_string()],
-            };
+        Action::SearchRequest { payload } => {
+            let results = db::search_sites(&context.connection, payload)?;
+            let payload = SearchResponsePayload { results };
             let action = ResponseAction::SearchResponse { payload };
             let response = Response {
                 version,

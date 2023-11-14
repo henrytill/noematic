@@ -124,12 +124,17 @@ pub enum ResponseAction {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SaveResponsePayload {
-    pub status: String,
-    pub details: String,
+pub struct SaveResponsePayload {}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Site {
+    pub url: String,
+    pub title: String,
+    #[serde(rename = "innerText")]
+    pub inner_text: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SearchResponsePayload {
-    pub results: Vec<String>,
+    pub results: Vec<Site>,
 }

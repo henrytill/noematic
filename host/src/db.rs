@@ -1,12 +1,16 @@
 use rusqlite::{params, Connection, Transaction};
 use semver::Version;
 
-use crate::message::SavePayload;
+use crate::message::{SavePayload, SearchPayload, Site};
 
 const CURRENT_SCHEMA_VERSION: Version = Version::new(0, 1, 0);
 
 const CREATE_SCHEMA_VERSION_SQL: &str = include_str!("create_schema_version.sql");
 const CREATE_SITES_SQL: &str = include_str!("create_sites.sql");
+const CREATE_SITES_FTS_SQL: &str = include_str!("create_sites_fts.sql");
+const CREATE_SITES_AI_SQL: &str = include_str!("create_sites_ai.sql");
+const CREATE_SITES_AU_SQL: &str = include_str!("create_sites_au.sql");
+const CREATE_SITES_AD_SQL: &str = include_str!("create_sites_ad.sql");
 
 const _: () = assert!(!CREATE_SCHEMA_VERSION_SQL.is_empty());
 const _: () = assert!(!CREATE_SITES_SQL.is_empty());
@@ -42,8 +46,16 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
             return Err(Error::InvalidVersion);
         }
         None => {
-            tx.execute(CREATE_SCHEMA_VERSION_SQL, ())?;
-            tx.execute(CREATE_SITES_SQL, ())?;
+            let batch = [
+                CREATE_SCHEMA_VERSION_SQL,
+                CREATE_SITES_SQL,
+                CREATE_SITES_FTS_SQL,
+                CREATE_SITES_AI_SQL,
+                CREATE_SITES_AU_SQL,
+                CREATE_SITES_AD_SQL,
+            ]
+            .concat();
+            tx.execute_batch(&batch)?;
             insert_version(&tx, CURRENT_SCHEMA_VERSION)?;
         }
     }
@@ -110,4 +122,32 @@ pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result
         save_payload.inner_text
     ])?;
     Ok(())
+}
+
+pub fn search_sites(
+    connection: &Connection,
+    search_payload: SearchPayload,
+) -> Result<Vec<Site>, Error> {
+    let mut stmt = connection.prepare(
+        "
+        SELECT s.url, s.title, s.inner_text
+        FROM sites_fts
+        JOIN sites s ON sites_fts.rowid = s.id
+        WHERE sites_fts MATCH ?
+        ORDER BY rank
+        ",
+    )?;
+
+    let mut rows = stmt.query([search_payload.query])?;
+
+    let mut results = Vec::new();
+    while let Some(row) = rows.next()? {
+        results.push(Site {
+            url: row.get(0)?,
+            title: row.get(1)?,
+            inner_text: row.get(2)?,
+        });
+    }
+
+    Ok(results)
 }
