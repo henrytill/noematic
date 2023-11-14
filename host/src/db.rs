@@ -114,6 +114,15 @@ pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result
     Ok(())
 }
 
+fn stringify(query: String) -> String {
+    let escaped_query = query.replace('"', "\"\"");
+    if query.starts_with('"') && query.ends_with('"') {
+        escaped_query
+    } else {
+        format!("\"{}\"", escaped_query)
+    }
+}
+
 pub fn search_sites(
     connection: &Connection,
     search_payload: SearchPayload,
@@ -127,7 +136,7 @@ pub fn search_sites(
         ORDER BY rank
         ",
     )?;
-    let query = format!("\"{}\"", search_payload.query.into_inner());
+    let query = stringify(search_payload.query.into_inner());
     let mut rows = stmt.query([query])?;
     let mut results = Vec::new();
     while let Some(row) = rows.next()? {
