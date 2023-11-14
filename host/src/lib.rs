@@ -116,8 +116,9 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
         }
         Action::SearchRequest { payload } => {
             let process = context.process.as_ref();
+            let query = payload.query.clone();
             let results = db::search_sites(&context.connection, payload, process)?;
-            let payload = SearchResponsePayload { results };
+            let payload = SearchResponsePayload { query, results };
             let action = ResponseAction::SearchResponse { payload };
             let response = Response {
                 version,

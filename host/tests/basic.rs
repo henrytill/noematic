@@ -166,6 +166,7 @@ fn test_search() {
         "version": "0.1.0",
         "action": "searchResponse",
         "payload": {
+            "query": "quux",
             "results": [
                 {
                     "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -233,6 +234,7 @@ fn test_search_quotation() {
         "version": "0.1.0",
         "action": "searchResponse",
         "payload": {
+            "query": "\"\"foo-\"***bar\"\"",
             "results": [
                 {
                     "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -300,6 +302,7 @@ fn search_idempotent() {
         "version": "0.1.0",
         "action": "searchResponse",
         "payload": {
+            "query": "quux",
             "results": [
                 {
                     "url": "https://en.wikipedia.org/wiki/Foobar",

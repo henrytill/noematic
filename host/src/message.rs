@@ -35,7 +35,7 @@ impl From<semver::Version> for Version {
 /// Wrap a String in a newtype
 macro_rules! wrap_string {
     ($name:ident) => {
-        #[derive(Serialize, Deserialize, Debug)]
+        #[derive(Serialize, Deserialize, Debug, Clone)]
         pub struct $name(String);
 
         impl $name {
@@ -142,5 +142,6 @@ pub struct Site {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SearchResponsePayload {
+    pub query: Query,
     pub results: Vec<Site>,
 }

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>noematic search</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="search.css" />
+    <script src="search.mjs" type="module"></script>
+  </head>
+  <body>
+    <div id="search-box">
+      <form id="search-form" action="search.html" method="GET">
+        <input type="text" id="search-input" name="q" autofocus required />
+        <input type="submit" value="Search" />
+      </form>
+    </div>
+    <div id="results-container"></div>
+  </body>
+</html>
