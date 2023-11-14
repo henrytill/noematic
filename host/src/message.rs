@@ -32,7 +32,7 @@ impl From<semver::Version> for Version {
     }
 }
 
-/// macro to wrap a String in a newtype
+/// Wrap a String in a newtype
 macro_rules! wrap_string {
     ($name:ident) => {
         #[derive(Serialize, Deserialize, Debug)]

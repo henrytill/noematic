@@ -119,5 +119,5 @@ pub fn extract_version(value: &Value) -> Result<Version, Error> {
         .as_str()
         .ok_or(Error::new(ErrorImpl::MissingVersion))?;
     let version = Version::parse(version)?;
-    Ok(Version::from(version))
+    Ok(version)
 }

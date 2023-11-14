@@ -14,7 +14,6 @@ enum Error {
     Io(io::Error),
     Json(serde_json::Error),
     Noematic(noematic::Error),
-    EndOfStream,
     UnsupportedVersion,
     UnsupportedLength,
 }
@@ -25,7 +24,6 @@ impl std::fmt::Display for Error {
             Error::Io(e) => write!(f, "IO error: {}", e),
             Error::Json(e) => write!(f, "JSON error: {}", e),
             Error::Noematic(e) => write!(f, "{}", e),
-            Error::EndOfStream => write!(f, "End of stream"),
             Error::UnsupportedVersion => write!(f, "Unsupported version"),
             Error::UnsupportedLength => write!(f, "Unsupported length"),
         }
@@ -71,10 +69,12 @@ fn read_message(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
 }
 
 /// Reads a message from the reader.
-fn read(reader: &mut impl Read) -> Result<Vec<u8>, Error> {
-    let maybe_length = read_length(reader)?;
-    let length = maybe_length.ok_or(Error::EndOfStream)?;
-    read_message(reader, length).map_err(Into::into)
+fn read(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
+    let length = match read_length(reader)? {
+        None => return Ok(None),
+        Some(length) => length,
+    };
+    read_message(reader, length).map(Some).map_err(Into::into)
 }
 
 /// Writes the response to the writer.
@@ -95,20 +95,12 @@ fn main() -> Result<(), Error> {
 
     let mut context = Context::new()?;
 
-    loop {
-        let message = match read(&mut reader) {
-            Ok(message) => message,
-            Err(Error::EndOfStream) => {
-                break;
-            }
-            Err(e) => return Err(e.into()),
-        };
-
+    while let Some(message) = read(&mut reader)? {
         let json: Value = serde_json::from_slice(&message)?;
 
         let version = noematic::extract_version(&json)?;
         if version != EXPECTED_VERSION {
-            return Err(Error::UnsupportedVersion.into());
+            return Err(Error::UnsupportedVersion);
         }
 
         let request: Request = serde_json::from_value(json)?;

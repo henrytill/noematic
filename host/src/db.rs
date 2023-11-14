@@ -9,12 +9,12 @@ const CREATE_SQL: &str = include_str!("create.sql");
 
 const _: () = assert!(!CREATE_SQL.is_empty());
 
-const SELECT_VERSION_TABLE_EXISTS: &'static str =
+const SELECT_VERSION_TABLE_EXISTS: &str =
     "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')";
 
-const SELECT_VERSION_EXISTS: &'static str = "SELECT EXISTS(SELECT 1 FROM schema_version)";
+const SELECT_VERSION_EXISTS: &str = "SELECT EXISTS(SELECT 1 FROM schema_version)";
 
-const SELECT_LATEST_VERSION: &'static str =
+const SELECT_LATEST_VERSION: &str =
     "SELECT major, minor, patch FROM schema_version ORDER BY date_applied DESC LIMIT 1";
 
 pub enum Error {
