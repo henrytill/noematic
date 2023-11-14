@@ -84,8 +84,12 @@ fn migrate(
 }
 
 fn insert_version(tx: &Transaction, version: Version) -> Result<Version, rusqlite::Error> {
-    let mut statement =
-        tx.prepare("INSERT INTO schema_version (major, minor, patch) VALUES (?, ?, ?)")?;
+    let mut statement = tx.prepare(
+        "
+        INSERT INTO schema_version (major, minor, patch)
+        VALUES (?, ?, ?)
+        ",
+    )?;
     statement.execute([version.major, version.minor, version.patch])?;
     Ok(version)
 }
@@ -113,7 +117,6 @@ pub fn search_sites(
     connection: &Connection,
     search_payload: SearchPayload,
 ) -> Result<Vec<Site>, Error> {
-    let quoted_query = format!("\"{}\"", search_payload.query.into_inner());
     let mut stmt = connection.prepare(
         "
         SELECT s.url, s.title, s.inner_text
@@ -123,9 +126,8 @@ pub fn search_sites(
         ORDER BY rank
         ",
     )?;
-
-    let mut rows = stmt.query([quoted_query])?;
-
+    let query = format!("\"{}\"", search_payload.query.into_inner());
+    let mut rows = stmt.query([query])?;
     let mut results = Vec::new();
     while let Some(row) = rows.next()? {
         results.push(Site {
@@ -134,6 +136,5 @@ pub fn search_sites(
             inner_text: row.get(2)?,
         });
     }
-
     Ok(results)
 }
