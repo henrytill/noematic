@@ -9,6 +9,15 @@ export type State = {
   tab: chrome.tabs.Tab;
 };
 
+export type SaveResponsePayload = object;
+
+export type SaveResponse = {
+  version: string;
+  action: 'saveResponse';
+  payload: SaveResponsePayload;
+  correlationId: UUID;
+};
+
 export type SearchResponsePayload = {
   query: string;
   results: Array<{
@@ -24,3 +33,5 @@ export type SearchResponse = {
   payload: SearchResponsePayload;
   correlationId: UUID;
 };
+
+export type Response = SaveResponse | SearchResponse;
