@@ -28,30 +28,27 @@ const highlightQueryInText = (text, query, maxLength) => {
   // Normalize spaces and replace newlines with a space.
   text = text.replace(/\s+/g, ' ');
 
-  if (query.length === 0) {
+  if (!query) {
     throw new Error('Unexpected empty query');
   }
 
-  // Find the first word of the query in the text.
   const queryWord = query.split(' ')[0].toLowerCase();
   const matchIndex = text.toLowerCase().indexOf(queryWord);
 
   if (matchIndex === -1) {
-    // If there's no match, return the abbreviated text.
     return abbreviateText(text, maxLength);
   }
 
-  const halfMaxLength = Math.floor(maxLength / 2);
+  // Calculate the start index for the snippet, ensuring it's within bounds and on a word boundary.
+  let start = Math.max(0, matchIndex - Math.floor(maxLength / 2));
+  start = text.lastIndexOf(' ', start - 1) + 1;
 
-  // Calculate start and end indices for the snippet.
-  let start = Math.max(0, matchIndex - halfMaxLength);
-  let end = Math.min(text.length, matchIndex + queryWord.length + halfMaxLength);
+  // Calculate the end index based on the adjusted start, ensuring it's within bounds.
+  let end = start + maxLength;
+  end = end <= text.length ? text.indexOf(' ', end) : text.length;
+  end = end === -1 ? text.length : end;
 
-  // Adjust start and end indices to word boundaries.
-  start = text.lastIndexOf(' ', start) + 1 || start;
-  end = text.indexOf(' ', end) !== -1 ? text.indexOf(' ', end) : end;
-
-  // Build and return the snippet with ellipses if necessary.
+  // Prefix and suffix ellipses are added only if the snippet doesn't start or end at the text bounds.
   const prefix = start > 0 ? '...' : '';
   const suffix = end < text.length ? '...' : '';
 
