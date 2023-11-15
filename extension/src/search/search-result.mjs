@@ -37,6 +37,9 @@ const kStyle = `
 export class SearchResult extends HTMLElement {
   constructor() {
     super();
+  }
+
+  connectedCallback() {
     const shadow = this.attachShadow({ mode: 'open' });
 
     const style = document.createElement('style');
@@ -49,56 +52,22 @@ export class SearchResult extends HTMLElement {
     const titleLink = document.createElement('a');
     titleLink.setAttribute('part', 'title');
     titleLink.target = '_blank';
-    container.appendChild(titleLink);
-
-    const textSnippet = document.createElement('p');
-    textSnippet.setAttribute('part', 'snippet');
-    const slot = document.createElement('slot');
-    textSnippet.appendChild(slot);
-    container.appendChild(textSnippet);
-
-    shadow.appendChild(container);
-  }
-
-  static get observedAttributes() {
-    return ['href', 'title'];
-  }
-
-  updateLink() {
-    const shadowRoot = this.shadowRoot;
-    if (shadowRoot === null) {
-      console.error('No shadow root found');
-      return;
-    }
-
-    const titleLink = shadowRoot.querySelector('a');
-    if (titleLink === null) {
-      console.error('No title link found');
-      return;
-    }
-
     const href = this.getAttribute('href');
     if (href !== null) {
       titleLink.href = href;
     }
-
     const title = this.getAttribute('title');
     if (title !== null) {
       titleLink.textContent = title;
     }
-  }
+    container.appendChild(titleLink);
 
-  connectedCallback() {
-    this.updateLink();
-  }
+    const textSnippet = document.createElement('p');
+    textSnippet.setAttribute('part', 'snippet');
+    textSnippet.textContent = this.innerHTML;
+    container.appendChild(textSnippet);
 
-  /**
-   * @param {string} _name
-   * @param {any} _oldValue
-   * @param {any} _newValue
-   */
-  attributeChangedCallback(_name, _oldValue, _newValue) {
-    this.updateLink();
+    shadow.appendChild(container);
   }
 }
 
