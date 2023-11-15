@@ -1,7 +1,5 @@
 import { kSchemaVersion } from '../common/common.mjs';
-import init, { SearchResult } from './search-result.mjs';
-
-init();
+import { SearchResult } from './search-result.mjs';
 
 /**
  * @typedef {import('../common/types.js').SearchResponse} SearchResponse
@@ -80,7 +78,9 @@ const handleSearchResponse = (response) => {
   for (const { title, url, innerText } of results) {
     const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
     let snippet = createSnippet(innerText, query, 200);
-    resultElement.result = { title, url, snippet };
+    resultElement.setAttribute('title', title);
+    resultElement.setAttribute('href', url);
+    resultElement.innerHTML = snippet;
     resultsContainer.appendChild(resultElement);
   }
 };
