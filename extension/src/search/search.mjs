@@ -1,4 +1,7 @@
 import { kSchemaVersion } from '../common/common.mjs';
+import init, { SearchResult } from './search-result.mjs';
+
+init();
 
 /**
  * @typedef {import('../common/types.js').SearchResponse} SearchResponse
@@ -24,7 +27,7 @@ const abbreviateText = (text, maxLength) => {
  * @param {number} maxLength - The maximum length of the resulting text snippet.
  * @returns {string} - The text snippet with the query word highlighted.
  */
-const highlightQueryInText = (text, query, maxLength) => {
+const createSnippet = (text, query, maxLength) => {
   // Normalize spaces and replace newlines with a space.
   text = text.replace(/\s+/g, ' ');
 
@@ -74,20 +77,10 @@ const handleSearchResponse = (response) => {
 
   const query = response.payload.query;
 
-  for (const result of results) {
-    const resultElement = document.createElement('div');
-    resultElement.className = 'search-result';
-
-    const linkElement = document.createElement('a');
-    linkElement.href = result.url;
-    linkElement.textContent = result.title;
-    linkElement.target = '_blank';
-    resultElement.appendChild(linkElement);
-
-    const textElement = document.createElement('p');
-    textElement.innerText = highlightQueryInText(result.innerText, query, 200);
-    resultElement.appendChild(textElement);
-
+  for (const { title, url, innerText } of results) {
+    const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
+    let snippet = createSnippet(innerText, query, 200);
+    resultElement.result = { title, url, snippet };
     resultsContainer.appendChild(resultElement);
   }
 };
