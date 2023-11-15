@@ -1,4 +1,7 @@
-const kStyle = `
+const template = document.createElement('template');
+
+template.innerHTML = `
+<style>
 .search-result {
   text-align: left;
   border-bottom: 1px solid #dfe1e5;
@@ -27,6 +30,11 @@ const kStyle = `
   color: #545454;
   margin: 0;
 }
+</style>
+<div class="search-result">
+  <a target="_blank"></a>
+  <p><slot></slot></p>
+</div>
 `;
 
 /**
@@ -35,39 +43,69 @@ const kStyle = `
  * @extends HTMLElement
  */
 export class SearchResult extends HTMLElement {
-  constructor() {
-    super();
+  static get observedAttributes() {
+    return ['title', 'href'];
   }
 
-  connectedCallback() {
+  constructor() {
+    super();
     const shadow = this.attachShadow({ mode: 'open' });
+    shadow.appendChild(template.content.cloneNode(true));
+  }
 
-    const style = document.createElement('style');
-    style.textContent = kStyle;
-    shadow.appendChild(style);
+  connectedCallback() {}
 
-    const container = document.createElement('div');
-    container.className = 'search-result';
+  get title() {
+    return this.getAttribute('title') ?? '';
+  }
 
-    const titleLink = document.createElement('a');
-    titleLink.setAttribute('part', 'title');
-    titleLink.target = '_blank';
-    const href = this.getAttribute('href');
-    if (href !== null) {
-      titleLink.href = href;
+  set title(value) {
+    super.title = value;
+    this.setAttribute('title', value);
+  }
+
+  get href() {
+    return this.getAttribute('href') ?? '';
+  }
+
+  set href(value) {
+    this.setAttribute('href', value);
+  }
+
+  get snippet() {
+    return this.innerHTML;
+  }
+
+  set snippet(value) {
+    this.innerHTML = value;
+  }
+
+  /**
+   * @param {string} name
+   * @param {any} _oldValue
+   * @param {any} newValue
+   */
+  attributeChangedCallback(name, _oldValue, newValue) {
+    const shadow = this.shadowRoot;
+    if (shadow === null) {
+      return;
     }
-    const title = this.getAttribute('title');
-    if (title !== null) {
-      titleLink.textContent = title;
+
+    const titleLink = shadow.querySelector('a');
+    if (titleLink === null) {
+      return;
     }
-    container.appendChild(titleLink);
 
-    const textSnippet = document.createElement('p');
-    textSnippet.setAttribute('part', 'snippet');
-    textSnippet.textContent = this.innerHTML;
-    container.appendChild(textSnippet);
-
-    shadow.appendChild(container);
+    switch (name) {
+      case 'title':
+        titleLink.textContent = newValue;
+        break;
+      case 'href':
+        titleLink.href = newValue;
+        break;
+      default:
+        break;
+    }
   }
 }
 

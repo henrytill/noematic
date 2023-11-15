@@ -77,10 +77,9 @@ const handleSearchResponse = (response) => {
 
   for (const { title, url, innerText } of results) {
     const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
-    let snippet = createSnippet(innerText, query, 200);
-    resultElement.setAttribute('title', title);
-    resultElement.setAttribute('href', url);
-    resultElement.innerHTML = snippet;
+    resultElement.title = title;
+    resultElement.href = url;
+    resultElement.snippet = createSnippet(innerText, query, 200);
     resultsContainer.appendChild(resultElement);
   }
 };
