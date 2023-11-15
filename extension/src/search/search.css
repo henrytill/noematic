@@ -1,58 +1,40 @@
-body {
-  font-family: 'Noto Sans', sans-serif;
-  margin: 0;
-  padding: 20px;
-  background: #fff;
+#search-header {
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 
-main {
+#name {
+  font-size: 24px;
+  margin-top: 4px;
+  font-family: 'Noto Sans', sans-serif;
   text-align: center;
-  margin-top: 150px;
+  width: 20%;
+}
+
+#blank {
+  width: 20%;
 }
 
 #search-form {
   display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 10px;
-}
-
-#search-form input[type='text'],
-#search-form input[type='submit'] {
-  font-family: 'Noto Sans', sans-serif;
-  box-sizing: border-box;
-  vertical-align: middle;
-  border: 1px solid #dfe1e5;
-  padding: 0 10px;
-  font-size: 14px;
-  margin: 0;
-  outline: none;
-  height: 44px;
-  border-radius: 6px;
-}
-
-#search-input {
-  width: 50%;
+  width: 60%;
   max-width: 600px;
 }
 
-input[type='submit'] {
-  width: 100px;
-  background-color: #eee;
-  cursor: pointer;
-  border: none;
+#search-input {
+  width: 100%;
 }
 
-#search-input:hover,
-#search-input:focus,
-input[type='submit']:hover,
-input[type='submit']:focus {
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
-  border-color: transparent;
+a.no-link-style {
+  color: inherit;
+  text-decoration: none;
 }
 
-input[type='submit']:active {
-  background-color: #aaa;
+a.no-link-style:hover,
+a.no-link-style:focus {
+  text-decoration: underline;
 }
 
 #results-container {
@@ -90,16 +72,20 @@ input[type='submit']:active {
   margin: 0;
 }
 
-/* Adjust the width of the main results container on larger screens */
-@media (min-width: 768px) {
-  #results-container {
-    margin-top: 50px;
-  }
-}
-
-/* Styling for no results message */
 .no-results {
   text-align: center;
   font-size: 18px;
   color: #757575;
+}
+
+@media (max-width: 750px) {
+  .hide-on-mobile {
+    display: none;
+  }
+}
+
+@media (min-width: 750px) {
+  #results-container {
+    margin-top: 50px;
+  }
 }
