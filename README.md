@@ -10,11 +10,11 @@
 
 ## Introduction
 
-`noematic` is a browser extension that reimagines bookmarking. When you bookmark a page, its text content is saved locally to your computer. This content is indexed and made available through a search interface.
+`noematic` is an experimental browser extension that reimagines bookmarking. When you bookmark a page, its text content is saved locally to your computer. This content is indexed and made available through a search interface.
 
 ## Status
 
-This a work-in-progress prototype. It is still very unstable.
+This is a work-in-progress prototype. It is unstable and not yet fit for general use.
 
 Currently, it only supports Chrome/Chromium. Firefox support is planned.
 
