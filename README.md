@@ -1,10 +1,4 @@
-<h1 align="center">noematic</h1>
-
-<p align="center">
-  <img src="doc/popup.png" width="240" />
-  <img src="doc/search.png" width="240" />
-  <img src="doc/results.png" width="240" />
-</p>
+# noematic
 
 [![CI](https://github.com/henrytill/noematic/actions/workflows/ci.yml/badge.svg)](https://github.com/henrytill/noematic/actions/workflows/ci.yml)
 
