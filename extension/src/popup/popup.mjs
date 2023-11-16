@@ -69,73 +69,39 @@ const abbreviate = (str, length) => {
 };
 
 /**
- * @param {URL} url
- * @returns {HTMLDivElement}
- */
-const createPanel = (url) => {
-  const panel = document.createElement('div');
-  panel.id = 'origin';
-  panel.className = 'panel';
-  panel.textContent = abbreviate(url.toString(), 50);
-  return panel;
-};
-
-/**
- * @param {{id: string, className: string, textContent: string, disabled?: boolean}} attributes
- * @param {EventListener} onClick
- * @returns {HTMLButtonElement}
- */
-const createButton = (attributes, onClick) => {
-  const { id, className, textContent } = attributes;
-  const button = document.createElement('button');
-  button.id = id;
-  button.className = className;
-  button.textContent = textContent;
-  if (attributes.disabled) {
-    button.disabled = attributes.disabled;
-  }
-  button.addEventListener('click', onClick);
-  return button;
-};
-
-/**
- * Creates a footer with buttons and appends it to the main div.
- * @param {State} state
- * @param {HTMLElement} mainDiv
- * @returns {void}
- */
-const createFooter = (state, mainDiv) => {
-  const cancel = createButton(
-    { id: 'cancel', className: 'footer-button', textContent: 'Cancel' },
-    window.close,
-  );
-  const search = createButton(
-    { id: 'search', className: 'footer-button', textContent: 'Open Search...' },
-    handleSearch,
-  );
-  const save = createButton(
-    { id: 'save', className: 'footer-button', textContent: 'Save', disabled: state.url === null },
-    handleSave.bind(null, state.tab),
-  );
-  const footer = document.createElement('footer');
-  [cancel, search, save].forEach((elt) => footer.appendChild(elt));
-  mainDiv.appendChild(footer);
-};
-
-/**
  * @param {State} state
  * @returns {void}
  */
-const render = (state) => {
+const updateView = (state) => {
   const mainDiv = document.getElementById('main');
-  if (!mainDiv) {
+  if (mainDiv === null) {
     throw new Error('No main div');
   }
-  if (state.url !== null) {
-    const panel = createPanel(state.url);
-    mainDiv.appendChild(panel);
+  const originDiv = document.getElementById('origin');
+  if (originDiv === null) {
+    throw new Error('No origin');
   }
-  createFooter(state, mainDiv);
+  const saveButton = /** @type {HTMLButtonElement} */ (document.getElementById('save'));
+  if (saveButton === null) {
+    throw new Error('No save button');
+  }
+
+  if (state.url !== null) {
+    originDiv.textContent = abbreviate(state.url.origin, 50);
+  } else {
+    saveButton.disabled = true;
+    mainDiv.removeChild(originDiv);
+  }
+};
+
+/**
+ * @param {State} state
+ * @returns {void}
+ */
+const addListeners = (state) => {
+  document.getElementById('cancel')?.addEventListener('click', () => window.close());
+  document.getElementById('search')?.addEventListener('click', handleSearch);
+  document.getElementById('save')?.addEventListener('click', handleSave.bind(null, state.tab));
 };
 
 /**
@@ -158,7 +124,8 @@ const main = async () => {
   }
   const url = new URL(activeTab.url);
   const state = { url: isWeb(url) ? url : null, tab: activeTab };
-  render(state);
+  addListeners(state);
+  updateView(state);
 };
 
 main().catch((err) => console.error(err));
