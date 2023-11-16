@@ -14,7 +14,8 @@
 
 ## Status
 
-This is a work-in-progress prototype. It is unstable and not yet fit for general use.
+> [!WARNING]
+> This is a work-in-progress prototype. It is unstable and not yet fit for general use.
 
 Currently, it only supports Chrome/Chromium. Firefox support is planned.
 
