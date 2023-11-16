@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/henrytill/noematic/actions/workflows/ci.yml/badge.svg)](https://github.com/henrytill/noematic/actions/workflows/ci.yml)
 
-## Introduction
+## About
 
-`noematic` is an experimental browser extension that reimagines bookmarking. When you bookmark a page, its text content is saved locally to your computer. This content is indexed and made available through a search interface.
+`noematic` is an experimental browser extension that reimagines bookmarking. When you bookmark a page, its text content is saved locally to your computer. This content is indexed, enabling bookmarks to be retrieved through full-text search.
 
 ## Status
 
