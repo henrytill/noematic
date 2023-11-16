@@ -80,7 +80,7 @@ fn read(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
 /// Writes the response to the writer.
 fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Error> {
     let response_bytes = serde_json::to_string(&response)?.into_bytes();
-    let response_length = TryInto::<u32>::try_into(response_bytes.len())
+    let response_length = u32::try_from(response_bytes.len())
         .or(Err(Error::UnsupportedLength))?
         .to_ne_bytes();
     writer.write_all(&response_length)?;
