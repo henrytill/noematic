@@ -22,7 +22,7 @@ Currently, it only supports Chrome/Chromium. Firefox support is planned.
 
 ### Architecture
 
-`noematic` is currently comprised of two components: a web extension, and a native executable which communicates with the extension using [Native Messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
+`noematic` is currently comprised of two components: a web extension, and a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
 
 ### Native Messaging Host Manifest File
 
