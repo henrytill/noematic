@@ -14,10 +14,10 @@ const handleSearch = () => {
  * @returns {Promise<boolean>}
  */
 const checkContentScriptActive = async (tab) => {
+  if (tab.id === undefined) {
+    return false;
+  }
   try {
-    if (!tab.id) {
-      throw Error('No tab id');
-    }
     await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
     return true;
   } catch (_) {
