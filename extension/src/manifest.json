@@ -17,5 +17,6 @@
     "default_popup": "popup/popup.html",
     "default_title": "noematic"
   },
-  "permissions": ["activeTab", "nativeMessaging", "scripting"]
+  "permissions": ["activeTab", "nativeMessaging", "scripting"],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlA406ADRnli3X7dbjs00yJSued1a3gUM4kYfK/mJ7653ItJ19WEyI/pkA9vARcfGSRVM5AYA/XU8ZzVamAVQIdjdUzPM7BkrCsE0xez/12SOw37Lxon5fESnvjX3U/AcdeuWwBIUa+xVZxMsEULZTGbuUj4Oc+Iu36oQ1BEV0zOk1NLwAloUvQemnmvAqsyyc+HC8Kh+xe0gg/mjTs8FLXFiOj7oo6orBWkHXbQfWENM8/MO35w9U6MS4NLkSstoCGPb1M7qm8aYzqdcR/PgrpxgQ2Adb2CBtv4TyZ3B+7ddXwTgKaTo6rO3TLcwo4Vy++9hasC4JZTRnWpaLd8PmQIDAQAB"
 }

@@ -9,6 +9,7 @@ on:
 
 jobs:
   build:
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -21,11 +22,25 @@ jobs:
             ~/.cargo/git/db/
             host/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('host/Cargo.lock') }}
-      - run: npm ci
-        working-directory: ./extension
-      - run: npm run check
-        working-directory: ./extension
+
       - run: cargo build
         working-directory: ./host
       - run: cargo test
         working-directory: ./host
+
+      - run: npm ci
+        working-directory: ./extension
+      - run: npm run generate
+        working-directory: ./extension
+      - run: npx playwright install --with-deps chromium
+        working-directory: ./extension
+      - run: npm run check
+        working-directory: ./extension
+      - run: npx playwright test
+        working-directory: ./extension
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: playwright-report
+          path: extension/playwright-report/
+          retention-days: 30
