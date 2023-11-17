@@ -9,13 +9,22 @@ const CREATE_SQL: &str = include_str!("create.sql");
 
 const _: () = assert!(!CREATE_SQL.is_empty());
 
-const SELECT_VERSION_TABLE_EXISTS: &str =
-    "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')";
+const SELECT_VERSION_TABLE_EXISTS: &str = "\
+SELECT EXISTS 
+(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')
+";
 
-const SELECT_VERSION_EXISTS: &str = "SELECT EXISTS(SELECT 1 FROM schema_version)";
+const SELECT_VERSION_EXISTS: &str = "\
+SELECT EXISTS 
+(SELECT 1 FROM schema_version)
+";
 
-const SELECT_LATEST_VERSION: &str =
-    "SELECT major, minor, patch FROM schema_version ORDER BY date_applied DESC LIMIT 1";
+const SELECT_LATEST_VERSION: &str = "\
+SELECT major, minor, patch 
+FROM schema_version 
+ORDER BY date_applied DESC 
+LIMIT 1
+";
 
 pub enum Error {
     Sqlite(rusqlite::Error),
@@ -86,10 +95,10 @@ fn migrate(
 
 fn insert_version(tx: &Transaction, version: Version) -> Result<Version, rusqlite::Error> {
     let mut statement = tx.prepare(
-        "
-        INSERT INTO schema_version (major, minor, patch)
-        VALUES (?, ?, ?)
-        ",
+        "\
+INSERT INTO schema_version (major, minor, patch)
+VALUES (?, ?, ?)
+",
     )?;
     statement.execute([version.major, version.minor, version.patch])?;
     Ok(version)
@@ -97,14 +106,14 @@ fn insert_version(tx: &Transaction, version: Version) -> Result<Version, rusqlit
 
 pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result<(), Error> {
     let mut statement = connection.prepare(
-        "
-        INSERT INTO sites (url, title, inner_text)
-        VALUES (?, ?, ?)
-        ON CONFLICT (url) DO UPDATE SET
-            title = excluded.title,
-            inner_text = excluded.inner_text,
-            updated_at = CURRENT_TIMESTAMP
-        ",
+        "\
+INSERT INTO sites (url, title, inner_text)
+VALUES (?, ?, ?)
+ON CONFLICT (url) DO UPDATE SET
+    title = excluded.title,
+    inner_text = excluded.inner_text,
+    updated_at = CURRENT_TIMESTAMP
+",
     )?;
     statement.execute(params![
         save_payload.url,
@@ -123,13 +132,13 @@ where
     F: Fn(Query) -> String,
 {
     let mut stmt = connection.prepare(
-        "
-        SELECT s.url, s.title, s.inner_text
-        FROM sites_fts
-        JOIN sites s ON sites_fts.rowid = s.id
-        WHERE sites_fts MATCH ?
-        ORDER BY rank
-        ",
+        "\
+SELECT s.url, s.title, s.inner_text
+FROM sites_fts
+JOIN sites s ON sites_fts.rowid = s.id
+WHERE sites_fts MATCH ?
+ORDER BY rank
+",
     )?;
     let query_string = process(search_payload.query);
     let mut rows = stmt.query([query_string])?;
