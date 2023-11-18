@@ -6,6 +6,11 @@ import * as os from 'node:os';
 import * as process from 'node:process';
 import * as url from 'node:url';
 
+const kProjectRoot = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
+const kHostRoot = path.join(kProjectRoot, 'host');
+
+const kHostBinaryName = 'noematic';
+
 /**
  * @typedef {Object} Manifest
  * @property {string} name
@@ -27,13 +32,11 @@ const template = {
 /**
  * Find the host project directory.
  *
- * @param {NodeJS.ProcessEnv} env
- * @param {string} dirname
  * @returns {string}
+ * @throws {Error} if the host project directory does not exist
  */
-const getHostDir = (env, dirname) => {
-  const defaultHostDir = path.join(dirname, '..', '..', 'host');
-  const hostDir = env.HOST_PROJECT_DIR || defaultHostDir;
+const getHostDir = () => {
+  const hostDir = process.env.HOST_PROJECT_DIR || kHostRoot;
   // Check that the host project directory exists
   if (!fs.existsSync(hostDir)) {
     throw new Error(`Host project directory does not exist: ${hostDir}`);
@@ -44,57 +47,56 @@ const getHostDir = (env, dirname) => {
 /**
  * Set the template's path property to the host binary path.
  *
- * @param {Manifest} template
+ * @param {Manifest} manifest
  * @param {string} hostDir
  * @param {string} buildType
  * @returns {void}
+ * @throws {Error} if the host binary does not exist
  */
-const setHostBinaryPath = (template, hostDir, buildType) => {
-  const hostBinaryName = 'noematic';
-  const hostBinaryPath = path.join(hostDir, 'target', buildType, hostBinaryName);
+const setHostBinaryPath = (manifest, hostDir, buildType) => {
+  const hostBinaryPath = path.join(hostDir, 'target', buildType, kHostBinaryName);
   // Check that the host binary exists
   if (!fs.existsSync(hostBinaryPath)) {
     throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
   }
-  template.path = hostBinaryPath;
+  manifest.path = hostBinaryPath;
 };
 
 /**
  * Find the target directory.
  *
- * @param {NodeJS.ProcessEnv} env
  * @returns {string}
  */
-const getTargetDir = (env) => {
-  const defaultTargetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
-  const targetDir = env.NATIVE_MESSAGING_HOSTS_DIR || defaultTargetDir;
-  return targetDir;
+const getTargetDir = () => {
+  let targetDir = kProjectRoot;
+  if (os.platform() == 'linux') {
+    targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
+  }
+  return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
 };
 
 /**
- * @param {Manifest} template
+ * @param {Manifest} manifest
  * @param {string} targetDir
  * @returns {{manifestPath: string, output: string}}
  */
-const writeManifest = (template, targetDir) => {
+const writeManifest = (manifest, targetDir) => {
   fs.mkdirSync(targetDir, { recursive: true });
-  const manifestPath = path.join(targetDir, `${template.name}.json`);
-  const output = JSON.stringify(template, null, 2);
+  const manifestPath = path.join(targetDir, `${manifest.name}.json`);
+  const output = JSON.stringify(manifest, null, 2);
   fs.writeFileSync(manifestPath, output, 'utf-8');
   return { manifestPath, output };
 };
 
 const main = () => {
-  const env = process.env;
-  const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-  const buildType = env.BUILD_TYPE || 'debug';
+  const buildType = process.env.BUILD_TYPE || 'debug';
 
   try {
-    const hostDir = getHostDir(env, __dirname);
+    const hostDir = getHostDir();
 
     setHostBinaryPath(template, hostDir, buildType);
 
-    const targetDir = getTargetDir(env);
+    const targetDir = getTargetDir();
 
     const { manifestPath, output } = writeManifest(template, targetDir);
 
