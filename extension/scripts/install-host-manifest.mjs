@@ -16,7 +16,7 @@ const kHostBinaryName = 'noematic';
  * @property {string} name
  * @property {string} description
  * @property {string?} path
- * @property {string} type
+ * @property {'stdio'} type
  * @property {string[]} allowed_origins
  */
 
