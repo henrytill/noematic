@@ -25,6 +25,8 @@ const template = {
 };
 
 /**
+ * Find the host project directory.
+ *
  * @param {NodeJS.ProcessEnv} env
  * @param {string} dirname
  * @returns {string}
@@ -40,13 +42,16 @@ const getHostDir = (env, dirname) => {
 };
 
 /**
+ * Set the template's path property to the host binary path.
+ *
  * @param {Manifest} template
  * @param {string} hostDir
+ * @param {string} buildType
  * @returns {void}
  */
-const setHostBinaryPath = (template, hostDir) => {
+const setHostBinaryPath = (template, hostDir, buildType) => {
   const hostBinaryName = 'noematic';
-  const hostBinaryPath = path.join(hostDir, 'target', 'debug', hostBinaryName);
+  const hostBinaryPath = path.join(hostDir, 'target', buildType, hostBinaryName);
   // Check that the host binary exists
   if (!fs.existsSync(hostBinaryPath)) {
     throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
@@ -55,6 +60,8 @@ const setHostBinaryPath = (template, hostDir) => {
 };
 
 /**
+ * Find the target directory.
+ *
  * @param {NodeJS.ProcessEnv} env
  * @returns {string}
  */
@@ -67,38 +74,32 @@ const getTargetDir = (env) => {
 /**
  * @param {Manifest} template
  * @param {string} targetDir
- * @returns {string}
+ * @returns {{manifestPath: string, output: string}}
  */
 const writeManifest = (template, targetDir) => {
   fs.mkdirSync(targetDir, { recursive: true });
   const manifestPath = path.join(targetDir, `${template.name}.json`);
-  fs.writeFileSync(manifestPath, JSON.stringify(template, null, 2), 'utf-8');
-  return manifestPath;
+  const output = JSON.stringify(template, null, 2);
+  fs.writeFileSync(manifestPath, output, 'utf-8');
+  return { manifestPath, output };
 };
 
 const main = () => {
   const env = process.env;
   const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+  const buildType = env.BUILD_TYPE || 'debug';
 
   try {
-    // Find the host project directory
     const hostDir = getHostDir(env, __dirname);
-    console.log(`Using host project directory: ${hostDir}`);
 
-    // Set the build type
-    const buildType = env.BUILD_TYPE || 'debug';
+    setHostBinaryPath(template, hostDir, buildType);
 
-    // Set the host binary path
-    setHostBinaryPath(template, hostDir);
-    console.log(`Using host binary: ${template.path}`);
-
-    // Set the target directory
     const targetDir = getTargetDir(env);
-    console.log(`Using target directory: ${targetDir}`);
 
-    // Write the manifest, creating the target directory if necessary
-    const manifestPath = writeManifest(template, targetDir);
-    console.log(`Native Messaging Host Manifest has been written to ${manifestPath}`);
+    const { manifestPath, output } = writeManifest(template, targetDir);
+
+    console.log(`Manifest written to: ${manifestPath}`);
+    console.log(`Manifest contents:\n${output}`);
   } catch (err) {
     console.error(err);
     process.exit(1);
