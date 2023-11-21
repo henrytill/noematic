@@ -1,6 +1,10 @@
-# noematic
-
-[![CI](https://github.com/henrytill/noematic/actions/workflows/ci.yml/badge.svg)](https://github.com/henrytill/noematic/actions/workflows/ci.yml)
+<div align="center">
+  <h1>noematic</h1>
+  <p><strong>Search your backlog</strong></p>
+  <p>
+    <a href="https://github.com/henrytill/noematic/actions/workflows/ci.yml"><img src="https://github.com/henrytill/noematic/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  </p>
+</div>
 
 ## About
 
