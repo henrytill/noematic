@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>noematic</h1>
+  <h1>Noematic</h1>
   <p><strong>Search your backlog</strong></p>
   <p>
     <a href="https://github.com/henrytill/noematic/actions/workflows/ci.yml"><img src="https://github.com/henrytill/noematic/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
@@ -8,7 +8,7 @@
 
 ## About
 
-`noematic` is an experimental browser extension that reimagines bookmarking. When you bookmark a page, its text content is saved locally to your computer. This content is indexed, enabling bookmarks to be retrieved through full-text search.
+Noematic is an experimental browser extension that reimagines bookmarking. When you bookmark a page, its text content is saved locally to your computer. This content is indexed, enabling bookmarks to be retrieved through full-text search.
 
 ## Status
 
@@ -21,7 +21,7 @@ Currently, it only works with Chrome/Chromium. Firefox support is planned.
 
 ### Architecture
 
-`noematic` is currently comprised of two components: a web extension, and a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
+Noematic is currently comprised of two components: a web extension, and a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
 
 ### Native Messaging Host Manifest File
 
