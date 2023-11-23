@@ -21,4 +21,4 @@ test:
 
 .PHONY: install_host_manifest
 install_host_manifest: build
-	npm --prefix $(EXTENSION_ROOT) run install-host-manifest
+	npm --prefix $(EXTENSION_ROOT) run create-host-manifest

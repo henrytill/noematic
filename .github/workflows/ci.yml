@@ -30,7 +30,7 @@ jobs:
 
       - run: npm ci
         working-directory: ./extension
-      - run: npm run install-host-manifest
+      - run: npm run create-host-manifest
         working-directory: ./extension
       - run: npx playwright install --with-deps chromium
         working-directory: ./extension

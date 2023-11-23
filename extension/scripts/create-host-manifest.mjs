@@ -1,8 +1,8 @@
 // eslint-env node
 
 import * as fs from 'node:fs';
-import * as path from 'node:path';
 import * as os from 'node:os';
+import * as path from 'node:path';
 import * as process from 'node:process';
 import * as url from 'node:url';
 
@@ -100,8 +100,8 @@ const main = () => {
 
     const { manifestPath, output } = writeManifest(template, targetDir);
 
-    console.log(`Manifest written to: ${manifestPath}`);
-    console.log(`Manifest contents:\n${output}`);
+    console.log(`Host manifest written to: ${manifestPath}`);
+    console.log(`Host manifest contents:\n${output}`);
   } catch (err) {
     console.error(err);
     process.exit(1);

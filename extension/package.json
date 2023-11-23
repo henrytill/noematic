@@ -5,7 +5,7 @@
     "check": "tsc",
     "lint": "eslint src --ext .mjs,.js,.ts",
     "test": "playwright test",
-    "install-host-manifest": "node ./scripts/install-host-manifest.mjs"
+    "create-host-manifest": "node ./scripts/create-host-manifest.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
