@@ -2,12 +2,16 @@
   "name": "noematic",
   "private": true,
   "scripts": {
+    "clean": "rm -rf dist",
     "check": "tsc",
     "lint": "eslint src --ext .mjs,.js,.ts",
+    "build": "node ./scripts/build.mjs",
+    "pretest": "node ./scripts/build.mjs",
     "test": "playwright test",
     "create-host-manifest": "node ./scripts/create-host-manifest.mjs"
   },
   "devDependencies": {
+    "@henrytill/incr": "github:henrytill/incr",
     "@playwright/test": "^1.40.0",
     "@types/chrome": "^0.0.251",
     "@types/node": "^20.9.1",

@@ -9,7 +9,7 @@ export const test = base.extend<{
 }>({
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
-    const pathToExtension = path.join(__dirname, '../src');
+    const pathToExtension = path.join(__dirname, '../dist', 'chromium');
     const args = [
       `--disable-extensions-except=${pathToExtension}`,
       `--load-extension=${pathToExtension}`,

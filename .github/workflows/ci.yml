@@ -36,7 +36,7 @@ jobs:
         working-directory: ./extension
       - run: npm run check
         working-directory: ./extension
-      - run: npx playwright test
+      - run: npm test
         working-directory: ./extension
       - uses: actions/upload-artifact@v3
         if: always()
