@@ -18,6 +18,7 @@ const kHostBinaryName = 'noematic';
  * @property {string?} path
  * @property {'stdio'} type
  * @property {string[]} allowed_origins
+ * @property {string[]} allowed_extensions
  */
 
 /** @type {Manifest} */
@@ -27,6 +28,7 @@ const template = {
   path: null,
   type: 'stdio',
   allowed_origins: ['chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/'],
+  allowed_extensions: ['henrytill@gmail.com'],
 };
 
 /**
@@ -63,14 +65,27 @@ const setHostBinaryPath = (manifest, hostDir, buildType) => {
 };
 
 /**
- * Find the target directory.
+ * Find the target directory for Chromium.
  *
  * @returns {string}
  */
-const getTargetDir = () => {
+const getChromiumTargetDir = () => {
   let targetDir = kProjectRoot;
   if (os.platform() == 'linux') {
     targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
+  }
+  return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
+};
+
+/**
+ * Find the target directory for Firefox.
+ *
+ * @returns {string}
+ */
+const getFirefoxTargetDir = () => {
+  let targetDir = kProjectRoot;
+  if (os.platform() == 'linux') {
+    targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
   }
   return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
 };
@@ -96,9 +111,13 @@ const main = () => {
 
     setHostBinaryPath(template, hostDir, buildType);
 
-    const targetDir = getTargetDir();
+    const chromiumTargetDir = getChromiumTargetDir();
 
-    const { manifestPath, output } = writeManifest(template, targetDir);
+    const { manifestPath, output } = writeManifest(template, chromiumTargetDir);
+
+    const firefoxTargetDir = getFirefoxTargetDir();
+
+    writeManifest(template, firefoxTargetDir);
 
     console.log(`Host manifest written to: ${manifestPath}`);
     console.log(`Host manifest contents:\n${output}`);
