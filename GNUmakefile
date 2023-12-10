@@ -10,14 +10,15 @@ MANIFEST_PATH = --manifest-path=$(CARGO_WORKSPACE_TOML)
 .PHONY: all
 all: build
 
-.PHONY: build clean clippy fmt
-build clean clippy fmt:
+.PHONY: build clean test
+build clean test:
 	cargo $@ $(MANIFEST_PATH)
+	npm --prefix $(EXTENSION_ROOT) run $@
 
-.PHONY: test
-test:
-	cargo test $(MANIFEST_PATH)
-	npm --prefix $(EXTENSION_ROOT) test
+.PHONY: lint
+lint:
+	cargo clippy $(MANIFEST_PATH)
+	npm --prefix $(EXTENSION_ROOT) run $@
 
 .PHONY: install_host_manifest
 install_host_manifest: build
