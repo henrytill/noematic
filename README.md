@@ -15,42 +15,43 @@ Noematic is an experimental browser extension that reimagines bookmarking. When 
 > [!WARNING]
 > This is a work-in-progress prototype. It is unstable and not yet fit for general use.
 
-Currently, it only works with Chrome/Chromium. Firefox support is planned.
-
 ## Development Notes
 
 ### Architecture
 
-Noematic is currently comprised of two components: a web extension, and a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
+Noematic is currently comprised of two components:
 
-### Native Messaging Host Manifest File
+- a web extension, usable in Firefox or Chromium browsers
+- a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
 
-Refer to the [native messaging documentation](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/) for more information, including manifest file locations for various platforms.
+### Build
 
-The manifest file should be named:
+On Linux:
 
-```
-com.github.henrytill.noematic.json
-```
-
-It should look like:
-
-```json
-{
-  "name": "com.github.henrytill.noematic",
-  "description": "Search your backlog",
-  "path": "/home/ht/src/noematic/host/target/debug/noematic",
-  "type": "stdio",
-  "allowed_origins": ["chrome-extension://nhpmniahkjglmdbkbbolkakgfbgdiplj/"]
-}
+```sh
+make
 ```
 
-> [!IMPORTANT]
-> You will need to modify the `path` and `allowed_origins` values.
->
-> The `name` and `type` values **must** match the example.
+The extension build products can be loaded from:
 
-### Documentation
+```
+extension/dist/firefox
+extension/dist/chromium
+```
+
+### Native Manifest File
+
+Refer to the native messaging documentation for [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests) or [Chromium](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/) for more information, including manifest file locations for various platforms.
+
+On Linux, native manifests for both browsers can installed using the following command:
+
+```sh
+make install_host_manifest
+```
+
+The native manifests point directly to the debug executable.
+
+### Useful Documentation
 
 - <https://developer.chrome.com/docs/extensions/reference/runtime/>
 - <https://developer.chrome.com/docs/extensions/mv3/messaging/>
