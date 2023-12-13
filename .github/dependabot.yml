@@ -1,14 +1,14 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/extension"
+  - package-ecosystem: 'npm'
+    directory: '/extension'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "cargo"
-    directory: "/host"
+      interval: 'weekly'
+  - package-ecosystem: 'cargo'
+    directory: '/host'
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "github-actions"
-    directory: "/"
+      interval: 'weekly'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
