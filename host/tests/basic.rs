@@ -4,6 +4,8 @@ use std::process::{Command, Stdio};
 
 use serde_json::json;
 
+const CORRELATION_ID: &str = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+
 #[test]
 fn test_save() {
     let noematic = common::exe("noematic").unwrap();
@@ -21,7 +23,7 @@ fn test_save() {
             "title": "Title",
             "innerText": "Inner text"
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
     common::write_request(stdin, &request).expect("Failed to write request");
@@ -30,7 +32,7 @@ fn test_save() {
         "version": "0.1.0",
         "action": "saveResponse",
         "payload": {},
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
     let actual = common::read_response(stdout).expect("Failed to read response");
@@ -55,7 +57,7 @@ fn test_search() {
             "title": "Title",
             "innerText": "Foo bar baz quux"
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
     common::write_request(stdin, &save_request).expect("Failed to write request");
@@ -64,7 +66,7 @@ fn test_search() {
         "version": "0.1.0",
         "action": "saveResponse",
         "payload": {},
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
@@ -78,7 +80,7 @@ fn test_search() {
         "payload": {
             "query": "quux"
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
@@ -97,7 +99,7 @@ fn test_search() {
                 }
             ]
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
@@ -123,7 +125,7 @@ fn test_search_quotation() {
             "title": "Title",
             "innerText": "foo bar baz quux"
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
     common::write_request(stdin, &save_request).expect("Failed to write request");
@@ -132,7 +134,7 @@ fn test_search_quotation() {
         "version": "0.1.0",
         "action": "saveResponse",
         "payload": {},
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
@@ -146,7 +148,7 @@ fn test_search_quotation() {
         "payload": {
             "query": "\"\"foo-\"***bar\"\""
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
@@ -165,7 +167,7 @@ fn test_search_quotation() {
                 }
             ]
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
@@ -191,7 +193,7 @@ fn search_idempotent() {
             "title": "Title",
             "innerText": "Foo bar baz quux"
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
     common::write_request(stdin, &save_request).expect("Failed to write request");
@@ -200,7 +202,7 @@ fn search_idempotent() {
         "version": "0.1.0",
         "action": "saveResponse",
         "payload": {},
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
@@ -214,7 +216,7 @@ fn search_idempotent() {
         "payload": {
             "query": "quux"
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
@@ -233,7 +235,7 @@ fn search_idempotent() {
                 }
             ]
         },
-        "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+        "correlationId": CORRELATION_ID
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
