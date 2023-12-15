@@ -111,16 +111,19 @@ const main = () => {
 
     setHostBinaryPath(template, hostDir, buildType);
 
-    const chromiumTargetDir = getChromiumTargetDir();
+    {
+      const chromiumTargetDir = getChromiumTargetDir();
+      const { manifestPath, output } = writeManifest(template, chromiumTargetDir);
+      console.log(`Chromium host manifest written to: ${manifestPath}`);
+      console.log(`Chromium host manifest contents:\n${output}`);
+    }
 
-    const { manifestPath, output } = writeManifest(template, chromiumTargetDir);
-
-    const firefoxTargetDir = getFirefoxTargetDir();
-
-    writeManifest(template, firefoxTargetDir);
-
-    console.log(`Host manifest written to: ${manifestPath}`);
-    console.log(`Host manifest contents:\n${output}`);
+    {
+      const firefoxTargetDir = getFirefoxTargetDir();
+      const { manifestPath, output } = writeManifest(template, firefoxTargetDir);
+      console.log(`Firefox host manifest written to: ${manifestPath}`);
+      console.log(`Firefox host manifest contents:\n${output}`);
+    }
   } catch (err) {
     console.error(err);
     process.exit(1);
