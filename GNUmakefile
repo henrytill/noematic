@@ -20,6 +20,6 @@ lint:
 	cargo clippy $(MANIFEST_PATH)
 	npm --prefix $(EXTENSION_ROOT) run $@
 
-.PHONY: install_host_manifest
-install_host_manifest: build
+.PHONY: create_host_manifest
+create_host_manifest: build
 	npm --prefix $(EXTENSION_ROOT) run create-host-manifest
