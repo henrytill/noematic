@@ -32,9 +32,9 @@ impl Error {
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match *self.inner {
-            ErrorImpl::Sqlite(ref e) => write!(f, "SQLite error: {}", e),
-            ErrorImpl::Semver(ref e) => write!(f, "Semver error: {}", e),
+        match self.inner.as_ref() {
+            ErrorImpl::Sqlite(e) => write!(f, "SQLite error: {}", e),
+            ErrorImpl::Semver(e) => write!(f, "Semver error: {}", e),
             ErrorImpl::MissingVersion => write!(f, "Missing version"),
             ErrorImpl::InvalidVersion => write!(f, "Invalid version"),
         }
