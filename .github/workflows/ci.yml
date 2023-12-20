@@ -38,7 +38,7 @@ jobs:
         working-directory: ./extension
       - run: npm test
         working-directory: ./extension
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
