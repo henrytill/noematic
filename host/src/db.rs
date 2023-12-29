@@ -123,14 +123,11 @@ ON CONFLICT (url) DO UPDATE SET
     Ok(())
 }
 
-pub fn search_sites<F>(
+pub fn search_sites(
     connection: &Connection,
     search_payload: SearchPayload,
-    process: F,
-) -> Result<Vec<Site>, Error>
-where
-    F: Fn(Query) -> String,
-{
+    process: impl Fn(Query) -> String,
+) -> Result<Vec<Site>, Error> {
     let mut stmt = connection.prepare(
         "\
 SELECT s.url, s.title, s.inner_text
