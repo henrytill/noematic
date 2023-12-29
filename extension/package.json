@@ -5,6 +5,7 @@
     "clean": "rm -rf dist",
     "check": "tsc",
     "lint": "eslint src --ext .mjs,.js,.ts",
+    "fmt": "prettier --write scripts src tests",
     "build": "node ./scripts/build.mjs",
     "pretest": "node ./scripts/build.mjs",
     "test": "playwright test",
@@ -18,6 +19,7 @@
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "@typescript-eslint/parser": "^6.16.0",
     "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
     "typescript": "^5.3.3"
   }
 }
