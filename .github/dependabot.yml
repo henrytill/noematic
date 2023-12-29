@@ -3,15 +3,12 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/extension'
     schedule:
-      interval: 'weekly'
-      day: 'wednesday'
+      interval: 'monthly'
   - package-ecosystem: 'cargo'
     directory: '/host'
     schedule:
-      interval: 'weekly'
-      day: 'wednesday'
+      interval: 'monthly'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
-      day: 'wednesday'
+      interval: 'monthly'
