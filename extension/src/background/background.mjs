@@ -12,26 +12,26 @@ const kNativeMessagingHost = 'com.github.henrytill.noematic';
  * @returns {void}
  */
 const handleHostMessage = (responderMap, message) => {
-  const correlationId = message.correlationId;
-  if (correlationId === undefined) {
-    console.error('No correlation id in message', message);
-    return;
-  }
-  const response = responderMap.get(correlationId);
-  if (response === undefined) {
-    console.error('No response handler for correlation id', correlationId);
-    return;
-  }
-  responderMap.delete(correlationId);
-  response(message);
-  console.log('response', message);
+    const correlationId = message.correlationId;
+    if (correlationId === undefined) {
+        console.error('No correlation id in message', message);
+        return;
+    }
+    const response = responderMap.get(correlationId);
+    if (response === undefined) {
+        console.error('No response handler for correlation id', correlationId);
+        return;
+    }
+    responderMap.delete(correlationId);
+    response(message);
+    console.log('response', message);
 };
 
 /**
  * @param {chrome.runtime.Port} _
  */
 const handleHostDisconnect = (_) => {
-  console.debug('Disconnected from native messaging host');
+    console.debug('Disconnected from native messaging host');
 };
 
 /**
@@ -39,10 +39,10 @@ const handleHostDisconnect = (_) => {
  * @returns {chrome.runtime.Port}
  */
 const connectHost = (responderMap) => {
-  const port = chrome.runtime.connectNative(kNativeMessagingHost);
-  port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
-  port.onDisconnect.addListener(handleHostDisconnect);
-  return port;
+    const port = chrome.runtime.connectNative(kNativeMessagingHost);
+    port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
+    port.onDisconnect.addListener(handleHostDisconnect);
+    return port;
 };
 
 /**
@@ -54,23 +54,23 @@ const connectHost = (responderMap) => {
  * @returns {boolean | undefined}
  */
 const messageListener = (responderMap, hostPort, request, _sender, sendResponse) => {
-  const correlationId = crypto.randomUUID();
-  request.correlationId = correlationId;
-  console.log('request', request);
-  responderMap.set(correlationId, sendResponse);
-  hostPort.postMessage(request);
-  return true;
+    const correlationId = crypto.randomUUID();
+    request.correlationId = correlationId;
+    console.log('request', request);
+    responderMap.set(correlationId, sendResponse);
+    hostPort.postMessage(request);
+    return true;
 };
 
 /**
  * @returns {void}
  */
 const main = () => {
-  /** @type {ResponderMap} */
-  const responderMap = new Map();
-  const hostPort = connectHost(responderMap);
-  chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
-  console.debug('Noematic background handler installed');
+    /** @type {ResponderMap} */
+    const responderMap = new Map();
+    const hostPort = connectHost(responderMap);
+    chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
+    console.debug('Noematic background handler installed');
 };
 
 main();

@@ -1,27 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Noematic: Search Results</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="shared.css" />
-    <link rel="stylesheet" href="search.css" />
-    <script src="search.mjs" type="module"></script>
-  </head>
-  <body>
-    <div id="search-header">
-      <div id="name" class="hide-on-mobile">
-        <a href="./index.html" class="no-link-style">Noematic</a>
-      </div>
-      <form id="search-form" action="search.html" method="GET">
-        <input type="text" id="search-input" name="q" spellcheck="false" autofocus required />
-        <input type="submit" value="Search" />
-      </form>
-      <div id="blank" class="hide-on-mobile"></div>
-    </div>
-    <div id="results-container"></div>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Noematic: Search Results</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="shared.css" />
+        <link rel="stylesheet" href="search.css" />
+        <script src="search.mjs" type="module"></script>
+    </head>
+    <body>
+        <div id="search-header">
+            <div id="name" class="hide-on-mobile">
+                <a href="./index.html" class="no-link-style">Noematic</a>
+            </div>
+            <form id="search-form" action="search.html" method="GET">
+                <input
+                    type="text"
+                    id="search-input"
+                    name="q"
+                    spellcheck="false"
+                    autofocus
+                    required
+                />
+                <input type="submit" value="Search" />
+            </form>
+            <div id="blank" class="hide-on-mobile"></div>
+        </div>
+        <div id="results-container"></div>
+    </body>
 </html>
