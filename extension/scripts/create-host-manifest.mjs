@@ -105,19 +105,15 @@ const writeManifest = (manifest, targetDir) => {
 
 const main = () => {
     const buildType = process.env.BUILD_TYPE || 'debug';
-
     try {
         const hostDir = getHostDir();
-
         setHostBinaryPath(template, hostDir, buildType);
-
         {
             const chromiumTargetDir = getChromiumTargetDir();
             const { manifestPath, output } = writeManifest(template, chromiumTargetDir);
             console.log(`Chromium host manifest written to: ${manifestPath}`);
             console.log(`Chromium host manifest contents:\n${output}`);
         }
-
         {
             const firefoxTargetDir = getFirefoxTargetDir();
             const { manifestPath, output } = writeManifest(template, firefoxTargetDir);

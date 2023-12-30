@@ -3,37 +3,37 @@ const template = document.createElement('template');
 template.innerHTML = `
 <style>
 .search-result {
-  text-align: left;
-  border-bottom: 1px solid #dfe1e5;
-  padding: 10px 0;
+    text-align: left;
+    border-bottom: 1px solid #dfe1e5;
+    padding: 10px 0;
 }
 
 .search-result:last-child {
-  border-bottom: none;
+    border-bottom: none;
 }
 
 .search-result a {
-  display: block;
-  color: #1a0dab;
-  font-size: 18px;
-  text-decoration: none;
-  margin-bottom: 5px;
+    display: block;
+    color: #1a0dab;
+    font-size: 18px;
+    text-decoration: none;
+    margin-bottom: 5px;
 }
 
 .search-result a:hover,
 .search-result a:focus {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .search-result p {
-  font-size: 14px;
-  color: #545454;
-  margin: 0;
+    font-size: 14px;
+    color: #545454;
+    margin: 0;
 }
 </style>
 <div class="search-result">
-  <a target="_blank"></a>
-  <p><slot></slot></p>
+    <a target="_blank"></a>
+    <p><slot></slot></p>
 </div>
 `;
 

@@ -29,7 +29,7 @@ const createSnippet = (text, query, maxLength) => {
     // Normalize spaces and replace newlines with a space.
     text = text.replace(/\s+/g, ' ');
 
-    if (!query) {
+    if (query.length === 0) {
         throw new Error('Unexpected empty query');
     }
 
