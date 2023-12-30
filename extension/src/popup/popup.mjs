@@ -1,3 +1,4 @@
+import * as common from '../common/common.mjs';
 import { kSchemaVersion } from '../common/common.mjs';
 
 /**
@@ -59,20 +60,6 @@ function handleSave(tab) {
 }
 
 /**
- * Abbreviates a string to a given length if it is longer than the length.
- * @param {string} str
- * @param {number} length
- * @returns {string}
- */
-function abbreviate(str, length) {
-    if (str.length <= length) {
-        return str;
-    } else {
-        return str.slice(0, length - 3) + '...';
-    }
-}
-
-/**
  * @param {State} state
  * @returns {void}
  */
@@ -89,13 +76,12 @@ function updateView(state) {
     if (saveButton === null) {
         throw new Error('No save button');
     }
-
-    if (state.url !== null) {
-        originDiv.textContent = abbreviate(state.url.origin, 50);
-    } else {
+    if (state.url === null) {
         saveButton.disabled = true;
         mainDiv.removeChild(originDiv);
+        return;
     }
+    originDiv.textContent = common.abbreviate(state.url.origin, 50);
 }
 
 /**

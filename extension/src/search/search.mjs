@@ -1,20 +1,10 @@
+import * as common from '../common/common.mjs';
 import { kSchemaVersion } from '../common/common.mjs';
 import { SearchResult } from './search-result.mjs';
 
 /**
  * @typedef {import('../common/types.js').SearchResponse} SearchResponse
  */
-
-/**
- * Abbreviates text to a specified maximum length.
- * @param {string} text - The text to abbreviate.
- * @param {number} maxLength - The maximum length of the abbreviated text.
- * @returns {string} - The abbreviated text.
- */
-function abbreviateText(text, maxLength) {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 3) + '...';
-}
 
 /**
  * Finds the first occurrence of the first word of the query in the innerText
@@ -37,7 +27,7 @@ function createSnippet(text, query, maxLength) {
     const matchIndex = text.toLowerCase().indexOf(queryWord);
 
     if (matchIndex === -1) {
-        return abbreviateText(text, maxLength);
+        return common.abbreviate(text, maxLength);
     }
 
     // Calculate the start index for the snippet, ensuring it's within bounds and on a word boundary.
