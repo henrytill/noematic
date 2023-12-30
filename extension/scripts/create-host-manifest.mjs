@@ -37,14 +37,14 @@ const template = {
  * @returns {string}
  * @throws {Error} if the host project directory does not exist
  */
-const getHostDir = () => {
+function getHostDir() {
     const hostDir = process.env.HOST_PROJECT_DIR || kHostRoot;
     // Check that the host project directory exists
     if (!fs.existsSync(hostDir)) {
         throw new Error(`Host project directory does not exist: ${hostDir}`);
     }
     return hostDir;
-};
+}
 
 /**
  * Set the template's path property to the host binary path.
@@ -55,55 +55,55 @@ const getHostDir = () => {
  * @returns {void}
  * @throws {Error} if the host binary does not exist
  */
-const setHostBinaryPath = (manifest, hostDir, buildType) => {
+function setHostBinaryPath(manifest, hostDir, buildType) {
     const hostBinaryPath = path.join(hostDir, 'target', buildType, kHostBinaryName);
     // Check that the host binary exists
     if (!fs.existsSync(hostBinaryPath)) {
         throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
     }
     manifest.path = hostBinaryPath;
-};
+}
 
 /**
  * Find the target directory for Chromium.
  *
  * @returns {string}
  */
-const getChromiumTargetDir = () => {
+function getChromiumTargetDir() {
     let targetDir = kProjectRoot;
     if (os.platform() == 'linux') {
         targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
     }
     return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
-};
+}
 
 /**
  * Find the target directory for Firefox.
  *
  * @returns {string}
  */
-const getFirefoxTargetDir = () => {
+function getFirefoxTargetDir() {
     let targetDir = kProjectRoot;
     if (os.platform() == 'linux') {
         targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
     }
     return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
-};
+}
 
 /**
  * @param {Manifest} manifest
  * @param {string} targetDir
  * @returns {{manifestPath: string, output: string}}
  */
-const writeManifest = (manifest, targetDir) => {
+function writeManifest(manifest, targetDir) {
     fs.mkdirSync(targetDir, { recursive: true });
     const manifestPath = path.join(targetDir, `${manifest.name}.json`);
     const output = JSON.stringify(manifest, null, 2);
     fs.writeFileSync(manifestPath, output, 'utf-8');
     return { manifestPath, output };
-};
+}
 
-const main = () => {
+function main() {
     const buildType = process.env.BUILD_TYPE || 'debug';
     try {
         const hostDir = getHostDir();
@@ -124,6 +124,6 @@ const main = () => {
         console.error(err);
         process.exit(1);
     }
-};
+}
 
 main();

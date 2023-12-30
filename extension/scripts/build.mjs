@@ -76,7 +76,7 @@ async function generateFirefoxManifest(source) {
  * @param {FileConstructor} ctor
  * @return {Promise<Sources>}
  */
-const makeSources = async (sourceFiles, ctor) => {
+async function makeSources(sourceFiles, ctor) {
     /** @type {Sources} */
     const ret = {};
     for (const source of sourceFiles) {
@@ -84,7 +84,7 @@ const makeSources = async (sourceFiles, ctor) => {
         ret[file.key] = file;
     }
     return ret;
-};
+}
 
 /**
  * Prefix each shared target
@@ -93,7 +93,7 @@ const makeSources = async (sourceFiles, ctor) => {
  * @param {TargetDefs} sharedTargets
  * @returns {TargetDefs}
  */
-const prefixSharedTargets = (sharedPrefixes, sharedTargets) => {
+function prefixSharedTargets(sharedPrefixes, sharedTargets) {
     /** @type {TargetDefs} */
     const ret = {};
     for (const [key, { compute, inputs }] of Object.entries(sharedTargets)) {
@@ -102,13 +102,13 @@ const prefixSharedTargets = (sharedPrefixes, sharedTargets) => {
         }
     }
     return ret;
-};
+}
 
 /**
  * @param {TargetDefs} targetDefs
  * @returns {Targets}
  */
-const makeTargets = (targetDefs) => {
+function makeTargets(targetDefs) {
     /** @type {Targets} */
     const ret = {};
     for (const [key, { compute, inputs }] of Object.entries(targetDefs)) {
@@ -116,7 +116,7 @@ const makeTargets = (targetDefs) => {
         ret[target.key] = target;
     }
     return ret;
-};
+}
 
 const sourceFiles = [
     'src/background/background.mjs',
@@ -236,7 +236,7 @@ const makeBrowserSpecificTargets = (sources) => ({
  * @param {FileConstructor} ctor
  * @returns {Promise<[Sources, Targets]>}
  */
-const buildGraph = async (ctor) => {
+async function buildGraph(ctor) {
     const sources = await makeSources(sourceFiles, ctor);
     const sharedTargets = makeSharedTargets(sources);
     const prefixedSharedTargets = prefixSharedTargets(sharedPrefixes, sharedTargets);
@@ -244,12 +244,12 @@ const buildGraph = async (ctor) => {
     const targetDefs = { ...prefixedSharedTargets, ...browserSpecificTargets };
     const targetNodes = makeTargets(targetDefs);
     return [sources, targetNodes];
-};
+}
 
 /**
  * @returns {Promise<void>}
  */
-const watch = async () => {
+async function watch() {
     const notifications = new Channel();
     const consumer = (async () => {
         for await (const notification of notifications.receive()) {
@@ -270,19 +270,19 @@ const watch = async () => {
         console.log('\nExiting...');
     });
     await consumer;
-};
+}
 
 /**
  * @returns {Promise<void>}
  */
-const build = async () => {
+async function build() {
     const [_, targetNodes] = await buildGraph(FileCell.of);
     for (const target of Object.values(targetNodes)) {
         await target.compute().value;
     }
-};
+}
 
-const main = () => {
+function main() {
     const args = process.argv.slice(2);
     const subcommand = args.shift();
 
@@ -294,6 +294,6 @@ const main = () => {
         default:
             build();
     }
-};
+}
 
 main();

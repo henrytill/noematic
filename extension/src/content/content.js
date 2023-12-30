@@ -8,7 +8,7 @@
  * @param {Responder} sendResponse
  * @returns {boolean}
  */
-const handleSaveRequests = (request, _sender, sendResponse) => {
+function handleSaveRequests(request, _sender, sendResponse) {
     request.payload.title = document.title;
     request.payload.innerText = document.body.innerText;
     chrome.runtime.sendMessage(request).then((response) => {
@@ -16,7 +16,7 @@ const handleSaveRequests = (request, _sender, sendResponse) => {
         sendResponse(response);
     });
     return true;
-};
+}
 
 /**
  * @param {any} _request
@@ -24,10 +24,10 @@ const handleSaveRequests = (request, _sender, sendResponse) => {
  * @param {Responder} sendResponse
  * @returns {boolean}
  */
-const handlePingRequests = (_request, _sender, sendResponse) => {
+function handlePingRequests(_request, _sender, sendResponse) {
     sendResponse({ action: 'pong' });
     return true;
-};
+}
 
 /**
  * @param {any} request
@@ -35,7 +35,7 @@ const handlePingRequests = (_request, _sender, sendResponse) => {
  * @param {Responder} sendResponse
  * @returns {boolean | undefined}
  */
-const listener = (request, sender, sendResponse) => {
+function listener(request, sender, sendResponse) {
     switch (request.action) {
         case 'saveRequest':
             return handleSaveRequests(request, sender, sendResponse);
@@ -44,14 +44,14 @@ const listener = (request, sender, sendResponse) => {
         default:
             return undefined;
     }
-};
+}
 
 /**
  * @returns {void}
  */
-const main = () => {
+function main() {
     chrome.runtime.onMessage.addListener(listener);
     console.log('Noematic scrape handler installed');
-};
+}
 
 main();

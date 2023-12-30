@@ -11,10 +11,10 @@ import { SearchResult } from './search-result.mjs';
  * @param {number} maxLength - The maximum length of the abbreviated text.
  * @returns {string} - The abbreviated text.
  */
-const abbreviateText = (text, maxLength) => {
+function abbreviateText(text, maxLength) {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength - 3) + '...';
-};
+}
 
 /**
  * Finds the first occurrence of the first word of the query in the innerText
@@ -25,7 +25,7 @@ const abbreviateText = (text, maxLength) => {
  * @param {number} maxLength - The maximum length of the resulting text snippet.
  * @returns {string} - The text snippet with the query word highlighted.
  */
-const createSnippet = (text, query, maxLength) => {
+function createSnippet(text, query, maxLength) {
     // Normalize spaces and replace newlines with a space.
     text = text.replace(/\s+/g, ' ');
 
@@ -54,14 +54,14 @@ const createSnippet = (text, query, maxLength) => {
     const suffix = end < text.length ? '...' : '';
 
     return prefix + text.substring(start, end) + suffix;
-};
+}
 
 /**
  * Processes and displays the search results
  * @param {SearchResponse} response
  * @returns {void}
  */
-const handleSearchResponse = (response) => {
+function handleSearchResponse(response) {
     const resultsContainer = document.getElementById('results-container');
     if (!resultsContainer) {
         throw new Error('No main element found');
@@ -82,12 +82,13 @@ const handleSearchResponse = (response) => {
         resultElement.snippet = createSnippet(innerText, query, 200);
         resultsContainer.appendChild(resultElement);
     }
-};
+}
 
 /**
  * @param {string} value
+ * @returns {void}
  */
-const search = (value) => {
+function search(value) {
     if (value.length === 0) {
         return;
     }
@@ -101,12 +102,12 @@ const search = (value) => {
             handleSearchResponse(response);
             console.log('response', response);
         });
-};
+}
 
 /**
  * @returns {void}
  */
-const main = () => {
+function main() {
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
 
@@ -119,6 +120,6 @@ const main = () => {
     if (query !== null) {
         search(query);
     }
-};
+}
 
 main();
