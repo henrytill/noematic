@@ -1,10 +1,13 @@
 import * as common from '../common/common.mjs';
-import { kSchemaVersion } from '../common/common.mjs';
+import { SCHEMA_VERSION } from '../common/common.mjs';
 
 /**
  * @typedef {import('../common/types.js').State} State
  */
 
+/**
+ * @returns {void}
+ */
 function handleSearch() {
     chrome.tabs.create({ url: '/search/index.html' });
     window.close();
@@ -52,7 +55,7 @@ function handleSave(tab) {
         throw Error('No tab id');
     }
     const tabId = tab.id; // for TypeScript
-    const message = { version: kSchemaVersion, action: 'saveRequest', payload: { url: tab.url } };
+    const message = { version: SCHEMA_VERSION, action: 'saveRequest', payload: { url: tab.url } };
     checkContentScriptActive(tab)
         .then((isActive) => (isActive ? Promise.resolve([]) : installContentScript(tab)))
         .then((_) => chrome.tabs.sendMessage(tabId, message))

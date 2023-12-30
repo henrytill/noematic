@@ -136,7 +136,6 @@ const sourceFiles = [
     'src/manifest.json',
 ];
 
-const sharedPrefixes = ['dist/chromium', 'dist/firefox'];
 
 /**
  * @param {Sources} sources
@@ -238,11 +237,11 @@ const makeBrowserSpecificTargets = (sources) => ({
  */
 async function buildGraph(ctor) {
     const sources = await makeSources(sourceFiles, ctor);
+    const sharedPrefixes = ['dist/chromium', 'dist/firefox'];
     const sharedTargets = makeSharedTargets(sources);
     const prefixedSharedTargets = prefixSharedTargets(sharedPrefixes, sharedTargets);
     const browserSpecificTargets = makeBrowserSpecificTargets(sources);
-    const targetDefs = { ...prefixedSharedTargets, ...browserSpecificTargets };
-    const targetNodes = makeTargets(targetDefs);
+    const targetNodes = makeTargets({ ...prefixedSharedTargets, ...browserSpecificTargets });
     return [sources, targetNodes];
 }
 

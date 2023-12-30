@@ -6,10 +6,9 @@ import * as path from 'node:path';
 import * as process from 'node:process';
 import * as url from 'node:url';
 
-const kProjectRoot = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
-const kHostRoot = path.join(kProjectRoot, 'host');
-
-const kHostBinaryName = 'noematic';
+const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
+const HOST_ROOT = path.join(PROJECT_ROOT, 'host');
+const HOST_BINARY_NAME = 'noematic';
 
 /**
  * @typedef {Object} Manifest
@@ -38,7 +37,7 @@ const template = {
  * @throws {Error} if the host project directory does not exist
  */
 function getHostDir() {
-    const hostDir = process.env.HOST_PROJECT_DIR || kHostRoot;
+    const hostDir = process.env.HOST_PROJECT_DIR || HOST_ROOT;
     // Check that the host project directory exists
     if (!fs.existsSync(hostDir)) {
         throw new Error(`Host project directory does not exist: ${hostDir}`);
@@ -56,7 +55,7 @@ function getHostDir() {
  * @throws {Error} if the host binary does not exist
  */
 function setHostBinaryPath(manifest, hostDir, buildType) {
-    const hostBinaryPath = path.join(hostDir, 'target', buildType, kHostBinaryName);
+    const hostBinaryPath = path.join(hostDir, 'target', buildType, HOST_BINARY_NAME);
     // Check that the host binary exists
     if (!fs.existsSync(hostBinaryPath)) {
         throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
@@ -70,7 +69,7 @@ function setHostBinaryPath(manifest, hostDir, buildType) {
  * @returns {string}
  */
 function getChromiumTargetDir() {
-    let targetDir = kProjectRoot;
+    let targetDir = PROJECT_ROOT;
     if (os.platform() == 'linux') {
         targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
     }
@@ -83,7 +82,7 @@ function getChromiumTargetDir() {
  * @returns {string}
  */
 function getFirefoxTargetDir() {
-    let targetDir = kProjectRoot;
+    let targetDir = PROJECT_ROOT;
     if (os.platform() == 'linux') {
         targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
     }
@@ -104,8 +103,8 @@ function writeManifest(manifest, targetDir) {
 }
 
 function main() {
-    const buildType = process.env.BUILD_TYPE || 'debug';
     try {
+        const buildType = process.env.BUILD_TYPE || 'debug';
         const hostDir = getHostDir();
         setHostBinaryPath(template, hostDir, buildType);
         {

@@ -4,7 +4,7 @@
  * @typedef {import('../common/types.js').ResponderMap} ResponderMap
  */
 
-const kNativeMessagingHost = 'com.github.henrytill.noematic';
+const NATIVE_MESSAGING_HOST = 'com.github.henrytill.noematic';
 
 /**
  * @param {ResponderMap} responderMap
@@ -40,7 +40,7 @@ function handleHostDisconnect(_port) {
  * @returns {chrome.runtime.Port}
  */
 function connectHost(responderMap) {
-    const port = chrome.runtime.connectNative(kNativeMessagingHost);
+    const port = chrome.runtime.connectNative(NATIVE_MESSAGING_HOST);
     port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
     port.onDisconnect.addListener(handleHostDisconnect);
     return port;

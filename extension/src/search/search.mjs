@@ -1,5 +1,5 @@
 import * as common from '../common/common.mjs';
-import { kSchemaVersion } from '../common/common.mjs';
+import { SCHEMA_VERSION } from '../common/common.mjs';
 import { SearchResult } from './search-result.mjs';
 
 /**
@@ -62,9 +62,7 @@ function handleSearchResponse(response) {
         resultsContainer.innerHTML = 'No results found';
         return;
     }
-
     const query = response.payload.query;
-
     for (const { title, url, innerText } of results) {
         const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
         resultElement.title = title;
@@ -84,7 +82,7 @@ function search(value) {
     }
     chrome.runtime
         .sendMessage({
-            version: kSchemaVersion,
+            version: SCHEMA_VERSION,
             action: 'searchRequest',
             payload: { query: value },
         })
@@ -100,16 +98,13 @@ function search(value) {
 function main() {
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
-
     const searchInput = /** @type {HTMLFormElement?} */ (document.getElementById('search-input'));
     if (searchInput === null) {
         throw new Error('No search input found');
     }
     searchInput.value = query;
-
-    if (query !== null) {
-        search(query);
-    }
+    if (query === null) return;
+    search(query);
 }
 
 main();

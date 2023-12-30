@@ -1,4 +1,4 @@
-export const kSchemaVersion = '0.1.0';
+export const SCHEMA_VERSION = '0.1.0';
 
 /**
  * Abbreviates a string to a given length if it is longer than the length.
