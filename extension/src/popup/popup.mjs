@@ -84,7 +84,7 @@ function updateView(state) {
         mainDiv.removeChild(originDiv);
         return;
     }
-    originDiv.textContent = common.abbreviate(state.url.origin, 50);
+    originDiv.textContent = common.abbreviate(state.url.toString(), 50);
 }
 
 /**
