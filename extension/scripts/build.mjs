@@ -136,7 +136,6 @@ const sourceFiles = [
     'src/manifest.json',
 ];
 
-
 /**
  * @param {Sources} sources
  * @return {TargetDefs}
@@ -204,7 +203,7 @@ const makeSharedTargets = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeChromiumTargets = (sources) => ({
+const makeChromiumManifest = (sources) => ({
     'dist/chromium/manifest.json': {
         inputs: [sources['src/manifest.json']],
         compute: copy,
@@ -215,7 +214,7 @@ const makeChromiumTargets = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeFirefoxTargets = (sources) => ({
+const makeFirefoxManifest = (sources) => ({
     'dist/firefox/manifest.json': {
         inputs: [sources['src/manifest.json']],
         compute: generateFirefoxManifest,
@@ -226,9 +225,9 @@ const makeFirefoxTargets = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeBrowserSpecificTargets = (sources) => ({
-    ...makeChromiumTargets(sources),
-    ...makeFirefoxTargets(sources),
+const makeManifests = (sources) => ({
+    ...makeChromiumManifest(sources),
+    ...makeFirefoxManifest(sources),
 });
 
 /**
@@ -240,8 +239,8 @@ async function buildGraph(ctor) {
     const sharedPrefixes = ['dist/chromium', 'dist/firefox'];
     const sharedTargets = makeSharedTargets(sources);
     const prefixedSharedTargets = prefixSharedTargets(sharedPrefixes, sharedTargets);
-    const browserSpecificTargets = makeBrowserSpecificTargets(sources);
-    const targetNodes = makeTargets({ ...prefixedSharedTargets, ...browserSpecificTargets });
+    const manifests = makeManifests(sources);
+    const targetNodes = makeTargets({ ...prefixedSharedTargets, ...manifests });
     return [sources, targetNodes];
 }
 
@@ -281,17 +280,20 @@ async function build() {
     }
 }
 
-function main() {
+/**
+ * @returns {Promise<void>}
+ */
+async function main() {
     const args = process.argv.slice(2);
     const subcommand = args.shift();
 
     switch (subcommand) {
         case 'watch':
-            watch();
+            await watch();
             break;
         case 'build':
         default:
-            build();
+            await build();
     }
 }
 
