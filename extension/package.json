@@ -4,7 +4,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "check": "tsc",
-    "lint": "eslint src --ext .mjs,.js,.ts",
+    "lint": "eslint scripts src tests --ext .mjs,.js,.ts",
     "fmt": "prettier --write scripts src tests",
     "build": "node ./scripts/build.mjs",
     "pretest": "node ./scripts/build.mjs",
