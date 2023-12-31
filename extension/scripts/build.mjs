@@ -203,7 +203,7 @@ const makeSharedTargets = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeChromiumManifest = (sources) => ({
+const makeChromiumManifestTarget = (sources) => ({
     'dist/chromium/manifest.json': {
         inputs: [sources['src/manifest.json']],
         compute: copy,
@@ -214,7 +214,7 @@ const makeChromiumManifest = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeFirefoxManifest = (sources) => ({
+const makeFirefoxManifestTarget = (sources) => ({
     'dist/firefox/manifest.json': {
         inputs: [sources['src/manifest.json']],
         compute: generateFirefoxManifest,
@@ -225,9 +225,9 @@ const makeFirefoxManifest = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeManifests = (sources) => ({
-    ...makeChromiumManifest(sources),
-    ...makeFirefoxManifest(sources),
+const makeManifestTargets = (sources) => ({
+    ...makeChromiumManifestTarget(sources),
+    ...makeFirefoxManifestTarget(sources),
 });
 
 /**
@@ -239,9 +239,9 @@ async function buildGraph(ctor) {
     const sharedPrefixes = ['dist/chromium', 'dist/firefox'];
     const sharedTargets = makeSharedTargets(sources);
     const prefixedSharedTargets = prefixSharedTargets(sharedPrefixes, sharedTargets);
-    const manifests = makeManifests(sources);
-    const targetNodes = makeTargets({ ...prefixedSharedTargets, ...manifests });
-    return [sources, targetNodes];
+    const manifestTargets = makeManifestTargets(sources);
+    const targets = makeTargets({ ...prefixedSharedTargets, ...manifestTargets });
+    return [sources, targets];
 }
 
 /**
