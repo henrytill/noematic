@@ -50,7 +50,9 @@ impl From<noematic::Error> for Error {
 
 impl std::error::Error for Error {}
 
-/// Reads the length prefix of a message from the reader.
+/// Reads the length prefix of a message.
+///
+/// Returns `None` if the reader is at EOF.
 fn read_length(reader: &mut impl Read) -> io::Result<Option<u32>> {
     let mut bytes = [0; 4];
     match reader.read_exact(&mut bytes) {
@@ -60,7 +62,7 @@ fn read_length(reader: &mut impl Read) -> io::Result<Option<u32>> {
     }
 }
 
-/// Reads a message of the given length from the reader.
+/// Reads a message of the given length.
 fn read_message(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
     let length = length as usize;
     let mut message = vec![0; length];
@@ -68,7 +70,9 @@ fn read_message(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
     Ok(message)
 }
 
-/// Reads a message from the reader.
+/// Reads a length `n`-prefixed bytestring into a vector of length `n`.
+///
+/// Returns `None` if the reader is at EOF.
 fn read(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
     let length = match read_length(reader)? {
         None => return Ok(None),
@@ -77,7 +81,7 @@ fn read(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
     read_message(reader, length).map(Some).map_err(Into::into)
 }
 
-/// Writes the response to the writer.
+/// Serializes a response, prefixed by its serialized length, to the writer.
 fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Error> {
     let response_bytes = serde_json::to_string(&response)?.into_bytes();
     let response_length = u32::try_from(response_bytes.len())
