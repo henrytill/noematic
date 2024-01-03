@@ -47,7 +47,8 @@ function createSnippet(text, query, maxLength) {
 }
 
 /**
- * Processes and displays the search results
+ * Processes and displays the search results contained in a search response.
+ *
  * @param {SearchResponse} response
  * @returns {void}
  */
@@ -57,12 +58,13 @@ function handleSearchResponse(response) {
         throw new Error('No main element found');
     }
     resultsContainer.innerHTML = '';
-    const results = response.payload.results;
+    const {
+        payload: { query, results },
+    } = response;
     if (results.length === 0) {
         resultsContainer.innerHTML = 'No results found';
         return;
     }
-    const query = response.payload.query;
     for (const { title, url, innerText } of results) {
         const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
         resultElement.title = title;

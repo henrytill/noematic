@@ -1,4 +1,4 @@
-// @eslint-env node
+/* eslint-env node */
 
 import { test, expect } from './fixtures';
 

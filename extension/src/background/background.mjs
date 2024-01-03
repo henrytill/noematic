@@ -1,5 +1,4 @@
 /**
- * @typedef {import('../common/types.js').UUID} UUID
  * @typedef {import('../common/types.js').Responder} Responder
  * @typedef {import('../common/types.js').ResponderMap} ResponderMap
  */

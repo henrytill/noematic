@@ -1,6 +1,6 @@
 export type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
-export type Responder = (response: any) => void;
+export type Responder = (response?: any) => void;
 
 export type ResponderMap = Map<UUID, Responder>;
 

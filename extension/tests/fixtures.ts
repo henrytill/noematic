@@ -1,4 +1,4 @@
-// eslint-env node
+/* eslint-env node */
 
 import { test as base, chromium, type BrowserContext } from '@playwright/test';
 import * as path from 'node:path';
