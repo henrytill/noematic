@@ -35,11 +35,12 @@ function handleHostDisconnect(_port) {
 }
 
 /**
+ * @param {string} application
  * @param {ResponderMap} responderMap
  * @returns {chrome.runtime.Port}
  */
-function connectHost(responderMap) {
-    const port = chrome.runtime.connectNative(NATIVE_MESSAGING_HOST);
+function connectHost(application, responderMap) {
+    const port = chrome.runtime.connectNative(application);
     port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
     port.onDisconnect.addListener(handleHostDisconnect);
     return port;
@@ -68,7 +69,7 @@ function messageListener(responderMap, hostPort, request, _sender, sendResponse)
 function main() {
     /** @type {ResponderMap} */
     const responderMap = new Map();
-    const hostPort = connectHost(responderMap);
+    const hostPort = connectHost(NATIVE_MESSAGING_HOST, responderMap);
     chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
     console.debug('Noematic background handler installed');
 }
