@@ -22,7 +22,7 @@ SELECT EXISTS
 const SELECT_LATEST_VERSION: &str = "\
 SELECT major, minor, patch
 FROM schema_version
-ORDER BY date_applied DESC
+ORDER BY applied_at DESC
 LIMIT 1
 ";
 
