@@ -1,6 +1,8 @@
 mod db;
 pub mod message;
 
+use std::path::Path;
+
 use regex::Regex;
 use rusqlite::Connection;
 use serde_json::Value;
@@ -85,8 +87,8 @@ fn make_process(re: Regex) -> impl Fn(Query) -> String {
 }
 
 impl Context {
-    pub fn new() -> Result<Self, Error> {
-        let mut connection = Connection::open_in_memory()?;
+    pub fn new(db_path: impl AsRef<Path>) -> Result<Self, Error> {
+        let mut connection = Connection::open(db_path)?;
         db::init_tables(&mut connection)?;
         let process_regex = Regex::new(r"\W+").unwrap();
         let process = Box::new(make_process(process_regex));

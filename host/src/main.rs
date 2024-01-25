@@ -1,5 +1,6 @@
 use std::io::{self, BufReader, BufWriter, Read, Write};
 
+use directories::ProjectDirs;
 use serde_json::Value;
 
 use noematic::{
@@ -14,6 +15,7 @@ enum Error {
     Io(io::Error),
     Json(serde_json::Error),
     Noematic(noematic::Error),
+    MissingHomeDir,
     UnsupportedVersion,
     UnsupportedLength,
 }
@@ -24,6 +26,7 @@ impl std::fmt::Display for Error {
             Error::Io(e) => write!(f, "IO error: {}", e),
             Error::Json(e) => write!(f, "JSON error: {}", e),
             Error::Noematic(e) => write!(f, "{}", e),
+            Error::MissingHomeDir => write!(f, "Missing home directory"),
             Error::UnsupportedVersion => write!(f, "Unsupported version"),
             Error::UnsupportedLength => write!(f, "Unsupported length"),
         }
@@ -93,11 +96,22 @@ fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Err
     Ok(())
 }
 
+fn get_project_dirs() -> Result<ProjectDirs, Error> {
+    ProjectDirs::from("com.github", "henrytill", "noematic").ok_or(Error::MissingHomeDir)
+}
+
 fn main() -> Result<(), Error> {
     let mut reader = BufReader::new(io::stdin());
     let mut writer = BufWriter::new(io::stdout());
 
-    let mut context = Context::new()?;
+    let db_path = {
+        let project_dirs: ProjectDirs = get_project_dirs()?;
+        let db_dir = project_dirs.data_dir();
+        std::fs::create_dir_all(&db_dir)?;
+        db_dir.join("db.sqlite3")
+    };
+
+    let mut context = Context::new(db_path)?;
 
     while let Some(message) = read(&mut reader)? {
         let json: Value = serde_json::from_slice(&message)?;
