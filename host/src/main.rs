@@ -1,4 +1,7 @@
-use std::io::{self, BufReader, BufWriter, Read, Write};
+use std::{
+    fmt, fs,
+    io::{self, BufReader, BufWriter, Read, Write},
+};
 
 use directories::ProjectDirs;
 use serde_json::Value;
@@ -20,8 +23,8 @@ enum Error {
     UnsupportedLength,
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Error::Io(e) => write!(f, "IO error: {}", e),
             Error::Json(e) => write!(f, "JSON error: {}", e),
@@ -107,7 +110,7 @@ fn main() -> Result<(), Error> {
     let db_path = {
         let project_dirs: ProjectDirs = get_project_dirs()?;
         let db_dir = project_dirs.data_dir();
-        std::fs::create_dir_all(&db_dir)?;
+        fs::create_dir_all(&db_dir)?;
         db_dir.join("db.sqlite3")
     };
 
