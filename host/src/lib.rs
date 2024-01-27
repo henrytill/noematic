@@ -1,7 +1,7 @@
 mod db;
 pub mod message;
 
-use std::{fs, io, path::Path};
+use std::{fmt, fs, io, path::Path};
 
 use directories::ProjectDirs;
 use regex::Regex;
@@ -34,8 +34,8 @@ impl Error {
     }
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self.inner.as_ref() {
             ErrorImpl::Io(e) => write!(f, "IO error: {}", e),
             ErrorImpl::Sqlite(e) => write!(f, "SQLite error: {}", e),
