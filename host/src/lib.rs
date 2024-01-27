@@ -105,14 +105,13 @@ impl Connection {
         }
     }
 
-    fn upgrade(&mut self, db_path: impl AsRef<Path>) -> Result<&mut rusqlite::Connection, Error> {
-        if let Connection::Persistent(connection) = self {
-            return Ok(connection);
+    fn upgrade(&mut self, db_path: impl AsRef<Path>) -> Result<(), Error> {
+        if let Connection::Persistent(_) = self {
+            return Ok(());
         }
         let connection = rusqlite::Connection::open(db_path)?;
         let _prev = std::mem::replace(self, Self::Persistent(connection));
-        let connection = self.inner_mut();
-        Ok(connection)
+        Ok(())
     }
 }
 
@@ -163,7 +162,8 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
                     fs::create_dir_all(&db_dir)?;
                     db_dir.join("db.sqlite3")
                 };
-                let connection = context.connection.upgrade(db_path)?;
+                context.connection.upgrade(db_path)?;
+                let connection = context.connection.inner_mut();
                 db::init_tables(connection)?;
             }
             let response = {
