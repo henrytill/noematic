@@ -91,10 +91,17 @@ pub struct Request {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action")]
 pub enum Action {
+    #[serde(rename = "connectRequest")]
+    ConnectRequest { payload: ConnectPayload },
     #[serde(rename = "saveRequest")]
     SaveRequest { payload: SavePayload },
     #[serde(rename = "searchRequest")]
     SearchRequest { payload: SearchPayload },
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ConnectPayload {
+    pub persist: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -123,11 +130,16 @@ pub struct Response {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action")]
 pub enum ResponseAction {
+    #[serde(rename = "connectResponse")]
+    ConnectResponse { payload: ConnectResponsePayload },
     #[serde(rename = "saveResponse")]
     SaveResponse { payload: SaveResponsePayload },
     #[serde(rename = "searchResponse")]
     SearchResponse { payload: SearchResponsePayload },
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ConnectResponsePayload {}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SaveResponsePayload {}
