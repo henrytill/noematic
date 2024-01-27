@@ -166,22 +166,27 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
                 let connection = context.connection.upgrade(db_path)?;
                 db::init_tables(connection)?;
             }
-            let payload = ConnectResponsePayload {};
-            let response = Response {
-                version,
-                action: ResponseAction::ConnectResponse { payload },
-                correlation_id,
+            let response = {
+                let payload = ConnectResponsePayload {};
+                let action = ResponseAction::ConnectResponse { payload };
+                Response {
+                    version,
+                    action,
+                    correlation_id,
+                }
             };
             Ok(response)
         }
         Action::SaveRequest { payload } => {
             db::upsert_site(connection, payload)?;
-            let payload = SaveResponsePayload {};
-            let action = ResponseAction::SaveResponse { payload };
-            let response = Response {
-                version,
-                action,
-                correlation_id,
+            let response = {
+                let payload = SaveResponsePayload {};
+                let action = ResponseAction::SaveResponse { payload };
+                Response {
+                    version,
+                    action,
+                    correlation_id,
+                }
             };
             Ok(response)
         }
@@ -189,12 +194,14 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
             let process = context.process.as_ref();
             let query = payload.query.clone();
             let results = db::search_sites(connection, payload, process)?;
-            let payload = SearchResponsePayload { query, results };
-            let action = ResponseAction::SearchResponse { payload };
-            let response = Response {
-                version,
-                action,
-                correlation_id,
+            let response = {
+                let payload = SearchResponsePayload { query, results };
+                let action = ResponseAction::SearchResponse { payload };
+                Response {
+                    version,
+                    action,
+                    correlation_id,
+                }
             };
             Ok(response)
         }
