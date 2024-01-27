@@ -91,14 +91,14 @@ enum Connection {
 }
 
 impl Connection {
-    fn inner(&self) -> &rusqlite::Connection {
+    const fn as_ref(&self) -> &rusqlite::Connection {
         match self {
             Self::InMemory(connection) => connection,
             Self::Persistent(connection) => connection,
         }
     }
 
-    fn inner_mut(&mut self) -> &mut rusqlite::Connection {
+    fn as_mut(&mut self) -> &mut rusqlite::Connection {
         match self {
             Self::InMemory(connection) => connection,
             Self::Persistent(connection) => connection,
@@ -151,7 +151,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
     let version = request.version;
     let correlation_id = request.correlation_id;
 
-    let connection = context.connection.inner();
+    let connection = context.connection.as_ref();
 
     match request.action {
         Action::ConnectRequest { payload } => {
@@ -163,7 +163,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
                     db_dir.join("db.sqlite3")
                 };
                 context.connection.upgrade(db_path)?;
-                let connection = context.connection.inner_mut();
+                let connection = context.connection.as_mut();
                 db::init_tables(connection)?;
             }
             let response = {
