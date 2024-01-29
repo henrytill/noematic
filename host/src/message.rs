@@ -3,22 +3,22 @@ use serde_derive::{Deserialize, Serialize};
 
 /// The version of the message format.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Version(semver::Version);
+pub struct MessageVersion(semver::Version);
 
-impl Version {
+impl MessageVersion {
     pub const fn new(major: u64, minor: u64, patch: u64) -> Self {
-        Version(semver::Version::new(major, minor, patch))
+        MessageVersion(semver::Version::new(major, minor, patch))
     }
 
     pub fn parse(version: &str) -> Result<Self, semver::Error> {
         let version = semver::Version::parse(version)?;
-        Ok(Version(version))
+        Ok(MessageVersion(version))
     }
 }
 
-impl From<semver::Version> for Version {
+impl From<semver::Version> for MessageVersion {
     fn from(version: semver::Version) -> Self {
-        Version(version)
+        MessageVersion(version)
     }
 }
 
@@ -71,7 +71,7 @@ wrap_string!(Query);
 /// Messages that are sent from the client (extension) to the host.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Request {
-    pub version: Version,
+    pub version: MessageVersion,
     #[serde(flatten)]
     pub action: Action,
     #[serde(rename = "correlationId")]
@@ -110,7 +110,7 @@ pub struct SearchPayload {
 /// Messages that are sent from the host to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Response {
-    pub version: Version,
+    pub version: MessageVersion,
     #[serde(flatten)]
     pub action: ResponseAction,
     #[serde(rename = "correlationId")]

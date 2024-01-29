@@ -8,8 +8,8 @@ use regex::Regex;
 use serde_json::Value;
 
 use message::{
-    Action, ConnectResponsePayload, Query, Request, Response, ResponseAction, SaveResponsePayload,
-    SearchResponsePayload, Version,
+    Action, ConnectResponsePayload, MessageVersion, Query, Request, Response, ResponseAction,
+    SaveResponsePayload, SearchResponsePayload,
 };
 
 #[derive(Debug)]
@@ -18,7 +18,7 @@ enum ErrorImpl {
     Sqlite(rusqlite::Error),
     Semver(semver::Error),
     MissingHomeDir,
-    MissingVersion,
+    MissingMessageVersion,
     InvalidVersion,
 }
 
@@ -41,7 +41,7 @@ impl fmt::Display for Error {
             ErrorImpl::Sqlite(e) => write!(f, "SQLite error: {}", e),
             ErrorImpl::Semver(e) => write!(f, "Semver error: {}", e),
             ErrorImpl::MissingHomeDir => write!(f, "Missing home directory"),
-            ErrorImpl::MissingVersion => write!(f, "Missing version"),
+            ErrorImpl::MissingMessageVersion => write!(f, "Missing message version"),
             ErrorImpl::InvalidVersion => write!(f, "Invalid version"),
         }
     }
@@ -201,10 +201,10 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
 }
 
 /// Extracts the version from the message.
-pub fn extract_version(value: &Value) -> Result<Version, Error> {
+pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
     let version = value["version"]
         .as_str()
-        .ok_or(Error::new(ErrorImpl::MissingVersion))?;
-    let version = Version::parse(version)?;
+        .ok_or(Error::new(ErrorImpl::MissingMessageVersion))?;
+    let version = MessageVersion::parse(version)?;
     Ok(version)
 }

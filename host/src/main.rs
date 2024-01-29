@@ -6,11 +6,11 @@ use std::{
 use serde_json::Value;
 
 use noematic::{
-    message::{Request, Response, Version},
+    message::{MessageVersion, Request, Response},
     Context,
 };
 
-const EXPECTED_VERSION: Version = Version::new(0, 1, 0);
+const EXPECTED_VERSION: MessageVersion = MessageVersion::new(0, 1, 0);
 
 #[derive(Debug)]
 enum Error {
