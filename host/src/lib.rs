@@ -151,7 +151,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
                 let db_path = {
                     let project_dirs: ProjectDirs = get_project_dirs()?;
                     let db_dir = project_dirs.data_dir();
-                    fs::create_dir_all(&db_dir)?;
+                    fs::create_dir_all(db_dir)?;
                     db_dir.join("db.sqlite3")
                 };
                 context.connection.upgrade(db_path)?;
