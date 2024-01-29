@@ -74,14 +74,6 @@ impl From<db::Error> for Error {
     }
 }
 
-impl From<message::Error> for Error {
-    fn from(other: message::Error) -> Self {
-        match other {
-            message::Error::Semver(e) => Self::new(ErrorImpl::Semver(e)),
-        }
-    }
-}
-
 impl std::error::Error for Error {}
 
 #[derive(Debug)]

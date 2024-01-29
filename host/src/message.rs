@@ -1,16 +1,6 @@
 use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 use serde_derive::{Deserialize, Serialize};
 
-pub enum Error {
-    Semver(semver::Error),
-}
-
-impl From<semver::Error> for Error {
-    fn from(other: semver::Error) -> Self {
-        Error::Semver(other)
-    }
-}
-
 /// The version of the message format.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Version(semver::Version);
@@ -20,7 +10,7 @@ impl Version {
         Version(semver::Version::new(major, minor, patch))
     }
 
-    pub fn parse(version: &str) -> Result<Self, Error> {
+    pub fn parse(version: &str) -> Result<Self, semver::Error> {
         let version = semver::Version::parse(version)?;
         Ok(Version(version))
     }
