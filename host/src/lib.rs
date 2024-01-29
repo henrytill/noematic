@@ -19,7 +19,7 @@ enum ErrorImpl {
     Semver(semver::Error),
     MissingHomeDir,
     MissingMessageVersion,
-    InvalidVersion,
+    InvalidSchemaVersion,
 }
 
 #[derive(Debug)]
@@ -42,7 +42,7 @@ impl fmt::Display for Error {
             ErrorImpl::Semver(e) => write!(f, "Semver error: {}", e),
             ErrorImpl::MissingHomeDir => write!(f, "Missing home directory"),
             ErrorImpl::MissingMessageVersion => write!(f, "Missing message version"),
-            ErrorImpl::InvalidVersion => write!(f, "Invalid version"),
+            ErrorImpl::InvalidSchemaVersion => write!(f, "Invalid schema version"),
         }
     }
 }
@@ -69,7 +69,7 @@ impl From<db::Error> for Error {
     fn from(other: db::Error) -> Self {
         match other {
             db::Error::Sqlite(e) => Self::new(ErrorImpl::Sqlite(e)),
-            db::Error::InvalidVersion => Self::new(ErrorImpl::InvalidVersion),
+            db::Error::InvalidSchemaVersion => Self::new(ErrorImpl::InvalidSchemaVersion),
         }
     }
 }

@@ -28,7 +28,7 @@ LIMIT 1
 
 pub enum Error {
     Sqlite(rusqlite::Error),
-    InvalidVersion,
+    InvalidSchemaVersion,
 }
 
 impl From<rusqlite::Error> for Error {
@@ -47,7 +47,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
             insert_version(&tx, CURRENT_SCHEMA_VERSION)?;
         }
         Some(_) => {
-            return Err(Error::InvalidVersion);
+            return Err(Error::InvalidSchemaVersion);
         }
         None => {
             tx.execute_batch(CREATE_SQL)?;
