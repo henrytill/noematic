@@ -1,33 +1,20 @@
-use rusqlite::{params, Connection, Transaction};
-use semver::Version;
+use std::{convert::Infallible, io};
 
-use crate::message::{Query, SavePayload, SearchPayload, Site};
+use rusqlite::{params, Connection};
 
-const CURRENT_SCHEMA_VERSION: Version = Version::new(0, 1, 0);
+use crate::{
+    message::{Query, SavePayload, SearchPayload, Site},
+    schema_version::{self, SchemaVersion, SchemaVersioner},
+};
 
 const CREATE_SQL: &str = include_str!("create.sql");
 
 const _: () = assert!(!CREATE_SQL.is_empty());
 
-const SELECT_VERSION_TABLE_EXISTS: &str = "\
-SELECT EXISTS
-(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')
-";
-
-const SELECT_VERSION_EXISTS: &str = "\
-SELECT EXISTS
-(SELECT 1 FROM schema_version)
-";
-
-const SELECT_LATEST_VERSION: &str = "\
-SELECT major, minor, patch
-FROM schema_version
-ORDER BY applied_at DESC
-LIMIT 1
-";
-
 pub enum Error {
+    Io(io::Error),
     Sqlite(rusqlite::Error),
+    Semver(semver::Error),
     InvalidSchemaVersion,
 }
 
@@ -37,71 +24,50 @@ impl From<rusqlite::Error> for Error {
     }
 }
 
-pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
-    let tx = connection.transaction()?;
-    let maybe_version = get_version(&tx)?;
+impl From<Infallible> for Error {
+    fn from(_: Infallible) -> Self {
+        unreachable!()
+    }
+}
+
+impl From<schema_version::Error> for Error {
+    fn from(other: schema_version::Error) -> Self {
+        match other {
+            schema_version::Error::Io(e) => Self::Io(e),
+            schema_version::Error::Semver(e) => Self::Semver(e),
+        }
+    }
+}
+
+pub fn init_tables<A>(connection: &mut Connection, schema_versioner: &mut A) -> Result<(), Error>
+where
+    A: SchemaVersioner,
+    Error: From<A::Error>,
+{
+    let maybe_version = schema_versioner.read()?;
     match maybe_version {
-        Some(version) if version == CURRENT_SCHEMA_VERSION => {}
-        Some(version) if version < CURRENT_SCHEMA_VERSION => {
-            migrate(&tx, version, CURRENT_SCHEMA_VERSION)?;
-            insert_version(&tx, CURRENT_SCHEMA_VERSION)?;
+        Some(version) if version == SchemaVersion::CURRENT => {}
+        Some(version) if version < SchemaVersion::CURRENT => {
+            migrate(connection, version, SchemaVersion::CURRENT)?;
+            schema_versioner.write(&SchemaVersion::CURRENT)?;
         }
         Some(_) => {
             return Err(Error::InvalidSchemaVersion);
         }
         None => {
-            tx.execute_batch(CREATE_SQL)?;
-            insert_version(&tx, CURRENT_SCHEMA_VERSION)?;
+            connection.execute_batch(CREATE_SQL)?;
+            schema_versioner.write(&SchemaVersion::CURRENT)?;
         }
     }
-    tx.commit()?;
     Ok(())
-}
-
-fn get_version(tx: &Transaction) -> Result<Option<Version>, rusqlite::Error> {
-    let table_exists: bool = tx.query_row(SELECT_VERSION_TABLE_EXISTS, [], |row| row.get(0))?;
-    if !table_exists {
-        return Ok(None);
-    }
-    let version_exists: bool = tx.query_row(SELECT_VERSION_EXISTS, [], |row| row.get(0))?;
-    if version_exists {
-        let maybe_version = select_version(tx)?;
-        return Ok(maybe_version);
-    }
-    Ok(None)
-}
-
-fn select_version(tx: &Transaction) -> Result<Option<Version>, rusqlite::Error> {
-    let mut statement = tx.prepare(SELECT_LATEST_VERSION)?;
-    let mut rows = statement.query(())?;
-    if let Some(row) = rows.next()? {
-        let major: u64 = row.get(0)?;
-        let minor: u64 = row.get(1)?;
-        let patch: u64 = row.get(2)?;
-        let version = Version::new(major, minor, patch);
-        Ok(Some(version))
-    } else {
-        Ok(None)
-    }
 }
 
 fn migrate(
-    _tx: &Transaction,
-    _from_version: Version,
-    _to_version: Version,
+    _connection: &mut Connection,
+    _from_version: SchemaVersion,
+    _to_version: SchemaVersion,
 ) -> Result<(), rusqlite::Error> {
     Ok(())
-}
-
-fn insert_version(tx: &Transaction, version: Version) -> Result<Version, rusqlite::Error> {
-    let mut statement = tx.prepare(
-        "\
-INSERT INTO schema_version (major, minor, patch)
-VALUES (?, ?, ?)
-",
-    )?;
-    statement.execute([version.major, version.minor, version.patch])?;
-    Ok(version)
 }
 
 pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result<(), Error> {

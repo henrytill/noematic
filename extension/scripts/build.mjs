@@ -174,8 +174,8 @@ const makeSharedTargets = (sources) => ({
         compute: copy,
     },
     'search/index.html': {
-        compute: copy,
         inputs: [sources['src/search/index.html']],
+        compute: copy,
     },
     'search/search-result.mjs': {
         inputs: [sources['src/search/search-result.mjs']],

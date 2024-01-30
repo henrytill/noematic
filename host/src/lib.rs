@@ -6,6 +6,7 @@ use std::{fmt, fs, io, path::Path};
 
 use directories::ProjectDirs;
 use regex::Regex;
+use schema_version::{InMemorySchemaVersioner, PersistentSchemaVersioner};
 use serde_json::Value;
 
 use message::{
@@ -18,9 +19,9 @@ enum ErrorImpl {
     Io(io::Error),
     Sqlite(rusqlite::Error),
     Semver(semver::Error),
+    InvalidSchemaVersion,
     MissingHomeDir,
     MissingMessageVersion,
-    InvalidSchemaVersion,
 }
 
 #[derive(Debug)]
@@ -41,9 +42,9 @@ impl fmt::Display for Error {
             ErrorImpl::Io(e) => write!(f, "IO error: {}", e),
             ErrorImpl::Sqlite(e) => write!(f, "SQLite error: {}", e),
             ErrorImpl::Semver(e) => write!(f, "Semver error: {}", e),
+            ErrorImpl::InvalidSchemaVersion => write!(f, "Invalid schema version"),
             ErrorImpl::MissingHomeDir => write!(f, "Missing home directory"),
             ErrorImpl::MissingMessageVersion => write!(f, "Missing message version"),
-            ErrorImpl::InvalidSchemaVersion => write!(f, "Invalid schema version"),
         }
     }
 }
@@ -69,7 +70,9 @@ impl From<semver::Error> for Error {
 impl From<db::Error> for Error {
     fn from(other: db::Error) -> Self {
         match other {
+            db::Error::Io(e) => Self::new(ErrorImpl::Io(e)),
             db::Error::Sqlite(e) => Self::new(ErrorImpl::Sqlite(e)),
+            db::Error::Semver(e) => Self::new(ErrorImpl::Semver(e)),
             db::Error::InvalidSchemaVersion => Self::new(ErrorImpl::InvalidSchemaVersion),
         }
     }
@@ -123,7 +126,8 @@ fn make_process(re: Regex) -> impl Fn(Query) -> String {
 impl Context {
     pub fn new() -> Result<Self, Error> {
         let mut connection = rusqlite::Connection::open_in_memory()?;
-        db::init_tables(&mut connection)?;
+        let mut versioner = InMemorySchemaVersioner::default();
+        db::init_tables(&mut connection, &mut versioner)?;
         let connection = Connection::InMemory(connection);
         let process_regex = Regex::new(r"\W+").unwrap();
         let process = Box::new(make_process(process_regex));
@@ -149,15 +153,15 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
     match request.action {
         Action::ConnectRequest { payload } => {
             if payload.persist {
-                let db_path = {
-                    let project_dirs: ProjectDirs = get_project_dirs()?;
-                    let db_dir = project_dirs.data_dir();
-                    fs::create_dir_all(db_dir)?;
-                    db_dir.join("db.sqlite3")
-                };
+                let project_dirs: ProjectDirs = get_project_dirs()?;
+                let db_dir = project_dirs.data_dir();
+                let db_path = db_dir.join("db.sqlite3");
+                let schema_file_path = db_dir.join("schema");
+                fs::create_dir_all(db_dir)?;
                 context.connection.upgrade(db_path)?;
                 let connection = context.connection.as_mut();
-                db::init_tables(connection)?;
+                let mut versioner = PersistentSchemaVersioner::new(schema_file_path);
+                db::init_tables(connection, &mut versioner)?;
             }
             let response = {
                 let payload = ConnectResponsePayload {};
