@@ -1,5 +1,6 @@
 mod db;
 pub mod message;
+mod schema_version;
 
 use std::{fmt, fs, io, path::Path};
 
