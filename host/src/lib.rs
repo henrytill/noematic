@@ -1,3 +1,10 @@
+//!
+//! The library for the Noematic application.
+//!
+//! The library contains the core functionality of the application, including handling requests and
+//! responses, and managing the database.
+//!
+
 mod db;
 pub mod message;
 
@@ -22,6 +29,9 @@ enum ErrorImpl {
     InvalidSchemaVersion,
 }
 
+///
+/// An error that occurred while handling a request.
+///
 #[derive(Debug)]
 pub struct Error {
     inner: Box<ErrorImpl>,
@@ -168,7 +178,7 @@ fn get_project_dirs() -> Result<ProjectDirs, Error> {
 ///
 /// If an error occurs while handling the request.
 ///
-/// # Examples
+/// # Example
 ///
 /// ```
 /// use noematic::Context;
@@ -262,10 +272,11 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
 ///
 /// # Errors
 ///
-/// If the message does not contain a version.
-/// If the version is not a valid semantic version.
+/// * If the message does not contain a version.
+/// * If the version string does not parse to a valid [`MessageVersion`].
 ///
-/// # Examples
+/// # Example
+///
 /// ```
 /// use serde_json::json;
 /// use noematic::message::MessageVersion;

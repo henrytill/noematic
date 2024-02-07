@@ -1,3 +1,21 @@
+//!
+//! The message format used to communicate between the host and the client (extension).
+//!
+//! See the [`Request`] and [`Response`] types for the message format.
+//!
+//! The message format is a simple JSON-based protocol.
+//!
+//! The message format is versioned. The version is a semantic version string. The version is
+//! included in the message to allow for future changes to the message format.
+//!
+//! The message format is designed to be extensible. The `action` field is a string that indicates
+//! the type of message. The `payload` field is an object that contains the data for the message.
+//!
+//! The `correlationId` field is a string that is used to correlate requests and responses. The
+//! `correlationId` is included in the response to a request to allow the client to match the
+//! response to the request.
+//!
+
 use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 use serde_derive::{Deserialize, Serialize};
 
@@ -27,6 +45,7 @@ impl From<semver::Version> for MessageVersion {
 /// Wrap a String in a newtype
 macro_rules! wrap_string {
     ($name:ident) => {
+        /// A newtype that wraps a `String`.
         #[derive(Serialize, Deserialize, Debug, Clone)]
         pub struct $name(String);
 
@@ -80,6 +99,7 @@ pub struct Request {
     pub correlation_id: CorrelationId,
 }
 
+/// The actions that the client (extension) can send to the host.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action")]
 pub enum Action {
@@ -91,11 +111,13 @@ pub enum Action {
     SearchRequest { payload: SearchRequestPayload },
 }
 
+/// The payload for the `connectRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectRequestPayload {
     pub persist: bool,
 }
 
+/// The payload for the `saveRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SaveRequestPayload {
     pub url: Url,
@@ -104,6 +126,7 @@ pub struct SaveRequestPayload {
     pub inner_text: InnerText,
 }
 
+/// The payload for the `searchRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SearchRequestPayload {
     pub query: Query,
@@ -119,6 +142,7 @@ pub struct Response {
     pub correlation_id: CorrelationId,
 }
 
+/// The actions that the host can send to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action")]
 pub enum ResponseAction {
@@ -130,12 +154,15 @@ pub enum ResponseAction {
     SearchResponse { payload: SearchResponsePayload },
 }
 
+/// The payload for the `connectResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectResponsePayload {}
 
+/// The payload for the `saveResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SaveResponsePayload {}
 
+/// The payload for the `searchResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Site {
     pub url: Url,
@@ -144,6 +171,7 @@ pub struct Site {
     pub inner_text: InnerText,
 }
 
+/// The payload for the `searchResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SearchResponsePayload {
     pub query: Query,
