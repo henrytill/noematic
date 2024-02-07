@@ -3,7 +3,7 @@ mod schema_version;
 use rusqlite::{params, Connection, Transaction};
 
 use self::schema_version::SchemaVersion;
-use crate::message::{Query, SavePayload, SearchPayload, Site};
+use crate::message::{Query, SaveRequestPayload, SearchRequestPayload, Site};
 
 const CREATE_SQL: &str = include_str!("create.sql");
 
@@ -107,7 +107,7 @@ VALUES (?, ?, ?)
     Ok(version)
 }
 
-pub fn upsert_site(connection: &Connection, save_payload: SavePayload) -> Result<(), Error> {
+pub fn upsert_site(connection: &Connection, save_payload: SaveRequestPayload) -> Result<(), Error> {
     let mut statement = connection.prepare(
         "\
 INSERT INTO sites (url, title, inner_text)
@@ -128,7 +128,7 @@ ON CONFLICT (url) DO UPDATE SET
 
 pub fn search_sites(
     connection: &Connection,
-    search_payload: SearchPayload,
+    search_payload: SearchRequestPayload,
     process: impl Fn(Query) -> String,
 ) -> Result<Vec<Site>, Error> {
     let mut stmt = connection.prepare(

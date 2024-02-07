@@ -84,20 +84,20 @@ pub struct Request {
 #[serde(tag = "action")]
 pub enum Action {
     #[serde(rename = "connectRequest")]
-    ConnectRequest { payload: ConnectPayload },
+    ConnectRequest { payload: ConnectRequestPayload },
     #[serde(rename = "saveRequest")]
-    SaveRequest { payload: SavePayload },
+    SaveRequest { payload: SaveRequestPayload },
     #[serde(rename = "searchRequest")]
-    SearchRequest { payload: SearchPayload },
+    SearchRequest { payload: SearchRequestPayload },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct ConnectPayload {
+pub struct ConnectRequestPayload {
     pub persist: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SavePayload {
+pub struct SaveRequestPayload {
     pub url: Url,
     pub title: Title,
     #[serde(rename = "innerText")]
@@ -105,7 +105,7 @@ pub struct SavePayload {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SearchPayload {
+pub struct SearchRequestPayload {
     pub query: Query,
 }
 
