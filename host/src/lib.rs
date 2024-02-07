@@ -107,6 +107,19 @@ impl Connection {
     }
 }
 
+///
+/// The context of the application.
+///
+/// The context contains the state of the application and is used to handle requests.
+///
+/// # Examples
+///
+/// ```
+/// use noematic::Context;
+///
+/// let context = Context::new().unwrap();
+/// ```
+///
 pub struct Context {
     connection: Connection,
     process: Box<dyn Fn(Query) -> String>,
@@ -139,6 +152,42 @@ fn get_project_dirs() -> Result<ProjectDirs, Error> {
         .ok_or(Error::new(ErrorImpl::MissingHomeDir))
 }
 
+///
+/// Handles a request and returns a response.
+///
+/// # Arguments
+///
+/// * `context` - The context of the application.
+/// * `request` - The request to handle.
+///
+/// # Returns
+///
+/// A response to the request.
+///
+/// # Errors
+///
+/// If an error occurs while handling the request.
+///
+/// # Examples
+///
+/// ```
+/// use noematic::Context;
+/// use noematic::message::{Action, CorrelationId, MessageVersion, Query, Request, SearchRequestPayload};
+///
+/// let mut context = Context::new().unwrap();
+/// let request = {
+///     let version = MessageVersion::parse("0.1.0").unwrap();
+///     let action = {
+///         let query = Query::new("hello".to_string());
+///         let payload = SearchRequestPayload { query };
+///         Action::SearchRequest { payload }
+///     };
+///     let correlation_id = CorrelationId::new("218ecc9f-a91a-4b55-8b50-2b6672daa9a5".to_string());
+///     Request { version, action, correlation_id }
+/// };
+/// let response = noematic::handle_request(&mut context, request).unwrap();
+/// ```
+///
 pub fn handle_request(context: &mut Context, request: Request) -> Result<Response, Error> {
     let version = request.version;
     let correlation_id = request.correlation_id;
@@ -200,7 +249,41 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
     }
 }
 
-/// Extracts the version from the message.
+///
+/// Extracts the message version from the message.
+///
+/// # Arguments
+///
+/// * `value` - The parsed message to extract the message version from.
+///
+/// # Returns
+///
+/// The version of the message.
+///
+/// # Errors
+///
+/// If the message does not contain a version.
+/// If the version is not a valid semantic version.
+///
+/// # Examples
+/// ```
+/// use serde_json::json;
+/// use noematic::message::MessageVersion;
+///
+/// let request = json!({
+///     "version": "0.1.0",
+///     "action": "saveRequest",
+///     "payload": {
+///         "url": "https://en.wikipedia.org/wiki/Foobar",
+///         "title": "Foobar - Wikipedia",
+///         "innerText": "..."
+///     },
+///     "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
+/// });
+/// let version = noematic::extract_version(&request).unwrap();
+/// assert_eq!(version, MessageVersion::new(0, 1, 0));
+/// ```
+///
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
     let version = value["version"]
         .as_str()
