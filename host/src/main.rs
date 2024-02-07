@@ -10,6 +10,9 @@ use noematic::{
     Context,
 };
 
+// We use unchecked casts to convert u32 to usize.
+const _: () = assert!(usize::MAX >= u32::MAX as usize);
+
 #[derive(Debug)]
 enum Error {
     Io(io::Error),
