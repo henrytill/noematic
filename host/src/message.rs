@@ -14,6 +14,8 @@ impl MessageVersion {
         let version = semver::Version::parse(version)?;
         Ok(MessageVersion(version))
     }
+
+    pub const EXPECTED: MessageVersion = MessageVersion::new(0, 1, 0);
 }
 
 impl From<semver::Version> for MessageVersion {

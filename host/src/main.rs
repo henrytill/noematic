@@ -10,8 +10,6 @@ use noematic::{
     Context,
 };
 
-const EXPECTED_VERSION: MessageVersion = MessageVersion::new(0, 1, 0);
-
 #[derive(Debug)]
 enum Error {
     Io(io::Error),
@@ -106,7 +104,7 @@ fn main() -> Result<(), Error> {
         let json: Value = serde_json::from_slice(&message)?;
 
         let version = noematic::extract_version(&json)?;
-        if version != EXPECTED_VERSION {
+        if version != MessageVersion::EXPECTED {
             return Err(Error::UnsupportedVersion);
         }
 
