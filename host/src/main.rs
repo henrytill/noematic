@@ -63,23 +63,23 @@ fn read_length(reader: &mut impl Read) -> io::Result<Option<u32>> {
     }
 }
 
-/// Reads a message of the given length.
-fn read_message(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
+/// Reads a bytestring of the given length.
+fn read_bytes(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
     let length = length as usize;
-    let mut message = vec![0; length];
-    reader.read_exact(&mut message)?;
-    Ok(message)
+    let mut ret = vec![0; length];
+    reader.read_exact(&mut ret)?;
+    Ok(ret)
 }
 
 /// Reads a length `n`-prefixed bytestring into a vector of length `n`.
 ///
 /// Returns `None` if the reader is at EOF.
-fn read(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
+fn read_message_bytes(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
     let length = match read_length(reader)? {
         None => return Ok(None),
         Some(length) => length,
     };
-    read_message(reader, length).map(Some).map_err(Into::into)
+    read_bytes(reader, length).map(Some).map_err(Into::into)
 }
 
 /// Serializes a response, prefixed by its serialized length, to the writer.
@@ -100,15 +100,15 @@ fn main() -> Result<(), Error> {
 
     let mut context = Context::new()?;
 
-    while let Some(message) = read(&mut reader)? {
-        let json: Value = serde_json::from_slice(&message)?;
+    while let Some(message_bytes) = read_message_bytes(&mut reader)? {
+        let message_json: Value = serde_json::from_slice(&message_bytes)?;
 
-        let version = noematic::extract_version(&json)?;
+        let version = noematic::extract_version(&message_json)?;
         if version != MessageVersion::EXPECTED {
             return Err(Error::UnsupportedVersion);
         }
 
-        let request: Request = serde_json::from_value(json)?;
+        let request: Request = serde_json::from_value(message_json)?;
         let response = noematic::handle_request(&mut context, request)?;
         write_response(&mut writer, response)?;
     }
