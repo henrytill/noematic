@@ -16,13 +16,13 @@ function handleHostMessage(responderMap, message) {
         console.error('No correlation id in message', message);
         return;
     }
-    const response = responderMap.get(correlationId);
-    if (response === undefined) {
-        console.error('No response handler for correlation id', correlationId);
+    const sendResponse = responderMap.get(correlationId);
+    if (sendResponse === undefined) {
+        console.error('No sendResponse function for correlation id', correlationId);
         return;
     }
     responderMap.delete(correlationId);
-    response(message);
+    sendResponse(message);
     console.log('response', message);
 }
 
