@@ -119,7 +119,8 @@ function makeTargets(targetDefs) {
 }
 
 const sourceFiles = [
-    'src/background/background.mjs',
+    'src/background/background.event.mjs',
+    'src/background/background.worker.mjs',
     'src/common/common.mjs',
     'src/content/content.js',
     'src/icons/noematic-48.png',
@@ -141,10 +142,6 @@ const sourceFiles = [
  * @return {TargetDefs}
  */
 const makeSharedTargets = (sources) => ({
-    'background/background.mjs': {
-        inputs: [sources['src/background/background.mjs']],
-        compute: copy,
-    },
     'common/common.mjs': {
         inputs: [sources['src/common/common.mjs']],
         compute: copy,
@@ -203,7 +200,11 @@ const makeSharedTargets = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeChromiumManifestTarget = (sources) => ({
+const makeChromiumTargets = (sources) => ({
+    'dist/chromium/background/background.mjs': {
+        inputs: [sources['src/background/background.worker.mjs']],
+        compute: copy,
+    },
     'dist/chromium/manifest.json': {
         inputs: [sources['src/manifest.json']],
         compute: copy,
@@ -214,7 +215,11 @@ const makeChromiumManifestTarget = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeFirefoxManifestTarget = (sources) => ({
+const makeFirefoxTargets = (sources) => ({
+    'dist/firefox/background/background.mjs': {
+        inputs: [sources['src/background/background.event.mjs']],
+        compute: copy,
+    },
     'dist/firefox/manifest.json': {
         inputs: [sources['src/manifest.json']],
         compute: generateFirefoxManifest,
@@ -225,9 +230,9 @@ const makeFirefoxManifestTarget = (sources) => ({
  * @param {Sources} sources
  * @return {TargetDefs}
  */
-const makeManifestTargets = (sources) => ({
-    ...makeChromiumManifestTarget(sources),
-    ...makeFirefoxManifestTarget(sources),
+const makeBrowserSpecificTargets = (sources) => ({
+    ...makeChromiumTargets(sources),
+    ...makeFirefoxTargets(sources),
 });
 
 /**
@@ -239,7 +244,7 @@ async function buildGraph(ctor) {
     const sharedPrefixes = ['dist/chromium', 'dist/firefox'];
     const sharedTargets = makeSharedTargets(sources);
     const prefixedSharedTargets = prefixSharedTargets(sharedPrefixes, sharedTargets);
-    const manifestTargets = makeManifestTargets(sources);
+    const manifestTargets = makeBrowserSpecificTargets(sources);
     const targets = makeTargets({ ...prefixedSharedTargets, ...manifestTargets });
     return [sources, targets];
 }
