@@ -1,8 +1,8 @@
+import { NATIVE_MESSAGING_HOST } from '../common/common.mjs';
+
 /**
  * @typedef {import('../common/types.js').Responder} Responder
  */
-
-const NATIVE_MESSAGING_HOST = 'com.github.henrytill.noematic';
 
 /**
  * @param {any} request

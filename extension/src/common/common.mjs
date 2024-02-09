@@ -1,3 +1,5 @@
+export const NATIVE_MESSAGING_HOST = 'com.github.henrytill.noematic';
+
 export const SCHEMA_VERSION = '0.1.0';
 
 /**
