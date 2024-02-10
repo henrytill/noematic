@@ -8,15 +8,14 @@
 mod db;
 pub mod message;
 
-use std::{fmt, fs, io, path::Path};
+use std::{fmt, io, path::Path};
 
-use directories::ProjectDirs;
 use regex::Regex;
 use serde_json::Value;
 
 use message::{
-    Action, ConnectResponsePayload, MessageVersion, Query, Request, Response, ResponseAction,
-    SaveResponsePayload, SearchResponsePayload,
+    Action, MessageVersion, Query, Request, Response, ResponseAction, SaveResponsePayload,
+    SearchResponsePayload,
 };
 
 #[derive(Debug)]
@@ -24,7 +23,6 @@ enum ErrorImpl {
     Io(io::Error),
     Sqlite(rusqlite::Error),
     Semver(semver::Error),
-    MissingHomeDir,
     MissingMessageVersion,
     InvalidSchemaVersion,
 }
@@ -50,7 +48,6 @@ impl fmt::Display for Error {
             ErrorImpl::Io(e) => write!(f, "IO error: {}", e),
             ErrorImpl::Sqlite(e) => write!(f, "SQLite error: {}", e),
             ErrorImpl::Semver(e) => write!(f, "Semver error: {}", e),
-            ErrorImpl::MissingHomeDir => write!(f, "Missing home directory"),
             ErrorImpl::MissingMessageVersion => write!(f, "Missing message version"),
             ErrorImpl::InvalidSchemaVersion => write!(f, "Invalid schema version"),
         }
@@ -99,22 +96,6 @@ impl Connection {
             Self::Persistent(connection) => connection,
         }
     }
-
-    fn as_mut(&mut self) -> &mut rusqlite::Connection {
-        match self {
-            Self::InMemory(connection) => connection,
-            Self::Persistent(connection) => connection,
-        }
-    }
-
-    fn upgrade(&mut self, db_path: impl AsRef<Path>) -> Result<(), Error> {
-        if let Connection::Persistent(_) = self {
-            return Ok(());
-        }
-        let connection = rusqlite::Connection::open(db_path)?;
-        let _prev = std::mem::replace(self, Self::Persistent(connection));
-        Ok(())
-    }
 }
 
 ///
@@ -127,7 +108,7 @@ impl Connection {
 /// ```
 /// use noematic::Context;
 ///
-/// let context = Context::new().unwrap();
+/// let context = Context::in_memory().unwrap();
 /// ```
 ///
 pub struct Context {
@@ -143,7 +124,7 @@ fn make_process(re: Regex) -> impl Fn(Query) -> String {
 }
 
 impl Context {
-    pub fn new() -> Result<Self, Error> {
+    pub fn in_memory() -> Result<Self, Error> {
         let mut connection = rusqlite::Connection::open_in_memory()?;
         db::init_tables(&mut connection)?;
         let connection = Connection::InMemory(connection);
@@ -155,11 +136,19 @@ impl Context {
         };
         Ok(context)
     }
-}
 
-fn get_project_dirs() -> Result<ProjectDirs, Error> {
-    ProjectDirs::from("com.github", "henrytill", "noematic")
-        .ok_or(Error::new(ErrorImpl::MissingHomeDir))
+    pub fn persistent(db_path: impl AsRef<Path>) -> Result<Self, Error> {
+        let mut connection = rusqlite::Connection::open(db_path.as_ref())?;
+        db::init_tables(&mut connection)?;
+        let connection = Connection::Persistent(connection);
+        let process_regex = Regex::new(r"\W+").unwrap();
+        let process = Box::new(make_process(process_regex));
+        let context = Self {
+            connection,
+            process,
+        };
+        Ok(context)
+    }
 }
 
 ///
@@ -184,7 +173,7 @@ fn get_project_dirs() -> Result<ProjectDirs, Error> {
 /// use noematic::Context;
 /// use noematic::message::{Action, CorrelationId, MessageVersion, Query, Request, SearchRequestPayload};
 ///
-/// let mut context = Context::new().unwrap();
+/// let mut context = Context::in_memory().unwrap();
 /// let request = {
 ///     let version = MessageVersion::parse("0.1.0").unwrap();
 ///     let action = {
@@ -205,29 +194,6 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
     let connection = context.connection.as_ref();
 
     match request.action {
-        Action::ConnectRequest { payload } => {
-            if payload.persist {
-                let db_path = {
-                    let project_dirs: ProjectDirs = get_project_dirs()?;
-                    let db_dir = project_dirs.data_dir();
-                    fs::create_dir_all(db_dir)?;
-                    db_dir.join("db.sqlite3")
-                };
-                context.connection.upgrade(db_path)?;
-                let connection = context.connection.as_mut();
-                db::init_tables(connection)?;
-            }
-            let response = {
-                let payload = ConnectResponsePayload {};
-                let action = ResponseAction::ConnectResponse { payload };
-                Response {
-                    version,
-                    action,
-                    correlation_id,
-                }
-            };
-            Ok(response)
-        }
         Action::SaveRequest { payload } => {
             db::upsert_site(connection, payload)?;
             let response = {

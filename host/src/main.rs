@@ -1,8 +1,9 @@
 use std::{
-    fmt,
+    env, fmt, fs,
     io::{self, BufReader, BufWriter, Read, Write},
 };
 
+use directories::ProjectDirs;
 use serde_json::Value;
 
 use noematic::{
@@ -18,6 +19,7 @@ enum Error {
     Io(io::Error),
     Json(serde_json::Error),
     Noematic(noematic::Error),
+    MissingHomeDir,
     UnsupportedVersion,
     UnsupportedLength,
 }
@@ -28,6 +30,7 @@ impl fmt::Display for Error {
             Error::Io(e) => write!(f, "IO error: {}", e),
             Error::Json(e) => write!(f, "JSON error: {}", e),
             Error::Noematic(e) => write!(f, "{}", e),
+            Error::MissingHomeDir => write!(f, "Missing home directory"),
             Error::UnsupportedVersion => write!(f, "Unsupported version"),
             Error::UnsupportedLength => write!(f, "Unsupported length"),
         }
@@ -53,6 +56,25 @@ impl From<noematic::Error> for Error {
 }
 
 impl std::error::Error for Error {}
+
+#[derive(Debug, Default)]
+struct Args {
+    test: bool,
+}
+
+impl Args {
+    #[allow(clippy::single_match)]
+    fn parse(args: &[String]) -> Result<Args, Error> {
+        let mut ret = Args::default();
+        for arg in args.iter().skip(1) {
+            match arg.as_str() {
+                "-test" => ret.test = true,
+                _ => (),
+            }
+        }
+        Ok(ret)
+    }
+}
 
 /// Reads the length prefix of a message.
 ///
@@ -97,11 +119,28 @@ fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Err
     Ok(())
 }
 
+fn get_project_dirs() -> Result<ProjectDirs, Error> {
+    ProjectDirs::from("com.github", "henrytill", "noematic").ok_or(Error::MissingHomeDir)
+}
+
 fn main() -> Result<(), Error> {
+    let args: Vec<String> = env::args().collect();
+    let args = Args::parse(&args)?;
+
+    let mut context = if args.test {
+        Context::in_memory()?
+    } else {
+        let db_path = {
+            let project_dirs: ProjectDirs = get_project_dirs()?;
+            let data_dir = project_dirs.data_dir();
+            fs::create_dir_all(data_dir)?;
+            data_dir.join("db.sqlite3")
+        };
+        Context::persistent(db_path)?
+    };
+
     let mut reader = BufReader::new(io::stdin());
     let mut writer = BufWriter::new(io::stdout());
-
-    let mut context = Context::new()?;
 
     while let Some(message_bytes) = read_message_bytes(&mut reader)? {
         let message_json: Value = serde_json::from_slice(&message_bytes)?;
