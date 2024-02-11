@@ -42,10 +42,10 @@ impl From<semver::Version> for MessageVersion {
     }
 }
 
-/// Wrap a String in a newtype
+/// Wraps a [`String`] in a newtype
 macro_rules! wrap_string {
     ($name:ident) => {
-        /// A newtype that wraps a `String`.
+        /// A newtype that wraps a [`String`].
         #[derive(Serialize, Deserialize, Debug, Clone)]
         pub struct $name(String);
 

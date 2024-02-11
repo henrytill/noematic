@@ -28,7 +28,7 @@ import { AutoInput, Channel, FileCell, Target, hash } from '@henrytill/incr';
  */
 
 /**
- * Copy a file from source to target if source is newer than target.
+ * Copy a file from source to target.
  *
  * @this {Target}
  * @param {Node<HashDigest>} source
@@ -241,9 +241,9 @@ const makeBrowserSpecificTargets = (sources) => ({
  */
 async function buildGraph(ctor) {
     const sources = await makeSources(sourceFiles, ctor);
-    const sharedPrefixes = ['dist/chromium', 'dist/firefox'];
+    const prefixes = ['dist/chromium', 'dist/firefox'];
     const sharedTargets = makeSharedTargets(sources);
-    const prefixedSharedTargets = prefixSharedTargets(sharedPrefixes, sharedTargets);
+    const prefixedSharedTargets = prefixSharedTargets(prefixes, sharedTargets);
     const manifestTargets = makeBrowserSpecificTargets(sources);
     const targets = makeTargets({ ...prefixedSharedTargets, ...manifestTargets });
     return [sources, targets];
