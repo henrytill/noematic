@@ -11,19 +11,19 @@ import { NATIVE_MESSAGING_HOST } from '../common/common.mjs';
  * @returns {void}
  */
 function handleHostMessage(responderMap, message) {
-    const correlationId = message.correlationId;
-    if (correlationId === undefined) {
-        console.error('No correlation id in message', message);
-        return;
-    }
-    const sendResponse = responderMap.get(correlationId);
-    if (sendResponse === undefined) {
-        console.error('No sendResponse function for correlation id', correlationId);
-        return;
-    }
-    responderMap.delete(correlationId);
-    sendResponse(message);
-    console.log('response', message);
+  const correlationId = message.correlationId;
+  if (correlationId === undefined) {
+    console.error('No correlation id in message', message);
+    return;
+  }
+  const sendResponse = responderMap.get(correlationId);
+  if (sendResponse === undefined) {
+    console.error('No sendResponse function for correlation id', correlationId);
+    return;
+  }
+  responderMap.delete(correlationId);
+  sendResponse(message);
+  console.log('response', message);
 }
 
 /**
@@ -31,7 +31,7 @@ function handleHostMessage(responderMap, message) {
  * @returns {void}
  */
 function handleHostDisconnect(_port) {
-    console.debug('Disconnected from native messaging host');
+  console.debug('Disconnected from native messaging host');
 }
 
 /**
@@ -40,10 +40,10 @@ function handleHostDisconnect(_port) {
  * @returns {chrome.runtime.Port}
  */
 function connectHost(application, responderMap) {
-    const port = chrome.runtime.connectNative(application);
-    port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
-    port.onDisconnect.addListener(handleHostDisconnect);
-    return port;
+  const port = chrome.runtime.connectNative(application);
+  port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
+  port.onDisconnect.addListener(handleHostDisconnect);
+  return port;
 }
 
 /**
@@ -55,23 +55,23 @@ function connectHost(application, responderMap) {
  * @returns {boolean | undefined}
  */
 function messageListener(responderMap, hostPort, request, _sender, sendResponse) {
-    const correlationId = crypto.randomUUID();
-    request.correlationId = correlationId;
-    console.log('request', request);
-    responderMap.set(correlationId, sendResponse);
-    hostPort.postMessage(request);
-    return true;
+  const correlationId = crypto.randomUUID();
+  request.correlationId = correlationId;
+  console.log('request', request);
+  responderMap.set(correlationId, sendResponse);
+  hostPort.postMessage(request);
+  return true;
 }
 
 /**
  * @returns {void}
  */
 function main() {
-    /** @type {ResponderMap} */
-    const responderMap = new Map();
-    const hostPort = connectHost(NATIVE_MESSAGING_HOST, responderMap);
-    chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
-    console.debug('Noematic background handler installed');
+  /** @type {ResponderMap} */
+  const responderMap = new Map();
+  const hostPort = connectHost(NATIVE_MESSAGING_HOST, responderMap);
+  chrome.runtime.onMessage.addListener(messageListener.bind(null, responderMap, hostPort));
+  console.debug('Noematic background handler installed');
 }
 
 main();

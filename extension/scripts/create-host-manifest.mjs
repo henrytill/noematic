@@ -12,8 +12,8 @@ const HOST_BINARY_NAME = 'noematic';
 
 /** @enum {number} */
 const Browser = {
-    Chromium: 0,
-    Firefox: 1,
+  Chromium: 0,
+  Firefox: 1,
 };
 
 /**
@@ -28,10 +28,10 @@ const Browser = {
 
 /** @type {Manifest} */
 const template = {
-    name: 'com.github.henrytill.noematic',
-    description: 'Search your backlog',
-    path: null,
-    type: 'stdio',
+  name: 'com.github.henrytill.noematic',
+  description: 'Search your backlog',
+  path: null,
+  type: 'stdio',
 };
 
 /**
@@ -41,12 +41,12 @@ const template = {
  * @throws {Error} if the host project directory does not exist
  */
 function getHostDir() {
-    const hostDir = process.env.HOST_PROJECT_DIR || HOST_ROOT;
-    // Check that the host project directory exists
-    if (!fs.existsSync(hostDir)) {
-        throw new Error(`Host project directory does not exist: ${hostDir}`);
-    }
-    return hostDir;
+  const hostDir = process.env.HOST_PROJECT_DIR || HOST_ROOT;
+  // Check that the host project directory exists
+  if (!fs.existsSync(hostDir)) {
+    throw new Error(`Host project directory does not exist: ${hostDir}`);
+  }
+  return hostDir;
 }
 
 /**
@@ -60,25 +60,25 @@ function getHostDir() {
  * @throws {Error} if the host binary does not exist
  */
 function createManifest(template, browser, hostDir, buildType) {
-    const ret = { ...template };
-    const hostBinaryPath = path.join(hostDir, 'target', buildType, HOST_BINARY_NAME);
-    // Check that the host binary exists
-    if (!fs.existsSync(hostBinaryPath)) {
-        throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
-    }
-    ret.path = hostBinaryPath;
-    switch (browser) {
-        case Browser.Chromium:
-            ret.allowed_origins = ['chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/'];
-            break;
-        case Browser.Firefox:
-            ret.allowed_extensions = ['henrytill@gmail.com'];
-            break;
-        default:
-            throw new Error(`Unsupported browser: ${browser}`);
-    }
+  const ret = { ...template };
+  const hostBinaryPath = path.join(hostDir, 'target', buildType, HOST_BINARY_NAME);
+  // Check that the host binary exists
+  if (!fs.existsSync(hostBinaryPath)) {
+    throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
+  }
+  ret.path = hostBinaryPath;
+  switch (browser) {
+    case Browser.Chromium:
+      ret.allowed_origins = ['chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/'];
+      break;
+    case Browser.Firefox:
+      ret.allowed_extensions = ['henrytill@gmail.com'];
+      break;
+    default:
+      throw new Error(`Unsupported browser: ${browser}`);
+  }
 
-    return ret;
+  return ret;
 }
 
 /**
@@ -87,11 +87,11 @@ function createManifest(template, browser, hostDir, buildType) {
  * @returns {string}
  */
 function getChromiumTargetDir() {
-    let targetDir = PROJECT_ROOT;
-    if (os.platform() == 'linux') {
-        targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
-    }
-    return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
+  let targetDir = PROJECT_ROOT;
+  if (os.platform() == 'linux') {
+    targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
+  }
+  return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
 }
 
 /**
@@ -100,11 +100,11 @@ function getChromiumTargetDir() {
  * @returns {string}
  */
 function getFirefoxTargetDir() {
-    let targetDir = PROJECT_ROOT;
-    if (os.platform() == 'linux') {
-        targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
-    }
-    return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
+  let targetDir = PROJECT_ROOT;
+  if (os.platform() == 'linux') {
+    targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
+  }
+  return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
 }
 
 /**
@@ -113,35 +113,35 @@ function getFirefoxTargetDir() {
  * @returns {{manifestPath: string, output: string}}
  */
 function writeManifest(manifest, targetDir) {
-    fs.mkdirSync(targetDir, { recursive: true });
-    const manifestPath = path.join(targetDir, `${manifest.name}.json`);
-    const output = JSON.stringify(manifest, null, 2);
-    fs.writeFileSync(manifestPath, output, 'utf-8');
-    return { manifestPath, output };
+  fs.mkdirSync(targetDir, { recursive: true });
+  const manifestPath = path.join(targetDir, `${manifest.name}.json`);
+  const output = JSON.stringify(manifest, null, 2);
+  fs.writeFileSync(manifestPath, output, 'utf-8');
+  return { manifestPath, output };
 }
 
 function main() {
-    try {
-        const hostDir = getHostDir();
-        const buildType = process.env.BUILD_TYPE || 'debug';
-        {
-            const manifest = createManifest(template, Browser.Chromium, hostDir, buildType);
-            const chromiumTargetDir = getChromiumTargetDir();
-            const { manifestPath, output } = writeManifest(manifest, chromiumTargetDir);
-            console.log(`Chromium host manifest written to: ${manifestPath}`);
-            console.log(`Chromium host manifest contents:\n${output}`);
-        }
-        {
-            const manifest = createManifest(template, Browser.Firefox, hostDir, buildType);
-            const firefoxTargetDir = getFirefoxTargetDir();
-            const { manifestPath, output } = writeManifest(manifest, firefoxTargetDir);
-            console.log(`Firefox host manifest written to: ${manifestPath}`);
-            console.log(`Firefox host manifest contents:\n${output}`);
-        }
-    } catch (err) {
-        console.error(err);
-        process.exit(1);
+  try {
+    const hostDir = getHostDir();
+    const buildType = process.env.BUILD_TYPE || 'debug';
+    {
+      const manifest = createManifest(template, Browser.Chromium, hostDir, buildType);
+      const chromiumTargetDir = getChromiumTargetDir();
+      const { manifestPath, output } = writeManifest(manifest, chromiumTargetDir);
+      console.log(`Chromium host manifest written to: ${manifestPath}`);
+      console.log(`Chromium host manifest contents:\n${output}`);
     }
+    {
+      const manifest = createManifest(template, Browser.Firefox, hostDir, buildType);
+      const firefoxTargetDir = getFirefoxTargetDir();
+      const { manifestPath, output } = writeManifest(manifest, firefoxTargetDir);
+      console.log(`Firefox host manifest written to: ${manifestPath}`);
+      console.log(`Firefox host manifest contents:\n${output}`);
+    }
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 }
 
 main();

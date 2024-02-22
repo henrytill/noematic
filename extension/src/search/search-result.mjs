@@ -43,74 +43,74 @@ template.innerHTML = `
  * @extends HTMLElement
  */
 export class SearchResult extends HTMLElement {
-    static get observedAttributes() {
-        return ['title', 'href'];
+  static get observedAttributes() {
+    return ['title', 'href'];
+  }
+
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: 'open' });
+    shadow.appendChild(template.content.cloneNode(true));
+  }
+
+  connectedCallback() {}
+
+  get title() {
+    return this.getAttribute('title') ?? '';
+  }
+
+  set title(value) {
+    super.title = value;
+    this.setAttribute('title', value);
+  }
+
+  get href() {
+    return this.getAttribute('href') ?? '';
+  }
+
+  set href(value) {
+    this.setAttribute('href', value);
+  }
+
+  get snippet() {
+    return this.innerHTML;
+  }
+
+  set snippet(value) {
+    this.innerHTML = value;
+  }
+
+  /**
+   * @param {string} name
+   * @param {any} _oldValue
+   * @param {any} newValue
+   */
+  attributeChangedCallback(name, _oldValue, newValue) {
+    const shadow = this.shadowRoot;
+    if (shadow === null) {
+      return;
     }
 
-    constructor() {
-        super();
-        const shadow = this.attachShadow({ mode: 'open' });
-        shadow.appendChild(template.content.cloneNode(true));
+    const titleLink = shadow.querySelector('a');
+    if (titleLink === null) {
+      return;
     }
 
-    connectedCallback() {}
-
-    get title() {
-        return this.getAttribute('title') ?? '';
+    switch (name) {
+      case 'title':
+        titleLink.textContent = newValue;
+        break;
+      case 'href':
+        titleLink.href = newValue;
+        break;
+      default:
+        break;
     }
-
-    set title(value) {
-        super.title = value;
-        this.setAttribute('title', value);
-    }
-
-    get href() {
-        return this.getAttribute('href') ?? '';
-    }
-
-    set href(value) {
-        this.setAttribute('href', value);
-    }
-
-    get snippet() {
-        return this.innerHTML;
-    }
-
-    set snippet(value) {
-        this.innerHTML = value;
-    }
-
-    /**
-     * @param {string} name
-     * @param {any} _oldValue
-     * @param {any} newValue
-     */
-    attributeChangedCallback(name, _oldValue, newValue) {
-        const shadow = this.shadowRoot;
-        if (shadow === null) {
-            return;
-        }
-
-        const titleLink = shadow.querySelector('a');
-        if (titleLink === null) {
-            return;
-        }
-
-        switch (name) {
-            case 'title':
-                titleLink.textContent = newValue;
-                break;
-            case 'href':
-                titleLink.href = newValue;
-                break;
-            default:
-                break;
-        }
-    }
+  }
 }
 
 function init() {
-    customElements.define('search-result', SearchResult);
+  customElements.define('search-result', SearchResult);
 }
 
 init();
