@@ -15,7 +15,7 @@ import { SearchResult } from './search-result.mjs';
  * @param {number} maxLength - The maximum length of the resulting text snippet.
  * @returns {string} - The text snippet with the query word highlighted.
  */
-function createSnippet(text, query, maxLength) {
+const createSnippet = (text, query, maxLength) => {
   // Normalize spaces and replace newlines with a space.
   text = text.replace(/\s+/g, ' ');
 
@@ -44,7 +44,7 @@ function createSnippet(text, query, maxLength) {
   const suffix = end < text.length ? '...' : '';
 
   return prefix + text.substring(start, end) + suffix;
-}
+};
 
 /**
  * Processes and displays the search results contained in a search response.
@@ -52,7 +52,7 @@ function createSnippet(text, query, maxLength) {
  * @param {SearchResponse} response
  * @returns {void}
  */
-function handleSearchResponse(response) {
+const handleSearchResponse = (response) => {
   const resultsContainer = document.getElementById('results-container');
   if (!resultsContainer) {
     throw new Error('No main element found');
@@ -72,13 +72,13 @@ function handleSearchResponse(response) {
     resultElement.snippet = createSnippet(innerText, query, 200);
     resultsContainer.appendChild(resultElement);
   }
-}
+};
 
 /**
  * @param {string} value
  * @returns {void}
  */
-function search(value) {
+const search = (value) => {
   if (value.length === 0) {
     return;
   }
@@ -92,12 +92,12 @@ function search(value) {
       handleSearchResponse(response);
       console.log('response', response);
     });
-}
+};
 
 /**
  * @returns {void}
  */
-function main() {
+const main = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const query = urlParams.get('q');
   const searchInput = /** @type {HTMLFormElement?} */ (document.getElementById('search-input'));
@@ -107,6 +107,6 @@ function main() {
   searchInput.value = query;
   if (query === null) return;
   search(query);
-}
+};
 
 main();

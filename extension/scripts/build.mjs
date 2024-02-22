@@ -76,7 +76,7 @@ async function generateFirefoxManifest(source) {
  * @param {FileConstructor} ctor
  * @return {Promise<Sources>}
  */
-async function makeSources(sourceFiles, ctor) {
+const makeSources = async (sourceFiles, ctor) => {
   /** @type {Sources} */
   const ret = {};
   for (const source of sourceFiles) {
@@ -84,7 +84,7 @@ async function makeSources(sourceFiles, ctor) {
     ret[file.key] = file;
   }
   return ret;
-}
+};
 
 /**
  * Prefix each shared target
@@ -93,7 +93,7 @@ async function makeSources(sourceFiles, ctor) {
  * @param {TargetDefs} sharedTargets
  * @returns {TargetDefs}
  */
-function prefixSharedTargets(sharedPrefixes, sharedTargets) {
+const prefixSharedTargets = (sharedPrefixes, sharedTargets) => {
   /** @type {TargetDefs} */
   const ret = {};
   for (const [key, { compute, inputs }] of Object.entries(sharedTargets)) {
@@ -102,13 +102,13 @@ function prefixSharedTargets(sharedPrefixes, sharedTargets) {
     }
   }
   return ret;
-}
+};
 
 /**
  * @param {TargetDefs} targetDefs
  * @returns {Targets}
  */
-function makeTargets(targetDefs) {
+const makeTargets = (targetDefs) => {
   /** @type {Targets} */
   const ret = {};
   for (const [key, { compute, inputs }] of Object.entries(targetDefs)) {
@@ -116,7 +116,7 @@ function makeTargets(targetDefs) {
     ret[target.key] = target;
   }
   return ret;
-}
+};
 
 const sourceFiles = [
   'src/background/background.event.mjs',
@@ -239,7 +239,7 @@ const makeBrowserSpecificTargets = (sources) => ({
  * @param {FileConstructor} ctor
  * @returns {Promise<[Sources, Targets]>}
  */
-async function buildGraph(ctor) {
+const buildGraph = async (ctor) => {
   const sources = await makeSources(sourceFiles, ctor);
   const prefixes = ['dist/chromium', 'dist/firefox'];
   const sharedTargets = makeSharedTargets(sources);
@@ -247,12 +247,12 @@ async function buildGraph(ctor) {
   const manifestTargets = makeBrowserSpecificTargets(sources);
   const targets = makeTargets({ ...prefixedSharedTargets, ...manifestTargets });
   return [sources, targets];
-}
+};
 
 /**
  * @returns {Promise<void>}
  */
-async function watch() {
+const watch = async () => {
   const notifications = new Channel();
   const consumer = (async () => {
     for await (const notification of notifications.receive()) {
@@ -273,22 +273,22 @@ async function watch() {
     console.log('\nExiting...');
   });
   await consumer;
-}
+};
 
 /**
  * @returns {Promise<void>}
  */
-async function build() {
+const build = async () => {
   const [_, targetNodes] = await buildGraph(FileCell.of);
   for (const target of Object.values(targetNodes)) {
     await target.compute().value;
   }
-}
+};
 
 /**
  * @returns {Promise<void>}
  */
-async function main() {
+const main = async () => {
   const args = process.argv.slice(2);
   const subcommand = args.shift();
 
@@ -300,6 +300,6 @@ async function main() {
     default:
       await build();
   }
-}
+};
 
 main();

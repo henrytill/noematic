@@ -40,14 +40,14 @@ const template = {
  * @returns {string}
  * @throws {Error} if the host project directory does not exist
  */
-function getHostDir() {
+const getHostDir = () => {
   const hostDir = process.env.HOST_PROJECT_DIR || HOST_ROOT;
   // Check that the host project directory exists
   if (!fs.existsSync(hostDir)) {
     throw new Error(`Host project directory does not exist: ${hostDir}`);
   }
   return hostDir;
-}
+};
 
 /**
  * Set the template's path property to the host binary path.
@@ -59,7 +59,7 @@ function getHostDir() {
  * @returns {Manifest}
  * @throws {Error} if the host binary does not exist
  */
-function createManifest(template, browser, hostDir, buildType) {
+const createManifest = (template, browser, hostDir, buildType) => {
   const ret = { ...template };
   const hostBinaryPath = path.join(hostDir, 'target', buildType, HOST_BINARY_NAME);
   // Check that the host binary exists
@@ -79,48 +79,48 @@ function createManifest(template, browser, hostDir, buildType) {
   }
 
   return ret;
-}
+};
 
 /**
  * Find the target directory for Chromium.
  *
  * @returns {string}
  */
-function getChromiumTargetDir() {
+const getChromiumTargetDir = () => {
   let targetDir = PROJECT_ROOT;
   if (os.platform() == 'linux') {
     targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
   }
   return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
-}
+};
 
 /**
  * Find the target directory for Firefox.
  *
  * @returns {string}
  */
-function getFirefoxTargetDir() {
+const getFirefoxTargetDir = () => {
   let targetDir = PROJECT_ROOT;
   if (os.platform() == 'linux') {
     targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
   }
   return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
-}
+};
 
 /**
  * @param {Manifest} manifest
  * @param {string} targetDir
  * @returns {{manifestPath: string, output: string}}
  */
-function writeManifest(manifest, targetDir) {
+const writeManifest = (manifest, targetDir) => {
   fs.mkdirSync(targetDir, { recursive: true });
   const manifestPath = path.join(targetDir, `${manifest.name}.json`);
   const output = JSON.stringify(manifest, null, 2);
   fs.writeFileSync(manifestPath, output, 'utf-8');
   return { manifestPath, output };
-}
+};
 
-function main() {
+const main = () => {
   try {
     const hostDir = getHostDir();
     const buildType = process.env.BUILD_TYPE || 'debug';
@@ -142,6 +142,6 @@ function main() {
     console.error(err);
     process.exit(1);
   }
-}
+};
 
 main();

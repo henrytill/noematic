@@ -8,16 +8,16 @@ import { SCHEMA_VERSION } from '../common/common.mjs';
 /**
  * @returns {void}
  */
-function handleSearch() {
+const handleSearch = () => {
   chrome.tabs.create({ url: '/search/index.html' });
   window.close();
-}
+};
 
 /**
  * @param {chrome.tabs.Tab} tab
  * @returns {Promise<boolean>}
  */
-async function checkContentScriptActive(tab) {
+const checkContentScriptActive = async (tab) => {
   if (tab.id === undefined) {
     return false;
   }
@@ -27,13 +27,13 @@ async function checkContentScriptActive(tab) {
   } catch (_) {
     return false;
   }
-}
+};
 
 /**
  * @param {chrome.tabs.Tab} tab
  * @returns {Promise<chrome.scripting.InjectionResult<any>[]>}
  */
-function installContentScript(tab) {
+const installContentScript = (tab) => {
   if (tab.id === undefined) {
     return Promise.reject(new Error('No tab id'));
   }
@@ -44,13 +44,13 @@ function installContentScript(tab) {
     target: { tabId: tab.id },
     files,
   });
-}
+};
 
 /**
  * @param {chrome.tabs.Tab} tab
  * @returns {void}
  */
-function handleSave(tab) {
+const handleSave = (tab) => {
   if (tab.id === undefined) {
     throw Error('No tab id');
   }
@@ -60,13 +60,13 @@ function handleSave(tab) {
     .then((isActive) => (isActive ? Promise.resolve([]) : installContentScript(tab)))
     .then((_) => chrome.tabs.sendMessage(tabId, message))
     .then((response) => console.log('response', response));
-}
+};
 
 /**
  * @param {State} state
  * @returns {void}
  */
-function updateView(state) {
+const updateView = (state) => {
   const mainDiv = document.getElementById('main');
   if (mainDiv === null) {
     throw new Error('No main div');
@@ -85,22 +85,22 @@ function updateView(state) {
     return;
   }
   originDiv.textContent = common.abbreviate(state.url.toString(), 50);
-}
+};
 
 /**
  * @param {State} state
  * @returns {void}
  */
-function addListeners(state) {
+const addListeners = (state) => {
   document.getElementById('cancel')?.addEventListener('click', () => window.close());
   document.getElementById('search')?.addEventListener('click', handleSearch);
   document.getElementById('save')?.addEventListener('click', handleSave.bind(null, state.tab));
-}
+};
 
 /**
  * @returns {Promise<void>}
  */
-async function main() {
+const main = async () => {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tabs.length !== 1) {
     throw new Error(`Expected 1 active tab, got ${tabs.length}`);
@@ -114,6 +114,6 @@ async function main() {
   const state = { url: isWeb ? url : null, tab: activeTab };
   addListeners(state);
   updateView(state);
-}
+};
 
 main().catch((err) => console.error(err));
