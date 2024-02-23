@@ -30,7 +30,7 @@ const handleHostMessage = (responderMap, message) => {
  * @param {chrome.runtime.Port} _port
  * @returns {void}
  */
-const handleHostDisconnect = (_port) => {
+const onDisconnectListener = (_port) => {
   console.debug('Disconnected from native messaging host');
 };
 
@@ -41,8 +41,9 @@ const handleHostDisconnect = (_port) => {
  */
 const connectHost = (application, responderMap) => {
   const port = chrome.runtime.connectNative(application);
-  port.onMessage.addListener(handleHostMessage.bind(null, responderMap));
-  port.onDisconnect.addListener(handleHostDisconnect);
+  const onMessageListener = handleHostMessage.bind(null, responderMap);
+  port.onMessage.addListener(onMessageListener);
+  port.onDisconnect.addListener(onDisconnectListener);
   return port;
 };
 

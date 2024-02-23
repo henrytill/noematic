@@ -10,7 +10,7 @@ import { NATIVE_MESSAGING_HOST } from '../common/common.mjs';
  * @param {Responder} sendResponse
  * @returns {boolean | undefined}
  */
-const messageListener = (request, _sender, sendResponse) => {
+const onMessageListener = (request, _sender, sendResponse) => {
   request.correlationId = crypto.randomUUID();
   console.log('request', request);
   chrome.runtime.sendNativeMessage(NATIVE_MESSAGING_HOST, request).then((message) => {
@@ -24,7 +24,7 @@ const messageListener = (request, _sender, sendResponse) => {
  * @returns {void}
  */
 const main = () => {
-  chrome.runtime.onMessage.addListener(messageListener);
+  chrome.runtime.onMessage.addListener(onMessageListener);
   console.debug('Noematic background handler installed');
 };
 

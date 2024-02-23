@@ -35,7 +35,7 @@ const handlePingRequests = (_request, _sender, sendResponse) => {
  * @param {Responder} sendResponse
  * @returns {boolean | undefined}
  */
-const listener = (request, sender, sendResponse) => {
+const onMessageListener = (request, sender, sendResponse) => {
   switch (request.action) {
     case 'saveRequest':
       return handleSaveRequests(request, sender, sendResponse);
@@ -50,7 +50,7 @@ const listener = (request, sender, sendResponse) => {
  * @returns {void}
  */
 const main = () => {
-  chrome.runtime.onMessage.addListener(listener);
+  chrome.runtime.onMessage.addListener(onMessageListener);
   console.log('Noematic scrape handler installed');
 };
 
