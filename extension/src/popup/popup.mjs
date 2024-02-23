@@ -92,7 +92,8 @@ const updateView = (state) => {
  * @returns {void}
  */
 const addListeners = (state) => {
-  document.getElementById('cancel')?.addEventListener('click', () => window.close());
+  const handleCancel = () => window.close();
+  document.getElementById('cancel')?.addEventListener('click', handleCancel);
   document.getElementById('search')?.addEventListener('click', handleSearch);
   document.getElementById('save')?.addEventListener('click', handleSave.bind(null, state.tab));
 };
@@ -105,13 +106,14 @@ const main = async () => {
   if (tabs.length !== 1) {
     throw new Error(`Expected 1 active tab, got ${tabs.length}`);
   }
-  const activeTab = tabs[0];
-  if (activeTab.url == undefined) {
+  const tab = tabs[0];
+  if (tab.url == undefined) {
     throw new Error('No active tab url');
   }
-  const url = new URL(activeTab.url);
-  const isWeb = ['http:', 'https:'].includes(url.protocol);
-  const state = { url: isWeb ? url : null, tab: activeTab };
+  /** @type {URL?} */
+  let url = new URL(tab.url);
+  url = ['http:', 'https:'].includes(url.protocol) ? url : null;
+  const state = { url, tab };
   addListeners(state);
   updateView(state);
 };

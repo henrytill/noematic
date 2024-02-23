@@ -109,8 +109,11 @@ export class SearchResult extends HTMLElement {
   }
 }
 
-function init() {
+/**
+ * @returns {void}
+ */
+const init = () => {
   customElements.define('search-result', SearchResult);
-}
+};
 
 init();
