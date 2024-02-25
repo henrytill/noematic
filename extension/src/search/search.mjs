@@ -94,9 +94,7 @@ const search = (value) => {
     });
 };
 
-/**
- * @returns {void}
- */
+/** @returns {void} */
 const main = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const query = urlParams.get('q');

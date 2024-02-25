@@ -20,9 +20,7 @@ const onMessageListener = (request, _sender, sendResponse) => {
   return true;
 };
 
-/**
- * @returns {void}
- */
+/** @returns {void} */
 const main = () => {
   chrome.runtime.onMessage.addListener(onMessageListener);
   console.debug('Noematic background handler installed');

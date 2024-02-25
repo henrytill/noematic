@@ -64,9 +64,7 @@ const messageListener = (responderMap, hostPort, request, _sender, sendResponse)
   return true;
 };
 
-/**
- * @returns {void}
- */
+/** @returns {void} */
 const main = () => {
   /** @type {ResponderMap} */
   const responderMap = new Map();
