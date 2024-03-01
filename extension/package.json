@@ -15,7 +15,7 @@
     "@henrytill/incr": "github:henrytill/incr",
     "@playwright/test": "^1.41.2",
     "@types/chrome": "^0.0.260",
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.11.24",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
