@@ -17,12 +17,12 @@ const handleSearch = () => {
  * @param {chrome.tabs.Tab} tab
  * @returns {Promise<boolean>}
  */
-const checkContentScriptActive = async (tab) => {
-  if (tab.id === undefined) {
+const checkContentScriptActive = async ({ id }) => {
+  if (id === undefined) {
     return false;
   }
   try {
-    await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+    await chrome.tabs.sendMessage(id, { action: 'ping' });
     return true;
   } catch (_) {
     return false;
@@ -33,15 +33,15 @@ const checkContentScriptActive = async (tab) => {
  * @param {chrome.tabs.Tab} tab
  * @returns {Promise<chrome.scripting.InjectionResult<any>[]>}
  */
-const installContentScript = (tab) => {
-  if (tab.id === undefined) {
+const installContentScript = ({ id }) => {
+  if (id === undefined) {
     return Promise.reject(new Error('No tab id'));
   }
   const isChrome = Object.prototype.hasOwnProperty.call(window, 'browser') === false;
   // This is garbage.
   const files = isChrome ? ['./content/content.js'] : ['../content/content.js'];
   return chrome.scripting.executeScript({
-    target: { tabId: tab.id },
+    target: { tabId: id },
     files,
   });
 };
