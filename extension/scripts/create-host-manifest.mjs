@@ -11,6 +11,9 @@ import { FIREFOX_ID } from './common.mjs';
 const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 const HOST_ROOT = path.join(PROJECT_ROOT, 'host');
 const HOST_BINARY_NAME = 'noematic';
+const ALLOWED_ORIGIN = 'chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/';
+const NAME = 'com.github.henrytill.noematic';
+const DESCRIPTION = 'Search your backlog';
 
 /** @enum {number} */
 const Browser = {
@@ -30,8 +33,8 @@ const Browser = {
 
 /** @type {Manifest} */
 const template = {
-  name: 'com.github.henrytill.noematic',
-  description: 'Search your backlog',
+  name: NAME,
+  description: DESCRIPTION,
   path: null,
   type: 'stdio',
 };
@@ -71,7 +74,7 @@ const createManifest = (template, browser, hostDir, buildType) => {
   ret.path = hostBinaryPath;
   switch (browser) {
     case Browser.Chromium:
-      ret.allowed_origins = ['chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/'];
+      ret.allowed_origins = [ALLOWED_ORIGIN];
       break;
     case Browser.Firefox:
       ret.allowed_extensions = [FIREFOX_ID];
