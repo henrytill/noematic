@@ -7,6 +7,8 @@ import process from 'node:process';
 
 import { AutoInput, Channel, FileCell, Target, hash } from '@henrytill/incr';
 
+import { FIREFOX_ID } from './common.mjs';
+
 /**
  * @template A, B
  * @typedef {import('@henrytill/incr').ComputeFunction<A, B>} ComputeFunction<A, B>
@@ -54,7 +56,7 @@ async function generateFirefoxManifest(source) {
   const manifest = JSON.parse(file);
   manifest.background.scripts = ['background/background.mjs'];
   manifest.browser_specific_settings = {
-    gecko: { id: 'henrytill@gmail.com' },
+    gecko: { id: FIREFOX_ID },
   };
   delete manifest.background.service_worker;
   delete manifest.key;

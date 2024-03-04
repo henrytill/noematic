@@ -6,6 +6,8 @@ import * as path from 'node:path';
 import * as process from 'node:process';
 import * as url from 'node:url';
 
+import { FIREFOX_ID } from './common.mjs';
+
 const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
 const HOST_ROOT = path.join(PROJECT_ROOT, 'host');
 const HOST_BINARY_NAME = 'noematic';
@@ -72,7 +74,7 @@ const createManifest = (template, browser, hostDir, buildType) => {
       ret.allowed_origins = ['chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/'];
       break;
     case Browser.Firefox:
-      ret.allowed_extensions = ['henrytill@gmail.com'];
+      ret.allowed_extensions = [FIREFOX_ID];
       break;
     default:
       throw new Error(`Unsupported browser: ${browser}`);
