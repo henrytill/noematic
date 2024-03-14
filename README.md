@@ -21,8 +21,8 @@ Noematic is an experimental browser extension that reimagines bookmarking. When 
 
 Noematic is currently comprised of two components:
 
--   a web extension, usable in Firefox or Chromium browsers
--   a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
+- a web extension, usable in Firefox or Chromium browsers
+- a native executable which communicates with the extension using [native messaging](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/).
 
 ### Build
 
@@ -53,6 +53,6 @@ The native manifests point directly to the debug executable.
 
 ### Useful Documentation
 
--   <https://developer.chrome.com/docs/extensions/reference/runtime/>
--   <https://developer.chrome.com/docs/extensions/mv3/messaging/>
--   <https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/>
+- <https://developer.chrome.com/docs/extensions/reference/runtime/>
+- <https://developer.chrome.com/docs/extensions/mv3/messaging/>
+- <https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/>
