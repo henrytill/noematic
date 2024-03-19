@@ -165,7 +165,6 @@ dependencies = [
  "rusqlite",
  "semver",
  "serde",
- "serde_derive",
  "serde_json",
 ]
 
