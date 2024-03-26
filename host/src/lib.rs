@@ -89,8 +89,8 @@ enum Connection {
     Persistent(rusqlite::Connection),
 }
 
-impl Connection {
-    const fn as_ref(&self) -> &rusqlite::Connection {
+impl AsRef<rusqlite::Connection> for Connection {
+    fn as_ref(&self) -> &rusqlite::Connection {
         match self {
             Self::InMemory(connection) => connection,
             Self::Persistent(connection) => connection,
