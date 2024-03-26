@@ -59,7 +59,7 @@ macro_rules! wrap_string {
             }
 
             pub fn as_str(&self) -> &str {
-                &self.0
+                self.0.as_str()
             }
         }
 
