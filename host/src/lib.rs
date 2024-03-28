@@ -177,11 +177,11 @@ impl Context {
 /// let request = {
 ///     let version = MessageVersion::parse("0.1.0").unwrap();
 ///     let action = {
-///         let query = Query::new("hello".to_string());
+///         let query = Query::new(String::from("hello"));
 ///         let payload = SearchRequestPayload { query };
 ///         Action::SearchRequest { payload }
 ///     };
-///     let correlation_id = CorrelationId::new("218ecc9f-a91a-4b55-8b50-2b6672daa9a5".to_string());
+///     let correlation_id = CorrelationId::new(String::from("218ecc9f-a91a-4b55-8b50-2b6672daa9a5"));
 ///     Request { version, action, correlation_id }
 /// };
 /// let response = noematic::handle_request(&mut context, request).unwrap();
