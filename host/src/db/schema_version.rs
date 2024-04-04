@@ -2,11 +2,11 @@
 pub struct SchemaVersion(semver::Version);
 
 impl SchemaVersion {
-    pub const fn new(major: u64, minor: u64, patch: u64) -> Self {
+    pub const fn new(major: u64, minor: u64, patch: u64) -> SchemaVersion {
         SchemaVersion(semver::Version::new(major, minor, patch))
     }
 
-    pub const CURRENT: Self = SchemaVersion::new(0, 1, 0);
+    pub const CURRENT: SchemaVersion = SchemaVersion::new(0, 1, 0);
 
     pub fn major(&self) -> u64 {
         self.0.major
@@ -28,7 +28,7 @@ impl ToString for SchemaVersion {
 }
 
 impl From<semver::Version> for SchemaVersion {
-    fn from(version: semver::Version) -> Self {
+    fn from(version: semver::Version) -> SchemaVersion {
         SchemaVersion(version)
     }
 }

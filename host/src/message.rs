@@ -24,11 +24,11 @@ use serde::{Deserialize, Serialize};
 pub struct MessageVersion(semver::Version);
 
 impl MessageVersion {
-    pub const fn new(major: u64, minor: u64, patch: u64) -> Self {
+    pub const fn new(major: u64, minor: u64, patch: u64) -> MessageVersion {
         MessageVersion(semver::Version::new(major, minor, patch))
     }
 
-    pub fn parse(version: &str) -> Result<Self, semver::Error> {
+    pub fn parse(version: &str) -> Result<MessageVersion, semver::Error> {
         let version = semver::Version::parse(version)?;
         Ok(MessageVersion(version))
     }
@@ -37,7 +37,7 @@ impl MessageVersion {
 }
 
 impl From<semver::Version> for MessageVersion {
-    fn from(version: semver::Version) -> Self {
+    fn from(version: semver::Version) -> MessageVersion {
         MessageVersion(version)
     }
 }

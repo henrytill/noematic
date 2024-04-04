@@ -36,9 +36,9 @@ pub struct Error {
 }
 
 impl Error {
-    fn new(inner: ErrorImpl) -> Self {
+    fn new(inner: ErrorImpl) -> Error {
         let inner = Box::new(inner);
-        Self { inner }
+        Error { inner }
     }
 }
 
@@ -55,28 +55,28 @@ impl fmt::Display for Error {
 }
 
 impl From<io::Error> for Error {
-    fn from(other: io::Error) -> Self {
-        Self::new(ErrorImpl::Io(other))
+    fn from(other: io::Error) -> Error {
+        Error::new(ErrorImpl::Io(other))
     }
 }
 
 impl From<rusqlite::Error> for Error {
-    fn from(other: rusqlite::Error) -> Self {
-        Self::new(ErrorImpl::Sqlite(other))
+    fn from(other: rusqlite::Error) -> Error {
+        Error::new(ErrorImpl::Sqlite(other))
     }
 }
 
 impl From<semver::Error> for Error {
-    fn from(other: semver::Error) -> Self {
-        Self::new(ErrorImpl::Semver(other))
+    fn from(other: semver::Error) -> Error {
+        Error::new(ErrorImpl::Semver(other))
     }
 }
 
 impl From<db::Error> for Error {
-    fn from(other: db::Error) -> Self {
+    fn from(other: db::Error) -> Error {
         match other {
-            db::Error::Sqlite(e) => Self::new(ErrorImpl::Sqlite(e)),
-            db::Error::InvalidSchemaVersion => Self::new(ErrorImpl::InvalidSchemaVersion),
+            db::Error::Sqlite(e) => Error::new(ErrorImpl::Sqlite(e)),
+            db::Error::InvalidSchemaVersion => Error::new(ErrorImpl::InvalidSchemaVersion),
         }
     }
 }
@@ -92,8 +92,8 @@ enum Connection {
 impl AsRef<rusqlite::Connection> for Connection {
     fn as_ref(&self) -> &rusqlite::Connection {
         match self {
-            Self::InMemory(connection) => connection,
-            Self::Persistent(connection) => connection,
+            Connection::InMemory(connection) => connection,
+            Connection::Persistent(connection) => connection,
         }
     }
 }
@@ -124,26 +124,26 @@ fn make_process(re: Regex) -> impl Fn(Query) -> String {
 }
 
 impl Context {
-    pub fn in_memory() -> Result<Self, Error> {
+    pub fn in_memory() -> Result<Context, Error> {
         let mut connection = rusqlite::Connection::open_in_memory()?;
         db::init_tables(&mut connection)?;
         let connection = Connection::InMemory(connection);
         let process_regex = Regex::new(r"\W+").unwrap();
         let process = Box::new(make_process(process_regex));
-        let context = Self {
+        let context = Context {
             connection,
             process,
         };
         Ok(context)
     }
 
-    pub fn persistent(db_path: impl AsRef<Path>) -> Result<Self, Error> {
+    pub fn persistent(db_path: impl AsRef<Path>) -> Result<Context, Error> {
         let mut connection = rusqlite::Connection::open(db_path.as_ref())?;
         db::init_tables(&mut connection)?;
         let connection = Connection::Persistent(connection);
         let process_regex = Regex::new(r"\W+").unwrap();
         let process = Box::new(make_process(process_regex));
-        let context = Self {
+        let context = Context {
             connection,
             process,
         };

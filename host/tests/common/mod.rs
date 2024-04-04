@@ -27,19 +27,19 @@ impl std::fmt::Display for Error {
 }
 
 impl From<io::Error> for Error {
-    fn from(other: io::Error) -> Self {
+    fn from(other: io::Error) -> Error {
         Error::Io(other)
     }
 }
 
 impl From<serde_json::Error> for Error {
-    fn from(other: serde_json::Error) -> Self {
+    fn from(other: serde_json::Error) -> Error {
         Error::Json(other)
     }
 }
 
 impl From<std::num::TryFromIntError> for Error {
-    fn from(other: std::num::TryFromIntError) -> Self {
+    fn from(other: std::num::TryFromIntError) -> Error {
         Error::TryFromInt(other)
     }
 }

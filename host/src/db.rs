@@ -32,8 +32,8 @@ pub enum Error {
 }
 
 impl From<rusqlite::Error> for Error {
-    fn from(other: rusqlite::Error) -> Self {
-        Self::Sqlite(other)
+    fn from(other: rusqlite::Error) -> Error {
+        Error::Sqlite(other)
     }
 }
 
