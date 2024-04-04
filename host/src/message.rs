@@ -46,7 +46,7 @@ impl From<semver::Version> for MessageVersion {
 macro_rules! wrap_string {
     ($name:ident) => {
         /// A newtype that wraps a [`String`].
-        #[derive(Serialize, Deserialize, Debug, Clone)]
+        #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
         pub struct $name(String);
 
         impl $name {
@@ -60,6 +60,12 @@ macro_rules! wrap_string {
 
             pub fn as_str(&self) -> &str {
                 self.0.as_str()
+            }
+        }
+
+        impl ToString for $name {
+            fn to_string(&self) -> String {
+                self.0.to_string()
             }
         }
 
