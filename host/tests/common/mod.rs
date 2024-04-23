@@ -53,8 +53,8 @@ pub fn exe(name: &str) -> Result<PathBuf, Error> {
         .ok_or_else(|| Error::MissingParent(current_exe.to_owned()))?;
     let mut path = current_dir
         .parent()
-        .ok_or_else(|| Error::MissingParent(current_dir.to_owned()))
-        .map(ToOwned::to_owned)?;
+        .map(PathBuf::from)
+        .ok_or_else(|| Error::MissingParent(current_dir.to_owned()))?;
     path.push(name);
     path.set_extension(std::env::consts::EXE_EXTENSION);
     if path.exists() {
