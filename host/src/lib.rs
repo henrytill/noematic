@@ -8,8 +8,9 @@
 mod db;
 pub mod message;
 
-use std::{fmt, io, path::Path};
+use std::path::Path;
 
+use anyhow::Error;
 use regex::Regex;
 use serde_json::Value;
 
@@ -18,70 +19,7 @@ use message::{
     SearchResponsePayload,
 };
 
-#[derive(Debug)]
-enum ErrorImpl {
-    Io(io::Error),
-    Sqlite(rusqlite::Error),
-    Semver(semver::Error),
-    MissingMessageVersion,
-    InvalidSchemaVersion,
-}
-
-///
-/// An error that occurred while handling a request.
-///
-#[derive(Debug)]
-pub struct Error {
-    inner: Box<ErrorImpl>,
-}
-
-impl Error {
-    fn new(inner: ErrorImpl) -> Error {
-        let inner = Box::new(inner);
-        Error { inner }
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self.inner.as_ref() {
-            ErrorImpl::Io(e) => write!(f, "IO error: {}", e),
-            ErrorImpl::Sqlite(e) => write!(f, "SQLite error: {}", e),
-            ErrorImpl::Semver(e) => write!(f, "Semver error: {}", e),
-            ErrorImpl::MissingMessageVersion => write!(f, "Missing message version"),
-            ErrorImpl::InvalidSchemaVersion => write!(f, "Invalid schema version"),
-        }
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(other: io::Error) -> Error {
-        Error::new(ErrorImpl::Io(other))
-    }
-}
-
-impl From<rusqlite::Error> for Error {
-    fn from(other: rusqlite::Error) -> Error {
-        Error::new(ErrorImpl::Sqlite(other))
-    }
-}
-
-impl From<semver::Error> for Error {
-    fn from(other: semver::Error) -> Error {
-        Error::new(ErrorImpl::Semver(other))
-    }
-}
-
-impl From<db::Error> for Error {
-    fn from(other: db::Error) -> Error {
-        match other {
-            db::Error::Sqlite(e) => Error::new(ErrorImpl::Sqlite(e)),
-            db::Error::InvalidSchemaVersion => Error::new(ErrorImpl::InvalidSchemaVersion),
-        }
-    }
-}
-
-impl std::error::Error for Error {}
+const MSG_MISSING_MESSAGE_VERSION: &str = "Missing message version";
 
 #[derive(Debug)]
 enum Connection {
@@ -264,7 +202,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
     let version = value["version"]
         .as_str()
-        .ok_or(Error::new(ErrorImpl::MissingMessageVersion))?;
+        .ok_or_else(|| Error::msg(MSG_MISSING_MESSAGE_VERSION))?;
     let version = MessageVersion::parse(version)?;
     Ok(version)
 }

@@ -1,8 +1,9 @@
 use std::{
-    env, fmt, fs,
+    env, fs,
     io::{self, BufReader, BufWriter, Read, Write},
 };
 
+use anyhow::Error;
 use directories::ProjectDirs;
 use serde_json::Value;
 
@@ -14,48 +15,9 @@ use noematic::{
 // We use unchecked casts to convert u32 to usize.
 const _: () = assert!(usize::MAX >= u32::MAX as usize);
 
-#[derive(Debug)]
-enum Error {
-    Io(io::Error),
-    Json(serde_json::Error),
-    Noematic(noematic::Error),
-    MissingHomeDir,
-    UnsupportedVersion,
-    UnsupportedLength,
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Error::Io(e) => write!(f, "IO error: {}", e),
-            Error::Json(e) => write!(f, "JSON error: {}", e),
-            Error::Noematic(e) => write!(f, "{}", e),
-            Error::MissingHomeDir => write!(f, "Missing home directory"),
-            Error::UnsupportedVersion => write!(f, "Unsupported version"),
-            Error::UnsupportedLength => write!(f, "Unsupported length"),
-        }
-    }
-}
-
-impl From<io::Error> for Error {
-    fn from(other: io::Error) -> Error {
-        Error::Io(other)
-    }
-}
-
-impl From<serde_json::Error> for Error {
-    fn from(other: serde_json::Error) -> Error {
-        Error::Json(other)
-    }
-}
-
-impl From<noematic::Error> for Error {
-    fn from(other: noematic::Error) -> Error {
-        Error::Noematic(other)
-    }
-}
-
-impl std::error::Error for Error {}
+const MSG_MISSING_HOME_DIR: &str = "Missing home directory";
+const MSG_UNSUPPORTED_VERSION: &str = "Unsupported version";
+const MSG_UNSUPPORTED_LENGTH: &str = "Unsupported length";
 
 #[derive(Debug, Default)]
 struct Args {
@@ -111,7 +73,7 @@ fn read_message_bytes(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> 
 fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Error> {
     let response_bytes = serde_json::to_string(&response)?.into_bytes();
     let response_length = u32::try_from(response_bytes.len())
-        .or(Err(Error::UnsupportedLength))?
+        .or(Err(Error::msg(MSG_UNSUPPORTED_LENGTH)))?
         .to_ne_bytes();
     writer.write_all(&response_length)?;
     writer.write_all(&response_bytes)?;
@@ -120,7 +82,8 @@ fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Err
 }
 
 fn get_project_dirs() -> Result<ProjectDirs, Error> {
-    ProjectDirs::from("com.github", "henrytill", "noematic").ok_or(Error::MissingHomeDir)
+    ProjectDirs::from("com.github", "henrytill", "noematic")
+        .ok_or_else(|| Error::msg(MSG_MISSING_HOME_DIR))
 }
 
 fn main() -> Result<(), Error> {
@@ -147,7 +110,7 @@ fn main() -> Result<(), Error> {
 
         let version = noematic::extract_version(&message_json)?;
         if version != MessageVersion::EXPECTED {
-            return Err(Error::UnsupportedVersion);
+            return Err(Error::msg(MSG_UNSUPPORTED_VERSION));
         }
 
         let request: Request = serde_json::from_value(message_json)?;

@@ -1,9 +1,12 @@
 mod schema_version;
 
+use anyhow::Error;
 use rusqlite::{params, Connection, Transaction};
 
 use self::schema_version::SchemaVersion;
 use crate::message::{Query, SaveRequestPayload, SearchRequestPayload, Site};
+
+const MSG_INVALID_SCHEMA_VERSION: &str = "Invalid schema version";
 
 const CREATE_SQL: &str = include_str!("create.sql");
 
@@ -26,17 +29,6 @@ ORDER BY applied_at DESC
 LIMIT 1
 ";
 
-pub enum Error {
-    Sqlite(rusqlite::Error),
-    InvalidSchemaVersion,
-}
-
-impl From<rusqlite::Error> for Error {
-    fn from(other: rusqlite::Error) -> Error {
-        Error::Sqlite(other)
-    }
-}
-
 pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
     let tx = connection.transaction()?;
     let maybe_version = get_version(&tx)?;
@@ -47,7 +39,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
             insert_version(&tx, SchemaVersion::CURRENT)?;
         }
         Some(_) => {
-            return Err(Error::InvalidSchemaVersion);
+            return Err(Error::msg(MSG_INVALID_SCHEMA_VERSION));
         }
         None => {
             tx.execute_batch(CREATE_SQL)?;
