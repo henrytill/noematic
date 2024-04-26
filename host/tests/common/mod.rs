@@ -20,10 +20,7 @@ pub fn exe(name: &str) -> Result<PathBuf, Error> {
     if path.exists() {
         Ok(path)
     } else {
-        Err(Error::msg(format!(
-            "Missing executable: {}",
-            path.to_string_lossy()
-        )))
+        Err(Error::msg(format!("Missing executable: {}", path.to_string_lossy())))
     }
 }
 

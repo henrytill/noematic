@@ -110,11 +110,7 @@ ON CONFLICT (url) DO UPDATE SET
     updated_at = CURRENT_TIMESTAMP
 ",
     )?;
-    statement.execute(params![
-        save_payload.url,
-        save_payload.title,
-        save_payload.inner_text
-    ])?;
+    statement.execute(params![save_payload.url, save_payload.title, save_payload.inner_text])?;
     Ok(())
 }
 
@@ -136,11 +132,7 @@ ORDER BY rank
     let mut rows = stmt.query([query_string])?;
     let mut results = Vec::new();
     while let Some(row) = rows.next()? {
-        results.push(Site {
-            url: row.get(0)?,
-            title: row.get(1)?,
-            inner_text: row.get(2)?,
-        });
+        results.push(Site { url: row.get(0)?, title: row.get(1)?, inner_text: row.get(2)? });
     }
     Ok(results)
 }

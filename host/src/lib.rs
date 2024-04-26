@@ -68,10 +68,7 @@ impl Context {
         let connection = Connection::InMemory(connection);
         let process_regex = Regex::new(r"\W+").unwrap();
         let process = Box::new(make_process(process_regex));
-        let context = Context {
-            connection,
-            process,
-        };
+        let context = Context { connection, process };
         Ok(context)
     }
 
@@ -81,10 +78,7 @@ impl Context {
         let connection = Connection::Persistent(connection);
         let process_regex = Regex::new(r"\W+").unwrap();
         let process = Box::new(make_process(process_regex));
-        let context = Context {
-            connection,
-            process,
-        };
+        let context = Context { connection, process };
         Ok(context)
     }
 }
@@ -137,11 +131,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
             let response = {
                 let payload = SaveResponsePayload {};
                 let action = ResponseAction::SaveResponse { payload };
-                Response {
-                    version,
-                    action,
-                    correlation_id,
-                }
+                Response { version, action, correlation_id }
             };
             Ok(response)
         }
@@ -152,11 +142,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
             let response = {
                 let payload = SearchResponsePayload { query, results };
                 let action = ResponseAction::SearchResponse { payload };
-                Response {
-                    version,
-                    action,
-                    correlation_id,
-                }
+                Response { version, action, correlation_id }
             };
             Ok(response)
         }
@@ -200,9 +186,8 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
 /// ```
 ///
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
-    let version = value["version"]
-        .as_str()
-        .ok_or_else(|| Error::msg(MSG_MISSING_MESSAGE_VERSION))?;
+    let version =
+        value["version"].as_str().ok_or_else(|| Error::msg(MSG_MISSING_MESSAGE_VERSION))?;
     let version = MessageVersion::parse(version)?;
     Ok(version)
 }
