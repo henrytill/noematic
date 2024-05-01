@@ -1,4 +1,4 @@
-mod common;
+mod base;
 
 use std::process::{Command, Stdio};
 
@@ -8,7 +8,7 @@ const CORRELATION_ID: &str = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
 
 #[test]
 fn test_save() {
-    let noematic = common::exe("noematic").unwrap();
+    let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
         .arg("-test")
         .stdin(Stdio::piped())
@@ -27,7 +27,7 @@ fn test_save() {
         "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &request).expect("Failed to write request");
+    base::write_request(stdin, &request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -36,14 +36,14 @@ fn test_save() {
         "correlationId": CORRELATION_ID
     });
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 }
 
 #[test]
 fn test_search() {
-    let noematic = common::exe("noematic").unwrap();
+    let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
         .arg("-test")
         .stdin(Stdio::piped())
@@ -62,7 +62,7 @@ fn test_search() {
         "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &save_request).expect("Failed to write request");
+    base::write_request(stdin, &save_request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -72,7 +72,7 @@ fn test_search() {
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 
@@ -86,7 +86,7 @@ fn test_search() {
     });
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &search_request).expect("Failed to write request");
+    base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -105,14 +105,14 @@ fn test_search() {
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 }
 
 #[test]
 fn test_search_quotation() {
-    let noematic = common::exe("noematic").unwrap();
+    let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
         .arg("-test")
         .stdin(Stdio::piped())
@@ -131,7 +131,7 @@ fn test_search_quotation() {
         "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &save_request).expect("Failed to write request");
+    base::write_request(stdin, &save_request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -141,7 +141,7 @@ fn test_search_quotation() {
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 
@@ -155,7 +155,7 @@ fn test_search_quotation() {
     });
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &search_request).expect("Failed to write request");
+    base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -174,14 +174,14 @@ fn test_search_quotation() {
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 }
 
 #[test]
 fn search_idempotent() {
-    let noematic = common::exe("noematic").unwrap();
+    let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
         .arg("-test")
         .stdin(Stdio::piped())
@@ -200,7 +200,7 @@ fn search_idempotent() {
         "correlationId": CORRELATION_ID
     });
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &save_request).expect("Failed to write request");
+    base::write_request(stdin, &save_request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -210,7 +210,7 @@ fn search_idempotent() {
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 
@@ -224,7 +224,7 @@ fn search_idempotent() {
     });
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &search_request).expect("Failed to write request");
+    base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected = json!({
         "version": "0.1.0",
@@ -243,15 +243,15 @@ fn search_idempotent() {
     });
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 
     let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    common::write_request(stdin, &search_request).expect("Failed to write request");
+    base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = common::read_response(stdout).expect("Failed to read response");
+    let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
 }
