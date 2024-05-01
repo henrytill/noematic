@@ -10,14 +10,19 @@ MANIFEST_PATH = --manifest-path=$(CARGO_WORKSPACE_TOML)
 .PHONY: all
 all: build
 
+.PHONY: build
+build:
+	cargo $@ $(MANIFEST_PATH) --all-targets
+	npm --prefix $(EXTENSION_ROOT) run $@
+
 .PHONY: build clean test
-build clean test:
+clean test:
 	cargo $@ $(MANIFEST_PATH)
 	npm --prefix $(EXTENSION_ROOT) run $@
 
 .PHONY: lint
 lint:
-	cargo clippy $(MANIFEST_PATH)
+	cargo clippy $(MANIFEST_PATH) --all-targets
 	npm --prefix $(EXTENSION_ROOT) run $@
 
 .PHONY: create_host_manifest
