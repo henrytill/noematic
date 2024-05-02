@@ -2,27 +2,22 @@
 
 EXTENSION_ROOT = ./extension
 
-CARGO_WORKSPACE_ROOT = ./host
-CARGO_WORKSPACE_TOML = $(addprefix $(CARGO_WORKSPACE_ROOT), /Cargo.toml)
-
-MANIFEST_PATH = --manifest-path=$(CARGO_WORKSPACE_TOML)
-
 .PHONY: all
 all: build
 
 .PHONY: build
 build:
-	cargo $@ $(MANIFEST_PATH) --all-targets
+	cargo $@ --all-targets
 	npm --prefix $(EXTENSION_ROOT) run $@
 
 .PHONY: build clean test
 clean test:
-	cargo $@ $(MANIFEST_PATH)
+	cargo $@
 	npm --prefix $(EXTENSION_ROOT) run $@
 
 .PHONY: lint
 lint:
-	cargo clippy $(MANIFEST_PATH) --all-targets
+	cargo clippy --all-targets
 	npm --prefix $(EXTENSION_ROOT) run $@
 
 .PHONY: create_host_manifest
