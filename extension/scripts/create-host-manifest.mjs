@@ -40,18 +40,18 @@ const template = {
 };
 
 /**
- * Find the host project directory.
+ * Find the project's target directory.
  *
  * @returns {string}
- * @throws {Error} if the host project directory does not exist
+ * @throws {Error} if the target directory does not exist
  */
-const getHostDir = () => {
-  const hostDir = process.env.HOST_PROJECT_DIR || HOST_ROOT;
-  // Check that the host project directory exists
-  if (!fs.existsSync(hostDir)) {
-    throw new Error(`Host project directory does not exist: ${hostDir}`);
+const getTargetDir = () => {
+  const projectRoot = process.env.PROJECT_ROOT || PROJECT_ROOT;
+  const targetDir = path.join(projectRoot, "target");
+  if (!fs.existsSync(targetDir)) {
+    throw new Error(`Directory does not exist: ${targetDir}`);
   }
-  return hostDir;
+  return targetDir
 };
 
 /**
@@ -59,14 +59,14 @@ const getHostDir = () => {
  *
  * @param {Manifest} template
  * @param {number} browser
- * @param {string} hostDir
+ * @param {string} targetDir,
  * @param {string} buildType
  * @returns {Manifest}
  * @throws {Error} if the host binary does not exist
  */
-const createManifest = (template, browser, hostDir, buildType) => {
+const createManifest = (template, browser, targetDir, buildType) => {
   const ret = { ...template };
-  const hostBinaryPath = path.join(hostDir, 'target', buildType, HOST_BINARY_NAME);
+  const hostBinaryPath = path.join(targetDir, buildType, HOST_BINARY_NAME);
   // Check that the host binary exists
   if (!fs.existsSync(hostBinaryPath)) {
     throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
@@ -127,17 +127,17 @@ const writeManifest = (manifest, targetDir) => {
 
 const main = () => {
   try {
-    const hostDir = getHostDir();
+    const targetDir = getTargetDir();
     const buildType = process.env.BUILD_TYPE || 'debug';
     {
-      const manifest = createManifest(template, Browser.Chromium, hostDir, buildType);
+      const manifest = createManifest(template, Browser.Chromium, targetDir, buildType);
       const chromiumTargetDir = getChromiumTargetDir();
       const { manifestPath, output } = writeManifest(manifest, chromiumTargetDir);
       console.log(`Chromium host manifest written to: ${manifestPath}`);
       console.log(`Chromium host manifest contents:\n${output}`);
     }
     {
-      const manifest = createManifest(template, Browser.Firefox, hostDir, buildType);
+      const manifest = createManifest(template, Browser.Firefox, targetDir, buildType);
       const firefoxTargetDir = getFirefoxTargetDir();
       const { manifestPath, output } = writeManifest(manifest, firefoxTargetDir);
       console.log(`Firefox host manifest written to: ${manifestPath}`);

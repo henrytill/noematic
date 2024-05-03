@@ -20,24 +20,16 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            host/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('host/Cargo.lock') }}
-
-      - run: cargo build
-        working-directory: ./host
-      - run: cargo test
-        working-directory: ./host
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
 
       - run: npm ci
         working-directory: ./extension
-      - run: npm run create-host-manifest
-        working-directory: ./extension
       - run: npx playwright install --with-deps chromium
         working-directory: ./extension
-      - run: npm run check
-        working-directory: ./extension
-      - run: npm test
-        working-directory: ./extension
+      - run: cargo xtask build
+      - run: cargo xtask create_host_manifest
+      - run: cargo xtask test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
