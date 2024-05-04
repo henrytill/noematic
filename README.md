@@ -29,7 +29,7 @@ Noematic is currently comprised of two components:
 On Linux:
 
 ```sh
-make
+cargo xtask build
 ```
 
 The extension build products can be loaded from:
@@ -46,7 +46,7 @@ Refer to the native messaging documentation for [Firefox](https://developer.mozi
 On Linux, native manifests for both browsers can be installed using the following command:
 
 ```sh
-make create_host_manifest
+cargo xtask create_host_manifest
 ```
 
 The native manifests point directly to the debug executable.
