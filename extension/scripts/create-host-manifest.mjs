@@ -9,7 +9,6 @@ import * as url from 'node:url';
 import { FIREFOX_ID } from './common.mjs';
 
 const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
-const HOST_ROOT = path.join(PROJECT_ROOT, 'host');
 const HOST_BINARY_NAME = 'noematic';
 const ALLOWED_ORIGIN = 'chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/';
 const NAME = 'com.github.henrytill.noematic';
@@ -47,11 +46,11 @@ const template = {
  */
 const getTargetDir = () => {
   const projectRoot = process.env.PROJECT_ROOT || PROJECT_ROOT;
-  const targetDir = path.join(projectRoot, "target");
+  const targetDir = path.join(projectRoot, 'target');
   if (!fs.existsSync(targetDir)) {
     throw new Error(`Directory does not exist: ${targetDir}`);
   }
-  return targetDir
+  return targetDir;
 };
 
 /**

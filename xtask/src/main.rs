@@ -8,7 +8,7 @@ fn try_main() -> Result<(), Error> {
         Some("build") => task::build(),
         Some("test") => task::test(),
         Some("create_host_manifest") => task::create_host_manifest(),
-        _ => Err(String::from("unknown task"))?,
+        _ => Err("unknown task")?,
     }
 }
 

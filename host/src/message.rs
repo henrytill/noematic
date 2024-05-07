@@ -1,4 +1,3 @@
-//!
 //! The message format used to communicate between the host and the client (extension).
 //!
 //! See the [`Request`] and [`Response`] types for the message format.
@@ -14,7 +13,6 @@
 //! The `correlationId` field is a string that is used to correlate requests and responses. The
 //! `correlationId` is included in the response to a request to allow the client to match the
 //! response to the request.
-//!
 
 use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 use serde::{Deserialize, Serialize};

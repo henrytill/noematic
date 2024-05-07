@@ -1,9 +1,7 @@
-//!
 //! The library for the Noematic application.
 //!
 //! The library contains the core functionality of the application, including handling requests and
 //! responses, and managing the database.
-//!
 
 mod db;
 pub mod message;
@@ -36,7 +34,6 @@ impl AsRef<rusqlite::Connection> for Connection {
     }
 }
 
-///
 /// The context of the application.
 ///
 /// The context contains the state of the application and is used to handle requests.
@@ -48,7 +45,6 @@ impl AsRef<rusqlite::Connection> for Connection {
 ///
 /// let context = Context::in_memory().unwrap();
 /// ```
-///
 pub struct Context {
     connection: Connection,
     process: Box<dyn Fn(Query) -> String>,
@@ -83,7 +79,6 @@ impl Context {
     }
 }
 
-///
 /// Handles a request and returns a response.
 ///
 /// # Arguments
@@ -118,7 +113,6 @@ impl Context {
 /// };
 /// let response = noematic::handle_request(&mut context, request).unwrap();
 /// ```
-///
 pub fn handle_request(context: &mut Context, request: Request) -> Result<Response, Error> {
     let version = request.version;
     let correlation_id = request.correlation_id;
@@ -149,7 +143,6 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
     }
 }
 
-///
 /// Extracts the message version from the message.
 ///
 /// # Arguments
@@ -184,7 +177,6 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
 /// let version = noematic::extract_version(&request).unwrap();
 /// assert_eq!(version, MessageVersion::new(0, 1, 0));
 /// ```
-///
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
     let version =
         value["version"].as_str().ok_or_else(|| Error::msg(MSG_MISSING_MESSAGE_VERSION))?;
