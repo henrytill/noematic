@@ -1,6 +1,11 @@
 {
   "name": "noematic",
   "private": true,
+  "license": "ISC",
+  "author": {
+    "name": "Henry Till",
+    "email": "henrytill@gmail.com"
+  },
   "scripts": {
     "clean": "rm -rf dist",
     "check": "tsc",

@@ -2,3 +2,6 @@
 resolver = "2"
 
 members = ["host", "xtask"]
+
+[workspace.package]
+license = "ISC"
