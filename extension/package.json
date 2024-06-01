@@ -19,7 +19,7 @@
   "devDependencies": {
     "@henrytill/incr": "github:henrytill/incr",
     "@playwright/test": "^1.44.1",
-    "@types/chrome": "^0.0.267",
+    "@types/chrome": "^0.0.268",
     "@types/node": "^20.13.0",
     "@typescript-eslint/eslint-plugin": "^7.11.0",
     "@typescript-eslint/parser": "^7.11.0",
