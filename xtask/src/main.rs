@@ -34,14 +34,18 @@ mod task {
 
     const MSG_NO_PROJECT_ROOT: &str = "no project root";
 
-    macro_rules! npm_args {
-        ($command:expr) => {
-            ["--prefix", "extension", "run", $command]
-        };
-    }
-
     fn project_root() -> Option<PathBuf> {
         Path::new(env!("CARGO_MANIFEST_DIR")).ancestors().nth(1).map(Path::to_path_buf)
+    }
+
+    fn npm_run(working_dir: impl AsRef<Path>, cmd: &str) -> Result<(), Error> {
+        let cmd = ["--prefix", "extension", "run", cmd];
+        let status = Command::new(NPM).current_dir(working_dir).args(cmd).status()?;
+        if !status.success() {
+            let code = status.code().unwrap();
+            return Err(format!("Error: npm {} returned {}", cmd.join(" "), code))?;
+        }
+        Ok(())
     }
 
     pub fn build() -> Result<(), Error> {
@@ -54,16 +58,8 @@ mod task {
         if !cargo_status.success() {
             Err("cargo build failed")?;
         }
-        let npm_status =
-            Command::new(NPM).current_dir(&project_root).args(npm_args!("check")).status()?;
-        if !npm_status.success() {
-            Err("npm run check failed")?;
-        }
-        let npm_status =
-            Command::new(NPM).current_dir(&project_root).args(npm_args!("build")).status()?;
-        if !npm_status.success() {
-            Err("npm run build failed")?;
-        }
+        npm_run(&project_root, "check")?;
+        npm_run(&project_root, "build")?;
         Ok(())
     }
 
@@ -75,23 +71,13 @@ mod task {
         if !cargo_status.success() {
             Err("cargo test failed")?;
         }
-        let npm_status =
-            Command::new(NPM).current_dir(&project_root).args(npm_args!("test")).status()?;
-        if !npm_status.success() {
-            Err("npm run test failed")?;
-        }
+        npm_run(&project_root, "test")?;
         Ok(())
     }
 
     pub fn create_host_manifest() -> Result<(), Error> {
         let project_root = project_root().ok_or(MSG_NO_PROJECT_ROOT)?;
-        let npm_status = Command::new(NPM)
-            .current_dir(&project_root)
-            .args(npm_args!("create-host-manifest"))
-            .status()?;
-        if !npm_status.success() {
-            Err("npm run create-host-manifest failed")?;
-        }
+        npm_run(&project_root, "create-host-manifest")?;
         Ok(())
     }
 }
