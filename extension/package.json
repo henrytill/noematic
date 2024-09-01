@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "check": "tsc",
-    "lint": "eslint scripts src tests --ext .mjs,.js,.ts",
+    "lint": "eslint scripts src",
     "fmt": "prettier --write scripts src tests",
     "build": "node ./scripts/build.mjs",
     "pretest": "node ./scripts/build.mjs",
@@ -17,14 +17,15 @@
     "create-host-manifest": "node ./scripts/create-host-manifest.mjs"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.1",
     "@henrytill/incr": "github:henrytill/incr",
     "@playwright/test": "^1.46.1",
     "@types/chrome": "^0.0.269",
     "@types/node": "^22.5.1",
-    "@typescript-eslint/eslint-plugin": "^8.3.0",
-    "@typescript-eslint/parser": "^8.3.0",
     "eslint": "^9.9.1",
+    "globals": "^15.9.0",
     "prettier": "^3.3.3",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^8.3.0"
   }
 }
