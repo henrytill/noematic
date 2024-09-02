@@ -38,8 +38,8 @@ const installContentScript = ({ id }) => {
     return Promise.reject(new Error('No tab id'));
   }
   const isChrome = Object.prototype.hasOwnProperty.call(window, 'browser') === false;
-  // This is garbage.
-  const files = isChrome ? ['./content/content.js'] : ['../content/content.js'];
+  const prefix = isChrome ? '.' : '..'; // This is garbage.
+  const files = [`${prefix}/content/content.js`];
   return chrome.scripting.executeScript({
     target: { tabId: id },
     files,
