@@ -17,4 +17,12 @@ export default [
       'no-unused-vars': 'off',
     },
   },
+  {
+    files: ['scripts/**/*'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 ];
