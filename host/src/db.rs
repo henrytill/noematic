@@ -10,6 +10,7 @@ const MSG_INVALID_SCHEMA_VERSION: &str = "Invalid schema version";
 
 const CREATE_SQL: &str = include_str!("create.sql");
 
+#[allow(clippy::const_is_empty)]
 const _: () = assert!(!CREATE_SQL.is_empty());
 
 const SELECT_VERSION_TABLE_EXISTS: &str = "\

@@ -43,7 +43,7 @@ mod task {
         let status = Command::new(NPM).current_dir(working_dir).args(cmd).status()?;
         if !status.success() {
             let code = status.code().unwrap();
-            return Err(format!("Error: npm {} returned {}", cmd.join(" "), code))?;
+            Err(format!("Error: npm {} returned {}", cmd.join(" "), code))?;
         }
         Ok(())
     }
