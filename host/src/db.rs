@@ -121,7 +121,7 @@ pub fn search_sites(
 ) -> Result<Vec<Site>, Error> {
     let mut stmt = connection.prepare(
         "\
-SELECT s.url, s.title, snippet(sites_fts, 2, '**', '**', '...', 40) AS snippet
+SELECT s.url, s.title, snippet(sites_fts, 2, '<b>', '</b>', '...', 40)
 FROM sites_fts
 JOIN sites s ON sites_fts.rowid = s.id
 WHERE sites_fts MATCH ?

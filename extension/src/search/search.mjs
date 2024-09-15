@@ -29,7 +29,7 @@ const handleSearchResponse = (response) => {
     const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
     resultElement.title = title;
     resultElement.href = url;
-    resultElement.snippet = snippet.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+    resultElement.snippet = snippet;
     resultsContainer.appendChild(resultElement);
   }
 };
