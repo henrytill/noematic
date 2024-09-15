@@ -7,46 +7,6 @@ import { SearchResult } from './search-result.mjs';
  */
 
 /**
- * Finds the first occurrence of the first word of the query in the innerText
- * and returns the surrounding text.
- *
- * @param {string} text - The full text to search within.
- * @param {string} query - The search query.
- * @param {number} maxLength - The maximum length of the resulting text snippet.
- * @returns {string} - The text snippet with the query word highlighted.
- */
-const createSnippet = (text, query, maxLength) => {
-  // Normalize spaces and replace newlines with a space.
-  text = text.replace(/\s+/g, ' ');
-
-  if (query.length === 0) {
-    throw new Error('Unexpected empty query');
-  }
-
-  const queryWord = query.split(' ')[0].toLowerCase();
-  const matchIndex = text.toLowerCase().indexOf(queryWord);
-
-  if (matchIndex === -1) {
-    return common.abbreviate(text, maxLength);
-  }
-
-  // Calculate the start index for the snippet, ensuring it's within bounds and on a word boundary.
-  let start = Math.max(0, matchIndex - Math.floor(maxLength / 2));
-  start = text.lastIndexOf(' ', start - 1) + 1;
-
-  // Calculate the end index based on the adjusted start, ensuring it's within bounds.
-  let end = start + maxLength;
-  end = end <= text.length ? text.indexOf(' ', end) : text.length;
-  end = end === -1 ? text.length : end;
-
-  // Prefix and suffix ellipses are added only if the snippet doesn't start or end at the text bounds.
-  const prefix = start > 0 ? '...' : '';
-  const suffix = end < text.length ? '...' : '';
-
-  return prefix + text.substring(start, end) + suffix;
-};
-
-/**
  * Processes and displays the search results contained in a search response.
  *
  * @param {SearchResponse} response
@@ -65,11 +25,11 @@ const handleSearchResponse = (response) => {
     resultsContainer.innerHTML = 'No results found';
     return;
   }
-  for (const { title, url, innerText } of results) {
+  for (const { title, url, snippet } of results) {
     const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
     resultElement.title = title;
     resultElement.href = url;
-    resultElement.snippet = createSnippet(innerText, query, 200);
+    resultElement.snippet = snippet.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
     resultsContainer.appendChild(resultElement);
   }
 };

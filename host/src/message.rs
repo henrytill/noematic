@@ -91,6 +91,7 @@ wrap_string!(CorrelationId);
 wrap_string!(Url);
 wrap_string!(Title);
 wrap_string!(InnerText);
+wrap_string!(Snippet);
 wrap_string!(Query);
 
 /// Messages that are sent from the client (extension) to the host.
@@ -157,8 +158,8 @@ pub struct SaveResponsePayload {}
 pub struct Site {
     pub url: Url,
     pub title: Title,
-    #[serde(rename = "innerText")]
-    pub inner_text: InnerText,
+    #[serde(rename = "snippet")]
+    pub snippet: Snippet,
 }
 
 /// The payload for the `searchResponse` action.

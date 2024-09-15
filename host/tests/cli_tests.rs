@@ -97,7 +97,7 @@ fn test_search() {
                 {
                     "url": "https://en.wikipedia.org/wiki/Foobar",
                     "title": "Title",
-                    "innerText": "Foo bar baz quux",
+                    "snippet": "Foo bar baz **quux**",
                 }
             ]
         },
@@ -166,7 +166,7 @@ fn test_search_quotation() {
                 {
                     "url": "https://en.wikipedia.org/wiki/Foobar",
                     "title": "Title",
-                    "innerText": "foo bar baz quux",
+                    "snippet": "**foo** **bar** baz quux",
                 }
             ]
         },
@@ -235,7 +235,7 @@ fn search_idempotent() {
                 {
                     "url": "https://en.wikipedia.org/wiki/Foobar",
                     "title": "Title",
-                    "innerText": "Foo bar baz quux",
+                    "snippet": "Foo bar baz **quux**",
                 }
             ]
         },

@@ -121,7 +121,7 @@ pub fn search_sites(
 ) -> Result<Vec<Site>, Error> {
     let mut stmt = connection.prepare(
         "\
-SELECT s.url, s.title, s.inner_text
+SELECT s.url, s.title, snippet(sites_fts, 2, '**', '**', '...', 40) AS snippet
 FROM sites_fts
 JOIN sites s ON sites_fts.rowid = s.id
 WHERE sites_fts MATCH ?
@@ -132,7 +132,10 @@ ORDER BY rank
     let mut rows = stmt.query([query_string])?;
     let mut results = Vec::new();
     while let Some(row) = rows.next()? {
-        results.push(Site { url: row.get(0)?, title: row.get(1)?, inner_text: row.get(2)? });
+        let url = row.get(0)?;
+        let title = row.get(1)?;
+        let snippet = row.get(2)?;
+        results.push(Site { url, title, snippet });
     }
     Ok(results)
 }

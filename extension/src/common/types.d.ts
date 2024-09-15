@@ -23,7 +23,7 @@ export type SearchResponsePayload = {
   results: Array<{
     url: string;
     title: string;
-    innerText: string;
+    snippet: string;
   }>;
 };
 
