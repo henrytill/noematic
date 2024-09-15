@@ -17,7 +17,8 @@ use message::{
     SearchResponsePayload,
 };
 
-const MSG_MISSING_MESSAGE_VERSION: &str = "Missing message version";
+const FIELD_VERSION: &str = "version";
+const MSG_MISSING_VERSION: &str = "Missing version";
 
 #[derive(Debug)]
 enum Connection {
@@ -178,8 +179,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
 /// assert_eq!(version, MessageVersion::new(0, 1, 0));
 /// ```
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
-    let version =
-        value["version"].as_str().ok_or_else(|| Error::msg(MSG_MISSING_MESSAGE_VERSION))?;
+    let version = value[FIELD_VERSION].as_str().ok_or_else(|| Error::msg(MSG_MISSING_VERSION))?;
     let version = MessageVersion::parse(version)?;
     Ok(version)
 }
