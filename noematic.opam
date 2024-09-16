@@ -2,13 +2,12 @@
 opam-version: "2.0"
 synopsis: "A short synopsis"
 description: "A longer description"
-maintainer: ["Maintainer Name"]
-authors: ["Author Name"]
-license: "LICENSE"
+maintainer: ["Henry Till <henrytill@gmail.com>"]
+authors: ["Henry Till <henrytill@gmail.com>"]
+license: "ISC"
 tags: ["topics" "to describe" "your" "project"]
-homepage: "https://github.com/username/reponame"
-doc: "https://url/to/documentation"
-bug-reports: "https://github.com/username/reponame/issues"
+homepage: "https://github.com/henrytill/noematic"
+bug-reports: "https://github.com/henrytill/noematic/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.16"}
@@ -28,4 +27,4 @@ build: [
     "@doc" {with-doc}
   ]
 ]
-dev-repo: "git+https://github.com/username/reponame.git"
+dev-repo: "git+https://github.com/henrytill/noematic.git"
