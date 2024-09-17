@@ -37,6 +37,8 @@
    (= 1.3.0))
   (ppx_yojson_conv
    (= v0.17.0))
+  (re
+   (= 1.12.0))
   (semver
    (= 0.2.1))
   (sqlite3

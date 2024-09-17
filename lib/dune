@@ -1,6 +1,6 @@
 (library
  (name noematic)
- (libraries semver sqlite3 uri yojson)
+ (libraries re semver sqlite3 uri yojson)
  (preprocess
   (pps ppx_deriving.show ppx_yojson_conv)))
 
