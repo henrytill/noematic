@@ -9,17 +9,19 @@ module Context = struct
 
   let in_memory () =
     let db = Sqlite3.db_open ":memory:" in
-    let process_regex = Re.Posix.compile_pat {|\W+|} in
+    let process_regex = Re.Perl.compile_pat {|\W+|} in
     let process query = make_process process_regex query in
     Db.init_tables db;
     { db; process }
 
   let persistent db_path =
     let db = Sqlite3.db_open db_path in
-    let process_regex = Re.Posix.compile_pat {|\W+|} in
+    let process_regex = Re.Perl.compile_pat {|\W+|} in
     let process query = make_process process_regex query in
     Db.init_tables db;
     { db; process }
+
+  let close self = ignore (Sqlite3.db_close self.db)
 end
 
 let handle_request (context : Context.t) (request : Message.Request.t) : Message.Response.t =

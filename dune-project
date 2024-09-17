@@ -44,6 +44,8 @@
   (sqlite3
    (= 5.2.0))
   (uri
-   (= 4.4.0)))
+   (= 4.4.0))
+  (xdg
+   (= 3.16.0)))
  (tags
   (topics "to describe" your project)))

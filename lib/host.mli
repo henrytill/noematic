@@ -3,6 +3,7 @@ module Context : sig
 
   val in_memory : unit -> t
   val persistent : string -> t
+  val close : t -> unit
 end
 
 val handle_request : Context.t -> Message.Request.t -> Message.Response.t

@@ -1,50 +1,66 @@
-let input_buffer_length = 1024
+open Noematic
 
-let read_length ic =
-  let bytes = Bytes.create 4 in
-  match input ic bytes 0 4 with
-  | 4 -> Some (Bytes.get_int32_ne bytes 0)
-  | _ -> None
+module Args = struct
+  type t = { test : bool }
 
-let read_message ic length =
-  let length = Int32.to_int length in
-  let message_buffer = Buffer.create length in
-  let input_buffer = Bytes.create input_buffer_length in
-  let rec go rem_bytes =
-    if rem_bytes > 0 then
-      let bytes_to_read = min input_buffer_length rem_bytes in
-      let bytes_read = input ic input_buffer 0 bytes_to_read in
-      if bytes_read > 0 then (
-        Buffer.add_subbytes message_buffer input_buffer 0 bytes_read;
-        go (rem_bytes - bytes_read))
-      else
-        raise (Failure "Unexpected end of file")
+  let of_argv argv =
+    let[@warning "-23"] rec parse acc = function
+      | [] -> acc
+      | "-test" :: rest -> parse { acc with test = true } rest
+      | _ :: rest -> parse acc rest
+    in
+    parse { test = false } (List.tl (Array.to_list argv))
+end
+
+let get_db_path () =
+  let xdg = Xdg.create ~env:Sys.getenv_opt () in
+  let data_dir = Xdg.data_dir xdg in
+  let data_dir = Filename.concat data_dir "noematic" in
+  Filename.concat data_dir "db.sqlite3"
+
+let rec mkdir_p path perms =
+  if path = "." || path = "/" then
+    ()
+  else
+    let parent = Filename.dirname path in
+    if not (Sys.file_exists parent) then
+      mkdir_p parent perms;
+    if not (Sys.file_exists path) then
+      try Unix.mkdir path perms with Unix.Unix_error (Unix.EEXIST, _, _) -> ()
+    else if not (Sys.is_directory path) then
+      failwith (Printf.sprintf "Error: %s exists but is not a directory" path)
+
+let context_of_args (args : Args.t) : Host.Context.t =
+  if args.test then
+    Host.Context.in_memory ()
+  else
+    let db_path = get_db_path () in
+    mkdir_p (Filename.dirname db_path) 0o755;
+    Host.Context.persistent db_path
+
+let rec process_messages context ic oc =
+  let length =
+    match Protocol.read_length stdin with
+    | None -> raise End_of_file
+    | Some length -> length
   in
-  go length;
-  Buffer.to_bytes message_buffer
-
-let handle_message oc length message =
-  output_string oc (Bytes.to_string message);
-  flush oc;
-  let length_bytes =
-    begin
-      let bytes = Bytes.create 4 in
-      Bytes.set_int32_ne bytes 0 length;
-      bytes
-    end
-  in
-  output_bytes stdout (Bytes.cat length_bytes message);
-  flush stdout
+  let request_json = Protocol.read ic length in
+  let version = Host.extract_version request_json in
+  if not (Message.Version.equal version Message.Version.expected) then
+    failwith "Unsupported version";
+  let request = Message.Request.t_of_yojson request_json in
+  let response = Host.handle_request context request in
+  let response_json = Message.Response.yojson_of_t response in
+  Protocol.write oc response_json;
+  process_messages context ic oc
 
 let () =
-  let file = Filename.temp_file "noematic-" ".txt" in
-  let oc = open_out file in
-  try
-    while true do
-      match read_length stdin with
-      | None -> raise End_of_file
-      | Some length ->
-          let message = read_message stdin length in
-          handle_message oc length message
-    done
-  with End_of_file -> close_out_noerr oc
+  let args = Args.of_argv Sys.argv in
+  let context = context_of_args args in
+  let in_channel = stdin in
+  let out_channel = stdout in
+  try process_messages context in_channel out_channel
+  with End_of_file ->
+    Host.Context.close context;
+    close_in_noerr in_channel;
+    close_out_noerr out_channel

@@ -21,6 +21,7 @@ depends: [
   "semver" {= "0.2.1"}
   "sqlite3" {= "5.2.0"}
   "uri" {= "4.4.0"}
+  "xdg" {= "3.16.0"}
   "odoc" {with-doc}
 ]
 build: [

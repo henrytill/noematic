@@ -1,4 +1,4 @@
 (executable
  (public_name noematic)
  (name main)
- (libraries noematic))
+ (libraries noematic unix xdg yojson))

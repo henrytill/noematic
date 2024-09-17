@@ -1,3 +1,17 @@
+(rule
+ (target exe.ml)
+ (action
+  (with-stdout-to
+   %{target}
+   (echo "let path = {|%{bin:noematic}|}"))))
+
+(test
+ (name main_test)
+ (modules main_test exe)
+ (libraries alcotest fmt noematic unix yojson)
+ (preprocess
+  (pps ppx_yojson)))
+
 (library
  (name message_expect)
  (modules message_expect)
