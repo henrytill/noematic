@@ -1,2 +1,14 @@
+(library
+ (name message_expect)
+ (modules message_expect)
+ (inline_tests)
+ (libraries base noematic ppx_expect.config_types yojson)
+ (preprocess
+  (pps ppx_expect ppx_yojson)))
+
 (test
- (name test_noematic))
+ (name message_test)
+ (modules message_test)
+ (libraries alcotest fmt noematic yojson)
+ (preprocess
+  (pps ppx_yojson)))

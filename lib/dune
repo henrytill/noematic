@@ -1,2 +1,5 @@
 (library
- (name noematic))
+ (name noematic)
+ (libraries semver uri yojson)
+ (preprocess
+  (pps ppx_deriving.show ppx_yojson_conv)))
