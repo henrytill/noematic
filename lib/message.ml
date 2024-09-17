@@ -79,10 +79,16 @@ module Request = struct
       inner_text : Inner_text.t; [@key "innerText"]
     }
     [@@deriving show { with_path = false }, yojson]
+
+    let uri self = self.uri
+    let title self = self.title
+    let inner_text self = self.inner_text
   end
 
   module Search = struct
     type t = { query : Query.t } [@@deriving show { with_path = false }, yojson]
+
+    let query self = self.query
   end
 
   module Action = struct
@@ -209,4 +215,6 @@ module Response = struct
         ("payload", payload);
         ("correlationId", correlation_id);
       ]
+
+  let site ~uri ~title ~snippet = Site.{ uri; title; snippet }
 end

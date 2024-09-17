@@ -1,5 +1,12 @@
 (library
  (name noematic)
- (libraries semver uri yojson)
+ (libraries semver sqlite3 uri yojson)
  (preprocess
   (pps ppx_deriving.show ppx_yojson_conv)))
+
+(rule
+ (target strings.ml)
+ (action
+  (with-stdout-to
+   %{target}
+   (echo "let create_sql = {|%{read:create.sql}|}"))))
