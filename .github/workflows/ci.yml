@@ -13,33 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
-
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: npm ci
         working-directory: ./extension
       - run: npx playwright install --with-deps chromium
         working-directory: ./extension
-      - run: cargo xtask build
-      - run: cargo xtask create_host_manifest
-      - run: cargo xtask test
+      - run: nix build -L
+      - run: npm run create-host-manifest -- --dest-dir ${{ github.workspace }}/result/bin
+        working-directory: ./extension
+      - run: npm run test
+        working-directory: ./extension
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: extension/playwright-report/
           retention-days: 30
-  flake:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-      - run: nix build -L

@@ -37,14 +37,14 @@ const template = {
 };
 
 /**
- * Find the project's target directory.
+ * Find the project's build directory.
  *
  * @returns {string}
  * @throws {Error} if the target directory does not exist
  */
-const getTargetDir = () => {
+const getBuildDir = () => {
   const projectRoot = process.env.PROJECT_ROOT || PROJECT_ROOT;
-  const targetDir = path.join(projectRoot, 'target');
+  const targetDir = path.join(projectRoot, '_build', 'install', 'default', 'bin');
   if (!fs.existsSync(targetDir)) {
     throw new Error(`Directory does not exist: ${targetDir}`);
   }
@@ -56,14 +56,13 @@ const getTargetDir = () => {
  *
  * @param {Manifest} template
  * @param {number} browser
- * @param {string} targetDir,
- * @param {string} buildType
+ * @param {string} destDir,
  * @returns {Manifest}
  * @throws {Error} if the host binary does not exist
  */
-const createManifest = (template, browser, targetDir, buildType) => {
+const createManifest = (template, browser, destDir) => {
   const ret = { ...template };
-  const hostBinaryPath = path.join(targetDir, buildType, HOST_BINARY_NAME);
+  const hostBinaryPath = path.join(destDir, HOST_BINARY_NAME);
   // Check that the host binary exists
   if (!fs.existsSync(hostBinaryPath)) {
     throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
@@ -122,19 +121,55 @@ const writeManifest = (manifest, targetDir) => {
   return { manifestPath, output };
 };
 
+/**
+ * @typedef {Object} Args
+ * @property {string | null} destDir
+ */
+
+/**
+ * Parse command line arguments
+ * @returns {Args} An object containing the parsed arguments
+ */
+const parseArgs = () => {
+  const args = process.argv.slice(2);
+
+  /** @type {Args} */
+  const ret = {
+    destDir: null,
+  };
+
+  for (let i = 0; i < args.length; ++i) {
+    const arg = args[i];
+    switch (arg) {
+      case '--dest-dir':
+        if (i + 1 < args.length) {
+          ret.destDir = args[++i];
+        } else {
+          console.error('Error: --dest-dir requires a directory path');
+          process.exit(1);
+        }
+        break;
+      default:
+        console.warn(`Warning: Unknown argument '${arg}'`);
+    }
+  }
+
+  return ret;
+};
+
 const main = () => {
   try {
-    const targetDir = getTargetDir();
-    const buildType = process.env.BUILD_TYPE || 'debug';
+    const args = parseArgs();
+    const targetDir = args.destDir || getBuildDir();
     {
-      const manifest = createManifest(template, Browser.Chromium, targetDir, buildType);
+      const manifest = createManifest(template, Browser.Chromium, targetDir);
       const chromiumTargetDir = getChromiumTargetDir();
       const { manifestPath, output } = writeManifest(manifest, chromiumTargetDir);
       console.log(`Chromium host manifest written to: ${manifestPath}`);
       console.log(`Chromium host manifest contents:\n${output}`);
     }
     {
-      const manifest = createManifest(template, Browser.Firefox, targetDir, buildType);
+      const manifest = createManifest(template, Browser.Firefox, targetDir);
       const firefoxTargetDir = getFirefoxTargetDir();
       const { manifestPath, output } = writeManifest(manifest, firefoxTargetDir);
       console.log(`Firefox host manifest written to: ${manifestPath}`);
