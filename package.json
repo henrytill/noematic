@@ -21,7 +21,7 @@
     "@henrytill/incr": "github:henrytill/incr",
     "@playwright/test": "^1.47.1",
     "@types/chrome": "^0.0.271",
-    "@types/node": "^22.5.4",
+    "@types/node": "^22.5.5",
     "eslint": "^9.10.0",
     "globals": "^15.9.0",
     "prettier": "^3.3.3",
