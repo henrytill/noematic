@@ -17,6 +17,7 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: npm run check
       - run: nix build -L
       - run: npm run create-host-manifest -- --dest-dir ${{ github.workspace }}/result/bin
       - run: npm run test
