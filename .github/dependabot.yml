@@ -1,11 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: 'npm'
-    directory: '/extension'
-    schedule:
-      interval: 'monthly'
-  - package-ecosystem: 'cargo'
-    directory: '/host'
+    directory: '/'
     schedule:
       interval: 'monthly'
   - package-ecosystem: 'github-actions'
