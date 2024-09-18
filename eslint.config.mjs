@@ -4,7 +4,7 @@ import globals from 'globals';
 export default [
   js.configs.recommended,
   {
-    ignores: ['.prettierrc.cjs', 'dist/**/*'],
+    ignores: ['.prettierrc.cjs', 'dist/**/*', 'host/**/*', '_build/**/*'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

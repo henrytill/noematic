@@ -1,4 +1,8 @@
+node_modules/
 target/
 _build/
 _opam/
 /result*
+/dist/
+playwright-report/
+test-results/

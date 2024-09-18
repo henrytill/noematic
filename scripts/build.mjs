@@ -119,22 +119,22 @@ const makeTargets = (targetDefs) => {
 };
 
 const sourceFiles = [
-  'src/background/background.event.mjs',
-  'src/background/background.worker.mjs',
-  'src/common/common.mjs',
-  'src/content/content.js',
-  'src/icons/noematic-48.png',
-  'src/popup/popup.css',
-  'src/popup/popup.html',
-  'src/popup/popup.mjs',
-  'src/search/index.css',
-  'src/search/index.html',
-  'src/search/search-result.mjs',
-  'src/search/search.css',
-  'src/search/search.html',
-  'src/search/search.mjs',
-  'src/search/shared.css',
-  'src/manifest.json',
+  'extension/background/background.event.mjs',
+  'extension/background/background.worker.mjs',
+  'extension/common/common.mjs',
+  'extension/content/content.js',
+  'extension/icons/noematic-48.png',
+  'extension/popup/popup.css',
+  'extension/popup/popup.html',
+  'extension/popup/popup.mjs',
+  'extension/search/index.css',
+  'extension/search/index.html',
+  'extension/search/search-result.mjs',
+  'extension/search/search.css',
+  'extension/search/search.html',
+  'extension/search/search.mjs',
+  'extension/search/shared.css',
+  'extension/manifest.json',
 ];
 
 /**
@@ -143,55 +143,55 @@ const sourceFiles = [
  */
 const makeSharedTargets = (sources) => ({
   'common/common.mjs': {
-    inputs: [sources['src/common/common.mjs']],
+    inputs: [sources['extension/common/common.mjs']],
     compute: copy,
   },
   'content/content.js': {
-    inputs: [sources['src/content/content.js']],
+    inputs: [sources['extension/content/content.js']],
     compute: copy,
   },
   'icons/noematic-48.png': {
-    inputs: [sources['src/icons/noematic-48.png']],
+    inputs: [sources['extension/icons/noematic-48.png']],
     compute: copy,
   },
   'popup/popup.css': {
-    inputs: [sources['src/popup/popup.css']],
+    inputs: [sources['extension/popup/popup.css']],
     compute: copy,
   },
   'popup/popup.html': {
-    inputs: [sources['src/popup/popup.html']],
+    inputs: [sources['extension/popup/popup.html']],
     compute: copy,
   },
   'popup/popup.mjs': {
-    inputs: [sources['src/popup/popup.mjs']],
+    inputs: [sources['extension/popup/popup.mjs']],
     compute: copy,
   },
   'search/index.css': {
-    inputs: [sources['src/search/index.css']],
+    inputs: [sources['extension/search/index.css']],
     compute: copy,
   },
   'search/index.html': {
     compute: copy,
-    inputs: [sources['src/search/index.html']],
+    inputs: [sources['extension/search/index.html']],
   },
   'search/search-result.mjs': {
-    inputs: [sources['src/search/search-result.mjs']],
+    inputs: [sources['extension/search/search-result.mjs']],
     compute: copy,
   },
   'search/search.css': {
-    inputs: [sources['src/search/search.css']],
+    inputs: [sources['extension/search/search.css']],
     compute: copy,
   },
   'search/search.html': {
-    inputs: [sources['src/search/search.html']],
+    inputs: [sources['extension/search/search.html']],
     compute: copy,
   },
   'search/search.mjs': {
-    inputs: [sources['src/search/search.mjs']],
+    inputs: [sources['extension/search/search.mjs']],
     compute: copy,
   },
   'search/shared.css': {
-    inputs: [sources['src/search/shared.css']],
+    inputs: [sources['extension/search/shared.css']],
     compute: copy,
   },
 });
@@ -202,11 +202,11 @@ const makeSharedTargets = (sources) => ({
  */
 const makeChromiumTargets = (sources) => ({
   'dist/chromium/background/background.mjs': {
-    inputs: [sources['src/background/background.worker.mjs']],
+    inputs: [sources['extension/background/background.worker.mjs']],
     compute: copy,
   },
   'dist/chromium/manifest.json': {
-    inputs: [sources['src/manifest.json']],
+    inputs: [sources['extension/manifest.json']],
     compute: copy,
   },
 });
@@ -217,11 +217,11 @@ const makeChromiumTargets = (sources) => ({
  */
 const makeFirefoxTargets = (sources) => ({
   'dist/firefox/background/background.mjs': {
-    inputs: [sources['src/background/background.event.mjs']],
+    inputs: [sources['extension/background/background.event.mjs']],
     compute: copy,
   },
   'dist/firefox/manifest.json': {
-    inputs: [sources['src/manifest.json']],
+    inputs: [sources['extension/manifest.json']],
     compute: generateFirefoxManifest,
   },
 });

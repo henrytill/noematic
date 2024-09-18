@@ -6,7 +6,7 @@ import * as url from 'node:url';
 
 import { FIREFOX_ID } from './common.mjs';
 
-const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..', '..');
+const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..');
 const HOST_BINARY_NAME = 'noematic';
 const ALLOWED_ORIGIN = 'chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/';
 const NAME = 'com.github.henrytill.noematic';

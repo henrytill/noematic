@@ -7,7 +7,7 @@
     "module": "nodenext"
   },
   "include": [
-    "src/**/*",
+    "extension/src/**/*",
     "tests/**/*",
     "scripts/**/*",
     "playwright.config.ts"
