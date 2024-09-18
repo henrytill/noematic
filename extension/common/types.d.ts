@@ -9,12 +9,10 @@ export type State = {
   tab: chrome.tabs.Tab;
 };
 
-export type SaveResponsePayload = object;
-
 export type SaveResponse = {
   version: string;
   action: 'saveResponse';
-  payload: SaveResponsePayload;
+  payload: null;
   correlationId: UUID;
 };
 
