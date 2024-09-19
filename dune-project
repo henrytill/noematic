@@ -20,8 +20,7 @@
 (package
  (name noematic)
  (sites
-  (share firefox)
-  (share chromium))
+  (share extension))
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends

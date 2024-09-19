@@ -12,7 +12,7 @@ export const test = base.extend<{
     const buildPrefix = process.env.CI
       ? [__dirname, '..', 'result']
       : [__dirname, '..', '_build', 'install', 'default'];
-    const pathToExtension = path.join(...buildPrefix, 'share', 'noematic', 'chromium');
+    const pathToExtension = path.join(...buildPrefix, 'share', 'noematic', 'extension', 'chromium');
     const args = [
       `--disable-extensions-except=${pathToExtension}`,
       `--load-extension=${pathToExtension}`,
