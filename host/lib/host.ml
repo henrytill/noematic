@@ -39,16 +39,4 @@ let handle_request (context : Context.t) (request : Message.Request.t) : Message
       let action = Response.Action.Search { payload } in
       { version; action; correlation_id }
 
-let extract_version json =
-  match json with
-  | `Assoc fields -> (
-      try
-        let version = List.assoc "version" fields in
-        match version with
-        | `String v -> (
-            match Message.Version.of_string v with
-            | Some version -> version
-            | None -> failwith (Printf.sprintf "Invalid version string: %s" v))
-        | _ -> failwith "Version field is not a string"
-      with Not_found -> failwith "Missing version field")
-  | _ -> failwith "Invalid JSON structure"
+let extract_version json = json |> Yojson.Safe.Util.member "version" |> Message.Version.t_of_yojson
