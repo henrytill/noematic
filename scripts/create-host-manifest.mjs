@@ -88,11 +88,16 @@ const createManifest = (template, browser, destDir) => {
  * @returns {string}
  */
 const getChromiumTargetDir = () => {
-  let targetDir = PROJECT_ROOT;
-  if (os.platform() == 'linux') {
-    targetDir = path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
+  const ret = process.env.NATIVE_MESSAGING_HOSTS_DIR;
+  if (ret !== undefined) {
+    return ret;
   }
-  return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
+  switch (os.platform()) {
+    case 'linux':
+      return path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
+    default:
+      return PROJECT_ROOT;
+  }
 };
 
 /**
@@ -101,11 +106,16 @@ const getChromiumTargetDir = () => {
  * @returns {string}
  */
 const getFirefoxTargetDir = () => {
-  let targetDir = PROJECT_ROOT;
-  if (os.platform() == 'linux') {
-    targetDir = path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
+  const ret = process.env.NATIVE_MESSAGING_HOSTS_DIR;
+  if (ret !== undefined) {
+    return ret;
   }
-  return process.env.NATIVE_MESSAGING_HOSTS_DIR || targetDir;
+  switch (os.platform()) {
+    case 'linux':
+      return path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
+    default:
+      return PROJECT_ROOT;
+  }
 };
 
 /**
@@ -127,23 +137,21 @@ const writeManifest = (manifest, targetDir) => {
  */
 
 /**
- * Parse command line arguments
- * @returns {Args} An object containing the parsed arguments
+ * @param {string[]} argv
+ * @returns {Args}
  */
-const parseArgs = () => {
-  const args = process.argv.slice(2);
-
+const parseArgv = (argv) => {
   /** @type {Args} */
   const ret = {
     destDir: null,
   };
-
-  for (let i = 0; i < args.length; ++i) {
-    const arg = args[i];
+  argv = argv.slice(2);
+  for (let i = 0; i < argv.length; ++i) {
+    const arg = argv[i];
     switch (arg) {
       case '--dest-dir':
-        if (i + 1 < args.length) {
-          ret.destDir = args[++i];
+        if (i + 1 < argv.length) {
+          ret.destDir = argv[++i];
         } else {
           console.error('Error: --dest-dir requires a directory path');
           process.exit(1);
@@ -153,13 +161,12 @@ const parseArgs = () => {
         console.warn(`Warning: Unknown argument '${arg}'`);
     }
   }
-
   return ret;
 };
 
 const main = () => {
+  const args = parseArgv(process.argv);
   try {
-    const args = parseArgs();
     const targetDir = args.destDir || getBuildDir();
     {
       const manifest = createManifest(template, Browser.Chromium, targetDir);
