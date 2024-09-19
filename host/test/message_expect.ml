@@ -43,13 +43,13 @@ let%expect_test "searchRequest" =
       {
         version = "0.1.0";
         action = "searchRequest";
-        payload = { query = "quux" };
+        payload = { query = "quux"; pageNum = 0; pageLength = 10 };
         correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
       }]
   in
   Request.(t_of_yojson expected |> yojson_of_t) |> Yojson.Safe.to_string |> print_endline;
   [%expect
-    {| {"version":"0.1.0","action":"searchRequest","payload":{"query":"quux"},"correlationId":"218ecc9f-a91a-4b55-8b50-2b6672daa9a5"} |}]
+    {| {"version":"0.1.0","action":"searchRequest","payload":{"query":"quux","pageNum":0,"pageLength":10},"correlationId":"218ecc9f-a91a-4b55-8b50-2b6672daa9a5"} |}]
 
 let%expect_test "saveResponse" =
   let expected =
@@ -65,27 +65,35 @@ let%expect_test "saveResponse" =
   [%expect
     {| {"version":"0.1.0","action":"saveResponse","payload":null,"correlationId":"218ecc9f-a91a-4b55-8b50-2b6672daa9a5"} |}]
 
-let%expect_test "searchResponse" =
+let%expect_test "searchResponseHeader" =
   let expected =
     [%yojson
       {
         version = "0.1.0";
-        action = "searchResponse";
+        action = "searchResponseHeader";
+        payload = { query = "quux"; pageNum = 0; pageLength = 10; hasMore = true };
+        correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+      }]
+  in
+  Response.(t_of_yojson expected |> yojson_of_t) |> Yojson.Safe.to_string |> print_endline;
+  [%expect
+    {| {"version":"0.1.0","action":"searchResponseHeader","payload":{"query":"quux","pageNum":0,"pageLength":10,"hasMore":true},"correlationId":"218ecc9f-a91a-4b55-8b50-2b6672daa9a5"} |}]
+
+let%expect_test "searchResponseSite" =
+  let expected =
+    [%yojson
+      {
+        version = "0.1.0";
+        action = "searchResponseSite";
         payload =
           {
-            query = "quux";
-            results =
-              [
-                {
-                  url = "https://en.wikipedia.org/wiki/Foobar";
-                  title = "Title";
-                  snippet = "Foo bar baz <b>quux</b>";
-                };
-              ];
+            url = "https://en.wikipedia.org/wiki/Foobar";
+            title = "Title";
+            snippet = "Foo bar baz quux";
           };
         correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
       }]
   in
   Response.(t_of_yojson expected |> yojson_of_t) |> Yojson.Safe.to_string |> print_endline;
   [%expect
-    {| {"version":"0.1.0","action":"searchResponse","payload":{"query":"quux","results":[{"url":"https://en.wikipedia.org/wiki/Foobar","title":"Title","snippet":"Foo bar baz <b>quux</b>"}]},"correlationId":"218ecc9f-a91a-4b55-8b50-2b6672daa9a5"} |}]
+    {| {"version":"0.1.0","action":"searchResponseSite","payload":{"url":"https://en.wikipedia.org/wiki/Foobar","title":"Title","snippet":"Foo bar baz quux"},"correlationId":"218ecc9f-a91a-4b55-8b50-2b6672daa9a5"} |}]

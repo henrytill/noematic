@@ -86,7 +86,12 @@ module Request = struct
   end
 
   module Search = struct
-    type t = { query : Query.t } [@@deriving show { with_path = false }, yojson]
+    type t = {
+      query : Query.t;
+      page_num : int; [@key "pageNum"]
+      page_length : int; [@key "pageLength"]
+    }
+    [@@deriving show { with_path = false }, yojson]
 
     let query self = self.query
   end
@@ -148,6 +153,16 @@ module Response = struct
     type t = unit [@@deriving show { with_path = false }, yojson]
   end
 
+  module Search = struct
+    type t = {
+      query : Query.t;
+      page_num : int; [@key "pageNum"]
+      page_length : int; [@key "pageLength"]
+      has_more : bool; [@key "hasMore"]
+    }
+    [@@deriving show { with_path = false }, yojson]
+  end
+
   module Site = struct
     type t = {
       uri : Uri_ext.t; [@key "url"]
@@ -157,18 +172,11 @@ module Response = struct
     [@@deriving show { with_path = false }, yojson]
   end
 
-  module Search = struct
-    type t = {
-      query : Query.t;
-      results : Site.t list;
-    }
-    [@@deriving show { with_path = false }, yojson]
-  end
-
   module Action = struct
     type t =
       | Save of { payload : Save.t }
       | Search of { payload : Search.t }
+      | Site of { payload : Site.t }
     [@@deriving show { with_path = false }, yojson]
   end
 
@@ -187,9 +195,12 @@ module Response = struct
       | "saveResponse" ->
           let payload = json |> member "payload" |> Save.t_of_yojson in
           Action.Save { payload }
-      | "searchResponse" ->
+      | "searchResponseHeader" ->
           let payload = json |> member "payload" |> Search.t_of_yojson in
           Action.Search { payload }
+      | "searchResponseSite" ->
+          let payload = json |> member "payload" |> Site.t_of_yojson in
+          Action.Site { payload }
       | _ -> failwith "unknown action"
     in
     let correlation_id = json |> member "correlationId" |> Correlation_id.t_of_yojson in
@@ -200,12 +211,14 @@ module Response = struct
     let action =
       match self.action with
       | Save _ -> `String "saveResponse"
-      | Search _ -> `String "searchResponse"
+      | Search _ -> `String "searchResponseHeader"
+      | Site _ -> `String "searchResponseSite"
     in
     let payload =
       match self.action with
       | Save { payload } -> Save.yojson_of_t payload
       | Search { payload } -> Search.yojson_of_t payload
+      | Site { payload } -> Site.yojson_of_t payload
     in
     let correlation_id = Correlation_id.yojson_of_t self.correlation_id in
     `Assoc

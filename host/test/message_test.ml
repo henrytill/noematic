@@ -44,7 +44,7 @@ module Request = struct
         {
           version = "0.1.0";
           action = "searchRequest";
-          payload = { query = "quux" };
+          payload = { query = "quux"; pageNum = 0; pageLength = 10 };
           correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
         }]
     in
@@ -64,23 +64,29 @@ module Response = struct
     in
     Alcotest.(check yojson) "same json" expected Response.(t_of_yojson expected |> yojson_of_t)
 
-  let roundtrip_search_response () =
+  let roundtrip_search_response_header () =
     let expected =
       [%yojson
         {
           version = "0.1.0";
-          action = "searchResponse";
+          action = "searchResponseHeader";
+          payload = { query = "quux"; pageNum = 0; pageLength = 10; hasMore = true };
+          correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+        }]
+    in
+    Alcotest.(check yojson) "same json" expected Response.(t_of_yojson expected |> yojson_of_t)
+
+  let roundtrip_search_response_site () =
+    let expected =
+      [%yojson
+        {
+          version = "0.1.0";
+          action = "searchResponseSite";
           payload =
             {
-              query = "quux";
-              results =
-                [
-                  {
-                    url = "https://en.wikipedia.org/wiki/Foobar";
-                    title = "Title";
-                    snippet = "Foo bar baz <b>quux</b>";
-                  };
-                ];
+              url = "https://en.wikipedia.org/wiki/Foobar";
+              title = "Title";
+              snippet = "Foo bar baz <b>quux</b>";
             };
           correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
         }]
@@ -101,7 +107,8 @@ let tests =
     ( "Response",
       [
         test_case "roundtrip saveResponse" `Quick Response.roundtrip_save_response;
-        test_case "roundtrip searchResponse" `Quick Response.roundtrip_search_response;
+        test_case "roundtrip searchResponseHeader" `Quick Response.roundtrip_search_response_header;
+        test_case "roundtrip searchResponseSite" `Quick Response.roundtrip_search_response_site;
       ] );
   ]
 

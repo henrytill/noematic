@@ -6,5 +6,5 @@ module Context : sig
   val close : t -> unit
 end
 
-val handle_request : Context.t -> Message.Request.t -> Message.Response.t
+val handle_request : Context.t -> Message.Request.t -> Message.Response.t list
 val extract_version : Yojson.Safe.t -> Message.Version.t

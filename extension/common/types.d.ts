@@ -2,8 +2,6 @@ export type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
 export type Responder = (response?: any) => void;
 
-export type ResponderMap = Map<UUID, Responder>;
-
 export type State = {
   url: URL | null;
   tab: chrome.tabs.Tab;
@@ -16,20 +14,35 @@ export type SaveResponse = {
   correlationId: UUID;
 };
 
-export type SearchResponsePayload = {
+export type SearchResponseHeaderPayload = {
   query: string;
-  results: Array<{
-    url: string;
-    title: string;
-    snippet: string;
-  }>;
+  pageNum: number;
+  pageLength: number;
+  hasMore: boolean;
 };
 
-export type SearchResponse = {
+export type SearchResponseHeader = {
   version: string;
-  action: 'searchResponse';
-  payload: SearchResponsePayload;
+  action: 'searchResponseHeader';
+  payload: SearchResponseHeaderPayload;
   correlationId: UUID;
 };
 
-export type Response = SaveResponse | SearchResponse;
+export type SearchResponseSitePayload = {
+  url: string;
+  title: string;
+  snippet: string;
+};
+
+export type SearchResponseSite = {
+  version: string;
+  action: 'searchResponseSite';
+  payload: SearchResponseSitePayload;
+  correlationId: UUID;
+};
+
+export type Response = SaveResponse | SearchResponseHeader | SearchResponseSite;
+
+export type Responses = {
+  inner: Response[];
+};

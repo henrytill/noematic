@@ -103,21 +103,29 @@ FROM sites_fts
 JOIN sites s ON sites_fts.rowid = s.id
 WHERE sites_fts MATCH ?
 ORDER BY rank
+LIMIT ? OFFSET ?
 |}
   in
   let stmt = prepare db stmt_string in
   let query_str = process (Message.Request.Search.query search_payload) in
+  let limit = succ search_payload.page_length (* extra row for has_more *) in
+  let offset = search_payload.page_num * search_payload.page_length in
   Rc.check (bind_text stmt 1 query_str);
-  let rec collect_results acc =
-    match step stmt with
-    | Rc.ROW ->
-        let open Message in
-        let uri = Uri_ext.of_string (column_text stmt 0) in
-        let title = Title.of_string (column_text stmt 1) in
-        let snippet = Snippet.of_string (column_text stmt 2) in
-        let site = Response.site ~uri ~title ~snippet in
-        collect_results (site :: acc)
-    | Rc.DONE -> List.rev acc
-    | _ -> failwith "unexpected rc"
+  Rc.check (bind_int stmt 2 limit);
+  Rc.check (bind_int stmt 3 offset);
+  let rec collect_results count acc =
+    if count > search_payload.page_length then
+      (List.rev (List.tl acc), true)
+    else
+      match step stmt with
+      | Rc.ROW ->
+          let open Message in
+          let uri = Uri_ext.of_string (column_text stmt 0) in
+          let title = Title.of_string (column_text stmt 1) in
+          let snippet = Snippet.of_string (column_text stmt 2) in
+          let site = Response.site ~uri ~title ~snippet in
+          collect_results (succ count) (site :: acc)
+      | Rc.DONE -> (List.rev acc, false)
+      | _ -> failwith "unexpected rc"
   in
-  collect_results []
+  collect_results 0 []

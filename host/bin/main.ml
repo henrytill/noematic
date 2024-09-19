@@ -54,15 +54,14 @@ let context_of_args (args : Args.t) : Host.Context.t =
     Host.Context.persistent db_path
 
 let rec process_messages context ic oc =
-  let length = Protocol.read_length stdin in
-  let request_json = Protocol.read ic length in
-  let version = Host.extract_version request_json in
-  if not (Message.Version.equal version Message.Version.expected) then
+  let request_json = Protocol.read_length ic |> Protocol.read ic in
+  let request_version = Host.extract_version request_json in
+  if not (Message.Version.equal request_version Message.Version.expected) then
     failwith "Unsupported version";
   let request = Message.Request.t_of_yojson request_json in
-  let response = Host.handle_request context request in
-  let response_json = Message.Response.yojson_of_t response in
-  Protocol.write oc response_json;
+  let responses = Host.handle_request context request in
+  let write_json = Fun.compose (Protocol.write oc) Message.Response.yojson_of_t in
+  List.iter write_json responses;
   process_messages context ic oc
 
 let () =

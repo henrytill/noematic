@@ -95,7 +95,11 @@ module Request : sig
   end
 
   module Search : sig
-    type t = { query : Query.t }
+    type t = {
+      query : Query.t;
+      page_num : int;
+      page_length : int;
+    }
 
     val pp : Format.formatter -> t -> unit
     val t_of_yojson : Yojson.Safe.t -> t
@@ -131,6 +135,19 @@ module Response : sig
     val yojson_of_t : t -> Yojson.Safe.t
   end
 
+  module Search : sig
+    type t = {
+      query : Query.t;
+      page_num : int;
+      page_length : int;
+      has_more : bool;
+    }
+
+    val pp : Format.formatter -> t -> unit
+    val t_of_yojson : Yojson.Safe.t -> t
+    val yojson_of_t : t -> Yojson.Safe.t
+  end
+
   module Site : sig
     type t = {
       uri : Uri_ext.t;
@@ -143,21 +160,11 @@ module Response : sig
     val yojson_of_t : t -> Yojson.Safe.t
   end
 
-  module Search : sig
-    type t = {
-      query : Query.t;
-      results : Site.t list;
-    }
-
-    val pp : Format.formatter -> t -> unit
-    val t_of_yojson : Yojson.Safe.t -> t
-    val yojson_of_t : t -> Yojson.Safe.t
-  end
-
   module Action : sig
     type t =
       | Save of { payload : Save.t }
       | Search of { payload : Search.t }
+      | Site of { payload : Site.t }
 
     val pp : Format.formatter -> t -> unit
   end

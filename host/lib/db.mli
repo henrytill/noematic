@@ -14,4 +14,4 @@ val search_sites :
   Sqlite3.db ->
   Message.Request.Search.t ->
   (Message.Query.t -> string) ->
-  Message.Response.Site.t list
+  Message.Response.Site.t list * bool

@@ -4,8 +4,9 @@
    (noematic extension)))
  (files
   (manifest.firefox.json as firefox/manifest.json)
-  (background/background.event.mjs as firefox/background/background.mjs)
+  (background/background.mjs as firefox/background/background.mjs)
   (common/common.mjs as firefox/common/common.mjs)
+  (common/message-collector.mjs as firefox/common/message-collector.mjs)
   (content/content.js as firefox/content/content.js)
   (icons/noematic-48.png as firefox/icons/noematic-48.png)
   (popup/popup.css as firefox/popup/popup.css)
@@ -25,8 +26,9 @@
    (noematic extension)))
  (files
   (manifest.chromium.json as chromium/manifest.json)
-  (background/background.worker.mjs as chromium/background/background.mjs)
+  (background/background.mjs as chromium/background/background.mjs)
   (common/common.mjs as chromium/common/common.mjs)
+  (common/message-collector.mjs as chromium/common/message-collector.mjs)
   (content/content.js as chromium/content/content.js)
   (icons/noematic-48.png as chromium/icons/noematic-48.png)
   (popup/popup.css as chromium/popup/popup.css)

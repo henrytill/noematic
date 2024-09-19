@@ -1,31 +1,27 @@
-import * as common from '../common/common.mjs';
 import { SCHEMA_VERSION } from '../common/common.mjs';
 import { SearchResult } from './search-result.mjs';
 
 /**
- * @typedef {import('../common/types.js').SearchResponse} SearchResponse
- */
-
-/**
  * Processes and displays the search results contained in a search response.
  *
- * @param {SearchResponse} response
+ * @param {import('../common/message-collector.mjs').Responses} responses
  * @returns {void}
  */
-const handleSearchResponse = (response) => {
+const handleSearchResponse = (responses) => {
   const resultsContainer = document.getElementById('results-container');
   if (!resultsContainer) {
     throw new Error('No main element found');
   }
   resultsContainer.innerHTML = '';
-  const {
-    payload: { query, results },
-  } = response;
-  if (results.length === 0) {
+  if (responses.inner.length === 0) {
     resultsContainer.innerHTML = 'No results found';
     return;
   }
-  for (const { title, url, snippet } of results) {
+  for (const { action, payload } of responses.inner) {
+    if (action !== 'searchResponseSite') {
+      continue;
+    }
+    const { url, title, snippet } = payload;
     const resultElement = /** @type {SearchResult} */ (document.createElement('search-result'));
     resultElement.title = title;
     resultElement.href = url;
@@ -46,7 +42,7 @@ const search = (value) => {
     .sendMessage({
       version: SCHEMA_VERSION,
       action: 'searchRequest',
-      payload: { query: value },
+      payload: { query: value, pageNum: 0, pageLength: 100 },
     })
     .then((response) => {
       handleSearchResponse(response);
