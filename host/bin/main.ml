@@ -71,8 +71,13 @@ let () =
   let context = context_of_args args in
   let in_channel = stdin in
   let out_channel = stdout in
-  try process_messages context in_channel out_channel
-  with End_of_file ->
+  let finally () =
     Host.Context.close context;
     close_in_noerr in_channel;
     close_out_noerr out_channel
+  in
+  try process_messages context in_channel out_channel with
+  | End_of_file -> finally ()
+  | exn ->
+      finally ();
+      raise exn
