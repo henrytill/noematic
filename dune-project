@@ -1,5 +1,7 @@
 (lang dune 3.16)
 
+(using dune_site 0.1)
+
 (name noematic)
 
 (generate_opam_files true)
@@ -17,6 +19,9 @@
 
 (package
  (name noematic)
+ (sites
+  (share firefox)
+  (share chromium))
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends

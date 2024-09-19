@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Noematic",
+  "version": "0.1",
+  "description": "Search your backlog",
+  "icons": {
+    "48": "icons/noematic-48.png"
+  },
+  "background": {
+    "scripts": [
+      "background/background.mjs"
+    ],
+    "type": "module"
+  },
+  "action": {
+    "default_icon": {
+      "48": "icons/noematic-48.png"
+    },
+    "default_popup": "popup/popup.html",
+    "default_title": "Noematic"
+  },
+  "permissions": [
+    "activeTab",
+    "nativeMessaging",
+    "scripting"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "henrytill@gmail.com"
+    }
+  }
+}

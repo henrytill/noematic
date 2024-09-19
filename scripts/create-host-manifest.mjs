@@ -4,8 +4,7 @@ import * as path from 'node:path';
 import * as process from 'node:process';
 import * as url from 'node:url';
 
-import { FIREFOX_ID } from './common.mjs';
-
+const FIREFOX_ID = 'henrytill@gmail.com';
 const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..');
 const HOST_BINARY_NAME = 'noematic';
 const ALLOWED_ORIGIN = 'chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/';
