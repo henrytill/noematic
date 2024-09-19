@@ -1,8 +1,7 @@
 let read_length ic =
   let length_bytes = Bytes.create 4 in
-  match input ic length_bytes 0 4 with
-  | 4 -> Some (Bytes.get_int32_ne length_bytes 0)
-  | _ -> None
+  really_input ic length_bytes 0 4;
+  Bytes.get_int32_ne length_bytes 0
 
 let read ic length =
   let length = Int32.to_int length in

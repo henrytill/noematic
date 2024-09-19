@@ -54,11 +54,7 @@ let context_of_args (args : Args.t) : Host.Context.t =
     Host.Context.persistent db_path
 
 let rec process_messages context ic oc =
-  let length =
-    match Protocol.read_length stdin with
-    | None -> raise End_of_file
-    | Some length -> length
-  in
+  let length = Protocol.read_length stdin in
   let request_json = Protocol.read ic length in
   let version = Host.extract_version request_json in
   if not (Message.Version.equal version Message.Version.expected) then

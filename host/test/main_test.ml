@@ -2,7 +2,7 @@ open Noematic
 
 let yojson = Alcotest.testable Yojson.Safe.pp Yojson.Safe.equal
 let write_request oc request = Protocol.write oc request
-let read_response ic = Option.(map (Protocol.read ic) (Protocol.read_length ic) |> get)
+let read_response ic = Protocol.read ic (Protocol.read_length ic)
 let noematic_exe = Exe.path
 let correlation_id = `String "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
 
