@@ -68,11 +68,12 @@ let insert_version db version =
 
 let init_tables db =
   match get_version db with
-  | Some version when Schema_version.equal version Schema_version.current -> ()
-  | Some version when Schema_version.compare version Schema_version.current < 0 ->
+  | Some version when Schema_version.(equal version current) -> ()
+  | Some version when Schema_version.(compare version current) < 0 ->
       let () = migrate db version Schema_version.current in
       ignore (insert_version db Schema_version.current)
-  | Some version -> failwith ("invalid schema version: " ^ Schema_version.to_string version)
+  | Some version ->
+      failwith (Printf.sprintf "invalid schema version: %s" (Schema_version.to_string version))
   | None ->
       Sqlite3.Rc.check (Sqlite3.exec db create_sql);
       ignore (insert_version db Schema_version.current)
