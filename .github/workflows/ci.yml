@@ -16,10 +16,10 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: nix build -L
+      - run: ./result/bin/noematic-configure
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run check
-      - run: npm run create-host-manifest -- --dest-dir ${{ github.workspace }}/result/bin
       - run: npm run test
       - uses: actions/upload-artifact@v4
         if: always()

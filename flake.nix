@@ -33,7 +33,11 @@
         scope = on.buildOpamProject { resolveArgs.with-test = true; } package ./. {
           ocaml-base-compiler = "5.2.0";
         };
-        overlay = final: prev: { };
+        overlay = final: prev: {
+          ${package} = prev.${package}.overrideAttrs (as: {
+            buildInputs = as.buildInputs ++ [ pkgs.nodejs ];
+          });
+        };
       in
       {
         legacyPackages = scope.overrideScope' overlay;

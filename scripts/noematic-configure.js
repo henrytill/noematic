@@ -1,11 +1,12 @@
-import * as fs from 'node:fs';
-import * as os from 'node:os';
-import * as path from 'node:path';
-import * as process from 'node:process';
-import * as url from 'node:url';
+#!/usr/bin/env node
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const process = require('process');
 
 const FIREFOX_ID = 'henrytill@gmail.com';
-const PROJECT_ROOT = path.join(path.dirname(url.fileURLToPath(import.meta.url)), '..');
+const PREFIX = path.join(path.dirname(__filename), '..');
 const HOST_BINARY_NAME = 'noematic';
 const ALLOWED_ORIGIN = 'chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/';
 const NAME = 'com.github.henrytill.noematic';
@@ -36,18 +37,17 @@ const template = {
 };
 
 /**
- * Find the project's build directory.
+ * Find the project's install prefix.
  *
  * @returns {string}
- * @throws {Error} if the target directory does not exist
+ * @throws {Error} if the directory does not exist
  */
-const getBuildDir = () => {
-  const projectRoot = process.env.PROJECT_ROOT || PROJECT_ROOT;
-  const targetDir = path.join(projectRoot, '_build', 'install', 'default', 'bin');
-  if (!fs.existsSync(targetDir)) {
-    throw new Error(`Directory does not exist: ${targetDir}`);
+const getPrefix = () => {
+  const ret = PREFIX;
+  if (!fs.existsSync(ret)) {
+    throw new Error(`Directory does not exist: ${ret}`);
   }
-  return targetDir;
+  return ret;
 };
 
 /**
@@ -55,13 +55,13 @@ const getBuildDir = () => {
  *
  * @param {Manifest} template
  * @param {number} browser
- * @param {string} destDir,
+ * @param {string} prefix,
  * @returns {Manifest}
  * @throws {Error} if the host binary does not exist
  */
-const createManifest = (template, browser, destDir) => {
+const createManifest = (template, browser, prefix) => {
   const ret = { ...template };
-  const hostBinaryPath = path.join(destDir, HOST_BINARY_NAME);
+  const hostBinaryPath = path.join(prefix, 'bin', HOST_BINARY_NAME);
   // Check that the host binary exists
   if (!fs.existsSync(hostBinaryPath)) {
     throw new Error(`Host binary does not exist: ${hostBinaryPath}`);
@@ -95,7 +95,7 @@ const getChromiumTargetDir = () => {
     case 'linux':
       return path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts');
     default:
-      return PROJECT_ROOT;
+      return process.cwd();
   }
 };
 
@@ -113,7 +113,7 @@ const getFirefoxTargetDir = () => {
     case 'linux':
       return path.join(os.homedir(), '.mozilla', 'native-messaging-hosts');
     default:
-      return PROJECT_ROOT;
+      return process.cwd();
   }
 };
 
@@ -132,7 +132,7 @@ const writeManifest = (manifest, targetDir) => {
 
 /**
  * @typedef {Object} Args
- * @property {string | null} destDir
+ * @property {string | null} prefix
  */
 
 /**
@@ -142,17 +142,17 @@ const writeManifest = (manifest, targetDir) => {
 const parseArgv = (argv) => {
   /** @type {Args} */
   const ret = {
-    destDir: null,
+    prefix: null,
   };
   argv = argv.slice(2);
   for (let i = 0; i < argv.length; ++i) {
     const arg = argv[i];
     switch (arg) {
-      case '--dest-dir':
+      case '--prefix':
         if (i + 1 < argv.length) {
-          ret.destDir = argv[++i];
+          ret.prefix = argv[++i];
         } else {
-          console.error('Error: --dest-dir requires a directory path');
+          console.error('Error: --prefix requires a directory path');
           process.exit(1);
         }
         break;
@@ -166,7 +166,7 @@ const parseArgv = (argv) => {
 const main = () => {
   const args = parseArgv(process.argv);
   try {
-    const targetDir = args.destDir || getBuildDir();
+    const targetDir = args.prefix || getPrefix();
     {
       const manifest = createManifest(template, Browser.Chromium, targetDir);
       const chromiumTargetDir = getChromiumTargetDir();

@@ -46,7 +46,7 @@ Refer to the native messaging documentation for [Firefox](https://developer.mozi
 On Linux, native manifests for both browsers can be installed using the following command:
 
 ```sh
-npm run create-host-manifest
+npm run configure
 ```
 
 The native manifests point directly to the debug executable.
