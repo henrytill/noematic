@@ -89,9 +89,6 @@ module Request : sig
     val pp : Format.formatter -> t -> unit
     val t_of_yojson : Yojson.Safe.t -> t
     val yojson_of_t : t -> Yojson.Safe.t
-    val uri : t -> Uri_ext.t
-    val title : t -> Title.t
-    val inner_text : t -> Inner_text.t
   end
 
   module Search : sig
@@ -104,7 +101,6 @@ module Request : sig
     val pp : Format.formatter -> t -> unit
     val t_of_yojson : Yojson.Safe.t -> t
     val yojson_of_t : t -> Yojson.Safe.t
-    val query : t -> Query.t
   end
 
   module Action : sig
@@ -178,5 +174,4 @@ module Response : sig
   val pp : Format.formatter -> t -> unit
   val t_of_yojson : Yojson.Safe.t -> t
   val yojson_of_t : t -> Yojson.Safe.t
-  val site : uri:Uri_ext.t -> title:Title.t -> snippet:Snippet.t -> Site.t
 end

@@ -8,45 +8,45 @@ module Schema_version = struct
   let current = (0, 1, 0)
 end
 
-let create_sql = Strings.create_sql
+let version_table_exists db =
+  let open Sqlite3 in
+  let stmt_string =
+    "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')"
+  in
+  let stmt = prepare db stmt_string in
+  match step stmt with
+  | Rc.ROW -> column_bool stmt 0
+  | _ -> false
 
-let select_version_table_exists =
-  "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')"
+let version_exists db =
+  let open Sqlite3 in
+  let stmt_string = "SELECT EXISTS (SELECT 1 FROM schema_version)" in
+  let stmt = prepare db stmt_string in
+  match step stmt with
+  | Rc.ROW -> column_bool stmt 0
+  | _ -> false
 
-let select_version_exists = "SELECT EXISTS (SELECT 1 FROM schema_version)"
-
-let select_latest_version =
-  {|SELECT major, minor, patch
+let get_latest_version db =
+  let open Sqlite3 in
+  let stmt_string =
+    {|SELECT major, minor, patch
 FROM schema_version
 ORDER BY applied_at DESC
 LIMIT 1
 |}
-
-let version_table_exists_p db =
-  let stmt = Sqlite3.prepare db select_version_table_exists in
-  match Sqlite3.step stmt with
-  | Sqlite3.Rc.ROW -> Sqlite3.column_bool stmt 0
-  | _ -> false
-
-let version_exists_p db =
-  let stmt = Sqlite3.prepare db select_version_exists in
-  match Sqlite3.step stmt with
-  | Sqlite3.Rc.ROW -> Sqlite3.column_bool stmt 0
-  | _ -> false
-
-let get_latest_version db =
-  let stmt = Sqlite3.prepare db select_latest_version in
-  match Sqlite3.step stmt with
-  | Sqlite3.Rc.ROW ->
-      let major = Sqlite3.column_int stmt 0 in
-      let minor = Sqlite3.column_int stmt 1 in
-      let patch = Sqlite3.column_int stmt 2 in
+  in
+  let stmt = prepare db stmt_string in
+  match step stmt with
+  | Rc.ROW ->
+      let major = column_int stmt 0 in
+      let minor = column_int stmt 1 in
+      let patch = column_int stmt 2 in
       Some (major, minor, patch)
   | _ -> None
 
 let get_version db =
-  if version_table_exists_p db then
-    if version_exists_p db then
+  if version_table_exists db then
+    if version_exists db then
       get_latest_version db
     else
       None
@@ -78,10 +78,10 @@ let init_tables db =
       | Some version ->
           failwith (Printf.sprintf "Invalid schema version: %s" (Schema_version.to_string version))
       | None ->
-          Rc.check (exec db create_sql);
+          Rc.check (exec db Strings.create_sql);
           insert_version db Schema_version.current
     with exn ->
-      Rc.check (exec db "ROLLBACK");
+      Rc.check (exec db "ROLLBACK TRANSACTION");
       raise exn
   end;
   Rc.check (exec db "END TRANSACTION")
@@ -98,9 +98,13 @@ ON CONFLICT (url) DO UPDATE SET
 |}
   in
   let stmt = prepare db stmt_string in
-  Rc.check (bind_text stmt 1 Message.(Uri_ext.to_string (Request.Save.uri save_payload)));
-  Rc.check (bind_text stmt 2 Message.(Title.to_string (Request.Save.title save_payload)));
-  Rc.check (bind_text stmt 3 Message.(Inner_text.to_string (Request.Save.inner_text save_payload)));
+  let open Message.Request.Save in
+  let url = Message.Uri_ext.to_string save_payload.uri in
+  let title = Message.Title.to_string save_payload.title in
+  let inner_text = Message.Inner_text.to_string save_payload.inner_text in
+  Rc.check (bind_text stmt 1 url);
+  Rc.check (bind_text stmt 2 title);
+  Rc.check (bind_text stmt 3 inner_text);
   Rc.check (step stmt)
 
 let search_sites db search_payload process =
@@ -115,10 +119,11 @@ LIMIT ? OFFSET ?
 |}
   in
   let stmt = prepare db stmt_string in
-  let query_str = process (Message.Request.Search.query search_payload) in
+  let open Message.Request.Search in
+  let query = process search_payload.query in
   let limit = succ search_payload.page_length (* extra row for has_more *) in
   let offset = search_payload.page_num * search_payload.page_length in
-  Rc.check (bind_text stmt 1 query_str);
+  Rc.check (bind_text stmt 1 query);
   Rc.check (bind_int stmt 2 limit);
   Rc.check (bind_int stmt 3 offset);
   let rec collect_results count acc =
@@ -131,7 +136,7 @@ LIMIT ? OFFSET ?
           let uri = Uri_ext.of_string (column_text stmt 0) in
           let title = Title.of_string (column_text stmt 1) in
           let snippet = Snippet.of_string (column_text stmt 2) in
-          let site = Response.site ~uri ~title ~snippet in
+          let site = Response.Site.{ uri; title; snippet } in
           collect_results (succ count) (site :: acc)
       | Rc.DONE -> (List.rev acc, false)
       | _ -> failwith "unexpected rc"
