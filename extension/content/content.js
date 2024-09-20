@@ -46,10 +46,6 @@ const onMessageListener = (request, sender, sendResponse) => {
   }
 };
 
-/** @returns {void} */
-const main = () => {
-  chrome.runtime.onMessage.addListener(onMessageListener);
-  console.log('Noematic scrape handler installed');
-};
+chrome.runtime.onMessage.addListener(onMessageListener);
 
-main();
+console.log('Noematic scrape handler installed');
