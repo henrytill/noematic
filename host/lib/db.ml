@@ -63,20 +63,28 @@ let insert_version db version =
   Rc.check (bind_int stmt 1 major);
   Rc.check (bind_int stmt 2 minor);
   Rc.check (bind_int stmt 3 patch);
-  Rc.check (step stmt);
-  version
+  Rc.check (step stmt)
 
 let init_tables db =
-  match get_version db with
-  | Some version when Schema_version.(equal version current) -> ()
-  | Some version when Schema_version.(compare version current) < 0 ->
-      let () = migrate db version Schema_version.current in
-      ignore (insert_version db Schema_version.current)
-  | Some version ->
-      failwith (Printf.sprintf "invalid schema version: %s" (Schema_version.to_string version))
-  | None ->
-      Sqlite3.Rc.check (Sqlite3.exec db create_sql);
-      ignore (insert_version db Schema_version.current)
+  let open Sqlite3 in
+  Rc.check (exec db "BEGIN TRANSACTION");
+  begin
+    try
+      match get_version db with
+      | Some version when Schema_version.(equal version current) -> ()
+      | Some version when Schema_version.(compare version current) < 0 ->
+          migrate db version Schema_version.current;
+          insert_version db Schema_version.current
+      | Some version ->
+          failwith (Printf.sprintf "Invalid schema version: %s" (Schema_version.to_string version))
+      | None ->
+          Rc.check (exec db create_sql);
+          insert_version db Schema_version.current
+    with exn ->
+      Rc.check (exec db "ROLLBACK");
+      raise exn
+  end;
+  Rc.check (exec db "END TRANSACTION")
 
 let upsert db save_payload =
   let open Sqlite3 in
