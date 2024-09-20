@@ -10,14 +10,14 @@ module Context = struct
   let in_memory () =
     let db = Sqlite3.db_open ":memory:" in
     let process_regex = Re.Perl.compile_pat {|\W+|} in
-    let process query = make_process process_regex query in
+    let process = make_process process_regex in
     Db.init_tables db;
     { db; process }
 
   let persistent db_path =
     let db = Sqlite3.db_open db_path in
     let process_regex = Re.Perl.compile_pat {|\W+|} in
-    let process query = make_process process_regex query in
+    let process = make_process process_regex in
     Db.init_tables db;
     { db; process }
 
@@ -34,11 +34,11 @@ let handle_request (context : Context.t) (request : Message.Request.t) : Message
       let action = Response.Action.Save { payload = () } in
       { version; action; correlation_id } :: []
   | Request.Action.Search { payload } ->
-      let query = payload.query in
-      let page_num = payload.page_num in
       let results, has_more = Db.search_sites context.db payload context.process in
-      let page_length = List.length results in
       let header =
+        let query = payload.query in
+        let page_num = payload.page_num in
+        let page_length = List.length results in
         let payload = Response.Search.{ query; page_num; page_length; has_more } in
         let action = Response.Action.Search { payload } in
         Response.{ version; action; correlation_id }
