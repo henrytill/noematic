@@ -60,6 +60,7 @@ export class SearchResult extends HTMLElement {
   }
 
   set title(value) {
+    // @ts-ignore
     super.title = value;
     this.setAttribute('title', value);
   }
