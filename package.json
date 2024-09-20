@@ -10,7 +10,8 @@
     "check": "tsc",
     "lint": "eslint scripts src",
     "fmt": "prettier --write scripts src tests",
-    "build": "dune build",
+    "clean": "rm -rf dist",
+    "build": "dune build && dune install --prefix=dist",
     "test": "playwright test",
     "configure": "node ./scripts/noematic-configure.js --prefix $(pwd)/_build/install/default"
   },
