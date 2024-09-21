@@ -146,17 +146,17 @@ const parseArgv = (argv) => {
   argv = argv.slice(2);
   for (let i = 0; i < argv.length; ++i) {
     const arg = argv[i];
-    switch (arg) {
-      case '--prefix':
-        if (i + 1 < argv.length) {
-          ret.prefix = argv[++i];
-        } else {
-          console.error('Error: --prefix requires a directory path');
-          process.exit(1);
-        }
-        break;
-      default:
-        console.warn(`Warning: Unknown argument '${arg}'`);
+    if (arg.startsWith('--prefix=')) {
+      ret.prefix = arg.split('=')[1];
+    } else if (arg === '--prefix') {
+      if (i + 1 < argv.length) {
+        ret.prefix = argv[++i];
+      } else {
+        console.error('Error: --prefix requires a directory path');
+        process.exit(1);
+      }
+    } else {
+      console.warn(`Warning: Unknown argument '${arg}'`);
     }
   }
   return ret;
