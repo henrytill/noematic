@@ -29,27 +29,25 @@ Noematic is currently comprised of two components:
 On Linux:
 
 ```sh
-dune build
+npm run build
 ```
 
 The extension build products can be loaded from:
 
 ```
-extension/dist/firefox
-extension/dist/chromium
+dist/share/noematic/extension/firefox
+dist/share/noematic/extension/chromium
 ```
 
 ### Native Manifest File
 
 Refer to the native messaging documentation for [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests) or [Chromium](https://developer.chrome.com/docs/extensions/mv3/nativeMessaging/) for more information, including manifest file locations for various platforms.
 
-On Linux, native manifests for both browsers can be installed using the following command:
+On Linux, native manifests for both browsers can be installed after building using the following command:
 
 ```sh
 npm run configure
 ```
-
-The native manifests point directly to the debug executable.
 
 ### Useful Documentation
 
