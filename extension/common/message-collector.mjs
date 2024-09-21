@@ -53,6 +53,7 @@ export class MessageCollector {
         /** @type {Responses} */
         const responses = { inner: this.responses.slice(1) };
         this.responder(responses);
+        this.responses = [];
         return true;
       }
       case 'searchResponseSite': {
