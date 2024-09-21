@@ -13,13 +13,8 @@ let read ic length =
 let write oc message =
   let message_string = Yojson.Safe.to_string message in
   let message_length = String.length message_string in
-  let message_length_bytes =
-    begin
-      let tmp = Bytes.create 4 in
-      Bytes.set_int32_ne tmp 0 (Int32.of_int message_length);
-      tmp
-    end
-  in
+  let message_length_bytes = Bytes.create 4 in
+  Bytes.set_int32_ne message_length_bytes 0 (Int32.of_int message_length);
   output_bytes oc message_length_bytes;
   output_string oc message_string;
   flush oc
