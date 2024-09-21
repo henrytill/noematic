@@ -107,7 +107,7 @@ const main = async () => {
     throw new Error(`Expected 1 active tab, got ${tabs.length}`);
   }
   const tab = tabs[0];
-  if (tab.url == undefined) {
+  if (tab.url === undefined) {
     throw new Error('No active tab url');
   }
   /** @type {URL?} */
