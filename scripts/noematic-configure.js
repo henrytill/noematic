@@ -77,7 +77,6 @@ const createManifest = (template, browser, prefix) => {
     default:
       throw new Error(`Unsupported browser: ${browser}`);
   }
-
   return ret;
 };
 
