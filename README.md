@@ -29,6 +29,7 @@ Noematic is currently comprised of two components:
 On Linux:
 
 ```sh
+opam switch create . ocaml-base-compiler.5.2.0 --deps-only --with-test
 npm run build
 ```
 
