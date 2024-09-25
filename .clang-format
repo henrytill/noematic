@@ -1,0 +1,29 @@
+AccessModifierOffset: -2
+AlignConsecutiveMacros: true
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BasedOnStyle: LLVM
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Attach
+BreakBeforeTernaryOperators: true
+ColumnLimit: 0
+ContinuationIndentWidth: 2
+DerivePointerAlignment: false
+IndentCaseLabels: true
+IndentPPDirectives: AfterHash
+IndentWidth: 2
+PointerAlignment: Right
+ReflowComments: true
+SortIncludes: true
+SpacesBeforeTrailingComments: 1
+
+# This does horrible things to nested designated initializers when set
+AlignArrayOfStructures: None

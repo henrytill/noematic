@@ -1,4 +1,15 @@
-(install
- (section bin)
- (files
-  (noematic-configure.js as noematic-configure)))
+(library
+ (name filename_ext)
+ (modules filename_ext)
+ (wrapped false)
+ (foreign_stubs
+  (language c)
+  (names realpath)))
+
+(executable
+ (public_name noematic-configure)
+ (name configure)
+ (modules configure)
+ (libraries filename_ext unix yojson)
+ (preprocess
+  (pps ppx_deriving.make ppx_yojson_conv)))
