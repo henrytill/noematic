@@ -33,24 +33,12 @@ let get_db_path () =
   let data_dir = Filename.concat data_dir "noematic" in
   Filename.concat data_dir "db.sqlite3"
 
-let rec mkdir_p path perms =
-  if path = "." || path = "/" then
-    ()
-  else
-    let parent = Filename.dirname path in
-    if not (Sys.file_exists parent) then
-      mkdir_p parent perms;
-    if not (Sys.file_exists path) then
-      try Unix.mkdir path perms with Unix.Unix_error (Unix.EEXIST, _, _) -> ()
-    else if not (Sys.is_directory path) then
-      failwith (Printf.sprintf "Error: %s exists but is not a directory" path)
-
 let context_of_args (args : Args.t) : Host.Context.t =
   if args.test then
     Host.Context.in_memory ()
   else
     let db_path = get_db_path () in
-    mkdir_p (Filename.dirname db_path) 0o755;
+    Unix_ext.mkdir_all (Filename.dirname db_path) 0o755;
     Host.Context.persistent db_path
 
 let rec process_messages context ic oc =

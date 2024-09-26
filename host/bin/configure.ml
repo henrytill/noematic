@@ -11,18 +11,6 @@ let default_prefix () =
     failwith (Printf.sprintf "Directory does not exist: %s\n" ret);
   ret
 
-let rec mkdir_p path perms =
-  if path = "." || path = "/" then
-    ()
-  else
-    let parent = Filename.dirname path in
-    if not (Sys.file_exists parent) then
-      mkdir_p parent perms;
-    if not (Sys.file_exists path) then
-      try Unix.mkdir path perms with Unix.Unix_error (Unix.EEXIST, _, _) -> ()
-    else if not (Sys.is_directory path) then
-      failwith (Printf.sprintf "Error: %s exists but is not a directory" path)
-
 module Host_manifest = struct
   open Ppx_yojson_conv_lib.Yojson_conv.Primitives
 
@@ -90,7 +78,7 @@ module Host_manifest = struct
     (* Firefox *)
     let firefox_json = Firefox.make ~path () |> Firefox.yojson_of_t in
     let firefox_path = Firefox.path ~name () in
-    mkdir_p (Filename.dirname firefox_path) 0o755;
+    Unix_ext.mkdir_all (Filename.dirname firefox_path) 0o755;
     write_json firefox_path firefox_json;
     print_endline (Printf.sprintf "Firefox host manifest written to: %s" firefox_path);
     print_endline "Firefox host manifest contents:";
@@ -98,7 +86,7 @@ module Host_manifest = struct
     (* Chromium *)
     let chromium_json = Chromium.make ~path () |> Chromium.yojson_of_t in
     let chromium_path = Chromium.path ~name () in
-    mkdir_p (Filename.dirname chromium_path) 0o755;
+    Unix_ext.mkdir_all (Filename.dirname chromium_path) 0o755;
     write_json chromium_path chromium_json;
     print_endline (Printf.sprintf "Chromium host manifest written to: %s" chromium_path);
     print_endline "Chromium host manifest contents:";
