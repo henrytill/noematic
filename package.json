@@ -13,7 +13,7 @@
     "clean": "rm -rf dist",
     "build": "dune build && dune install --prefix=dist",
     "test": "playwright test",
-    "configure": "dune exec ./scripts/configure.exe -- --prefix=$(pwd)/dist"
+    "configure": "dune exec ./host/bin/configure.exe -- --prefix=$(pwd)/dist"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

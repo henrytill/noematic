@@ -1,4 +1,21 @@
 (executable
  (public_name noematic)
  (name main)
+ (modules main)
  (libraries noematic unix xdg yojson))
+
+(library
+ (name filename_ext)
+ (modules filename_ext)
+ (wrapped false)
+ (foreign_stubs
+  (language c)
+  (names realpath)))
+
+(executable
+ (public_name noematic-configure)
+ (name configure)
+ (modules configure)
+ (libraries filename_ext unix yojson)
+ (preprocess
+  (pps ppx_deriving.make ppx_yojson_conv)))
