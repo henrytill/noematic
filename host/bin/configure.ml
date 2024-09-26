@@ -1,16 +1,5 @@
 let home_dir () = Sys.getenv "HOME"
 
-let default_prefix () =
-  let ret =
-    let path = Filename.concat (Filename.dirname Sys.executable_name) ".." in
-    match Filename_ext.realpath_opt path with
-    | Some resolved_path -> resolved_path
-    | None -> path
-  in
-  if not (Sys.file_exists ret) then
-    failwith (Printf.sprintf "Directory does not exist: %s\n" ret);
-  ret
-
 module Host_manifest = struct
   open Ppx_yojson_conv_lib.Yojson_conv.Primitives
 
@@ -92,6 +81,17 @@ module Host_manifest = struct
     print_endline "Chromium host manifest contents:";
     print_endline (Yojson.Safe.pretty_to_string chromium_json)
 end
+
+let default_prefix () =
+  let ret =
+    let path = Filename.concat (Filename.dirname Sys.executable_name) ".." in
+    match Filename_ext.realpath_opt path with
+    | Some resolved_path -> resolved_path
+    | None -> path
+  in
+  if not (Sys.file_exists ret) then
+    failwith (Printf.sprintf "Directory does not exist: %s\n" ret);
+  ret
 
 let prefix = ref (default_prefix ())
 let spec_list = [ ("--prefix", Arg.Set_string prefix, "Installation prefix") ]
