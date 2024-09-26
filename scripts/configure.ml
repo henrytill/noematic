@@ -26,11 +26,13 @@ let rec mkdir_p path perms =
 module Host_manifest = struct
   open Ppx_yojson_conv_lib.Yojson_conv.Primitives
 
-  let host_binary_name = "noematic"
   let name = "com.github.henrytill.noematic"
   let description = "Search your backlog"
   let _type = "stdio"
-  let host_binary_path prefix = List.fold_left Filename.concat prefix [ "bin"; host_binary_name ]
+
+  let host_binary_path prefix =
+    let host_binary_name = "noematic" in
+    List.fold_left Filename.concat prefix [ "bin"; host_binary_name ]
 
   module Firefox = struct
     let allowed_extensions = [ "henrytill@gmail.com" ]
@@ -44,7 +46,7 @@ module Host_manifest = struct
     }
     [@@deriving make, yojson]
 
-    let path ?(name = name) () =
+    let path ~name () =
       match Sys.os_type with
       | "Unix" ->
           let file = Printf.sprintf "%s.json" name in
@@ -67,7 +69,7 @@ module Host_manifest = struct
     }
     [@@deriving make, yojson]
 
-    let path ?(name = name) () =
+    let path ~name () =
       match Sys.os_type with
       | "Unix" ->
           let file = Printf.sprintf "%s.json" name in
@@ -86,23 +88,21 @@ module Host_manifest = struct
   let write prefix () =
     let path = host_binary_path prefix in
     (* Firefox *)
-    let firefox_manifest = Firefox.make ~path () in
-    let firefox_manifest_json = Firefox.yojson_of_t firefox_manifest in
-    let firefox_path = Firefox.path () in
+    let firefox_json = Firefox.make ~path () |> Firefox.yojson_of_t in
+    let firefox_path = Firefox.path ~name () in
     mkdir_p (Filename.dirname firefox_path) 0o755;
-    write_json firefox_path firefox_manifest_json;
+    write_json firefox_path firefox_json;
     print_endline (Printf.sprintf "Firefox host manifest written to: %s" firefox_path);
     print_endline "Firefox host manifest contents:";
-    print_endline (Yojson.Safe.pretty_to_string firefox_manifest_json);
+    print_endline (Yojson.Safe.pretty_to_string firefox_json);
     (* Chromium *)
-    let chromium_manifest = Chromium.make ~path () in
-    let chromium_manifest_json = Chromium.yojson_of_t chromium_manifest in
-    let chromium_path = Chromium.path () in
+    let chromium_json = Chromium.make ~path () |> Chromium.yojson_of_t in
+    let chromium_path = Chromium.path ~name () in
     mkdir_p (Filename.dirname chromium_path) 0o755;
-    write_json chromium_path chromium_manifest_json;
+    write_json chromium_path chromium_json;
     print_endline (Printf.sprintf "Chromium host manifest written to: %s" chromium_path);
     print_endline "Chromium host manifest contents:";
-    print_endline (Yojson.Safe.pretty_to_string chromium_manifest_json)
+    print_endline (Yojson.Safe.pretty_to_string chromium_json)
 end
 
 let prefix = ref (default_prefix ())
@@ -110,5 +110,5 @@ let spec_list = [ ("--prefix", Arg.Set_string prefix, "Installation prefix") ]
 let usage_msg = "Usage: configure [--prefix <path>]"
 
 let () =
-  Arg.parse spec_list (fun _ -> ()) usage_msg;
+  Arg.parse spec_list ignore usage_msg;
   Host_manifest.write !prefix ()
