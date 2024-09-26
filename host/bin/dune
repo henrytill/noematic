@@ -2,7 +2,7 @@
  (public_name noematic)
  (name main)
  (modules main)
- (libraries noematic unix unix_ext xdg yojson))
+ (libraries unix))
 
 (executable
  (public_name noematic-configure)
@@ -11,3 +11,9 @@
  (libraries filename_ext unix unix_ext yojson)
  (preprocess
   (pps ppx_deriving.make ppx_yojson_conv)))
+
+(executable
+ (public_name noematic-host)
+ (name host)
+ (modules host)
+ (libraries noematic unix unix_ext xdg yojson))

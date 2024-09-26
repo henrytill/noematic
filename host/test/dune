@@ -3,7 +3,7 @@
  (action
   (with-stdout-to
    %{target}
-   (echo "let path = {|%{bin:noematic}|}"))))
+   (echo "let path = {|%{bin:noematic-host}|}"))))
 
 (test
  (name main_test)

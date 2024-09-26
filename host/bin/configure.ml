@@ -8,7 +8,7 @@ module Host_manifest = struct
   let _type = "stdio"
 
   let host_binary_path prefix =
-    let host_binary_name = "noematic" in
+    let host_binary_name = "noematic-host" in
     List.fold_left Filename.concat prefix [ "bin"; host_binary_name ]
 
   module Firefox = struct
