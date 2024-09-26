@@ -1,12 +1,27 @@
-(library
- (name noematic)
- (libraries re semver sqlite3 uri yojson)
- (preprocess
-  (pps ppx_deriving.show ppx_yojson_conv)))
-
 (rule
  (target strings.ml)
  (action
   (with-stdout-to
    %{target}
    (echo "let create_sql = {|%{read:create.sql}|}"))))
+
+(library
+ (name noematic)
+ (modules db host message protocol strings)
+ (libraries re semver sqlite3 uri yojson)
+ (preprocess
+  (pps ppx_deriving.show ppx_yojson_conv)))
+
+(library
+ (name filename_ext)
+ (modules filename_ext)
+ (wrapped false)
+ (foreign_stubs
+  (language c)
+  (names realpath)))
+
+(library
+ (name unix_ext)
+ (modules unix_ext)
+ (wrapped false)
+ (libraries unix))

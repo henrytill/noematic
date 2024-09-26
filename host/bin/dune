@@ -4,20 +4,6 @@
  (modules main)
  (libraries noematic unix unix_ext xdg yojson))
 
-(library
- (name filename_ext)
- (modules filename_ext)
- (wrapped false)
- (foreign_stubs
-  (language c)
-  (names realpath)))
-
-(library
- (name unix_ext)
- (modules unix_ext)
- (wrapped false)
- (libraries unix))
-
 (executable
  (public_name noematic-configure)
  (name configure)
