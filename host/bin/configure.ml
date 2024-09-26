@@ -3,7 +3,7 @@ let home_dir () = Sys.getenv "HOME"
 let default_prefix () =
   let ret =
     let path = Filename.concat (Filename.dirname Sys.executable_name) ".." in
-    match Filename_ext.realpath path with
+    match Filename_ext.realpath_opt path with
     | Some resolved_path -> resolved_path
     | None -> path
   in
