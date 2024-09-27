@@ -6,8 +6,8 @@
    (echo "let path = {|%{bin:noematic-host}|}"))))
 
 (test
- (name main_test)
- (modules main_test exe)
+ (name host_test)
+ (modules host_test exe)
  (libraries alcotest fmt noematic unix yojson)
  (preprocess
   (pps ppx_yojson)))
