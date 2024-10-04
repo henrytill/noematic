@@ -5,7 +5,7 @@ module Host_manifest = struct
 
   let name = "com.github.henrytill.noematic"
   let description = "Search your backlog"
-  let _type = "stdio"
+  let ty = "stdio"
 
   let host_binary_path prefix =
     let host_binary_name = "noematic-host" in
@@ -18,7 +18,7 @@ module Host_manifest = struct
       name : string; [@default name]
       description : string; [@default description]
       path : string;
-      _type : string; [@default _type] [@key "type"]
+      ty : string; [@default ty] [@key "type"]
       allowed_extensions : string list; [@default allowed_extensions]
     }
     [@@deriving make, yojson]
@@ -41,7 +41,7 @@ module Host_manifest = struct
       name : string; [@default name]
       description : string; [@default description]
       path : string;
-      _type : string; [@default _type] [@key "type"]
+      ty : string; [@default ty] [@key "type"]
       allowed_origins : string list; [@default allowed_origins]
     }
     [@@deriving make, yojson]
