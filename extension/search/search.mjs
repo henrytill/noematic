@@ -4,7 +4,7 @@ import { SearchResult } from './search-result.mjs';
 /**
  * Processes and displays the search results contained in a search response.
  *
- * @param {import('../common/message-collector.mjs').Responses} responses
+ * @param {import('../common/types.js').Responses} responses
  * @returns {void}
  */
 const handleSearchResponse = (responses) => {
