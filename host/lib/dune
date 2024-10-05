@@ -24,4 +24,7 @@
  (name unix_ext)
  (modules unix_ext)
  (wrapped false)
- (libraries unix))
+ (libraries unix)
+ (foreign_stubs
+  (language c)
+  (names unix_ext)))

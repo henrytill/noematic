@@ -11,3 +11,13 @@ let rec mkdir_all path perms =
       try mkdir path perms with Unix_error (EEXIST, _, _) -> ()
     else if not (Sys.is_directory path) then
       failwith (Printf.sprintf "Error: %s exists but is not a directory" path)
+
+type utsname = {
+  sysname : string;
+  nodename : string;
+  release : string;
+  version : string;
+  machine : string;
+}
+
+external uname : unit -> utsname = "caml_uname"
