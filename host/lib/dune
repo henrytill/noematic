@@ -18,7 +18,7 @@
  (wrapped false)
  (foreign_stubs
   (language c)
-  (names realpath)))
+  (names filename_ext)))
 
 (library
  (name unix_ext)
