@@ -1,3 +1,21 @@
+type platform =
+  | Linux
+  | Darwin
+  | Win32
+  | Cygwin
+  | Other
+
+let get_platform () =
+  match Sys.os_type with
+  | "Unix" -> (
+      match (Unix_ext.uname ()).sysname with
+      | "Linux" -> Linux
+      | "Darwin" -> Darwin
+      | _ -> Other)
+  | "Win32" -> Win32
+  | "Cygwin" -> Cygwin
+  | _ -> Other
+
 let home_dir () = Sys.getenv "HOME"
 
 module Host_manifest = struct
@@ -11,6 +29,28 @@ module Host_manifest = struct
     let host_binary_name = "noematic-host" in
     List.fold_left Filename.concat prefix [ "bin"; host_binary_name ]
 
+  module Path = struct
+    type t = {
+      linux : string list;
+      darwin : string list;
+      default : string list;
+    }
+
+    let for_current_platform paths name default_dir =
+      let file = Printf.sprintf "%s.json" name in
+      match get_platform () with
+      | Linux ->
+          let path = paths.linux @ [ file ] in
+          List.fold_left Filename.concat (home_dir ()) path
+      | Darwin ->
+          let path = paths.darwin @ [ file ] in
+          List.fold_left Filename.concat (home_dir ()) path
+      | Other ->
+          let path = paths.default @ [ file ] in
+          List.fold_left Filename.concat default_dir path
+      | Win32 | Cygwin -> failwith "unimplemented"
+  end
+
   module Firefox = struct
     let allowed_extensions = [ "henrytill@gmail.com" ]
 
@@ -23,15 +63,12 @@ module Host_manifest = struct
     }
     [@@deriving make, yojson]
 
-    let path ~name () =
-      match Sys.os_type with
-      | "Unix" ->
-          let file = Printf.sprintf "%s.json" name in
-          let path = [ ".mozilla"; "native-messaging-hosts"; file ] in
-          List.fold_left Filename.concat (home_dir ()) path
-      | _ ->
-          let file = Printf.sprintf "%s.firefox.json" name in
-          Filename.concat (Sys.getcwd ()) file
+    let path : Path.t =
+      {
+        linux = [ ".mozilla"; "native-messaging-hosts" ];
+        darwin = [ "Library"; "Application Support"; "Mozilla"; "NativeMessagingHosts" ];
+        default = [ "manifests"; "mozilla" ];
+      }
   end
 
   module Chromium = struct
@@ -46,15 +83,12 @@ module Host_manifest = struct
     }
     [@@deriving make, yojson]
 
-    let path ~name () =
-      match Sys.os_type with
-      | "Unix" ->
-          let file = Printf.sprintf "%s.json" name in
-          let path = [ ".config"; "chromium"; "NativeMessagingHosts"; file ] in
-          List.fold_left Filename.concat (home_dir ()) path
-      | _ ->
-          let file = Printf.sprintf "%s.chromium.json" name in
-          Filename.concat (Sys.getcwd ()) file
+    let path : Path.t =
+      {
+        linux = [ ".config"; "chromium"; "NativeMessagingHosts" ];
+        darwin = [ "Library"; "Application Support"; "Chromium"; "NativeMessagingHosts" ];
+        default = [ "manifests"; "chromium" ];
+      }
   end
 
   let write_json path json =
@@ -64,9 +98,10 @@ module Host_manifest = struct
 
   let write prefix () =
     let path = host_binary_path prefix in
+    let default_dir = Sys.getcwd () in
     (* Firefox *)
     let firefox_json = Firefox.make ~path () |> Firefox.yojson_of_t in
-    let firefox_path = Firefox.path ~name () in
+    let firefox_path = Path.for_current_platform Firefox.path name default_dir in
     Unix_ext.mkdir_all (Filename.dirname firefox_path) 0o755;
     write_json firefox_path firefox_json;
     print_endline (Printf.sprintf "Firefox host manifest written to: %s" firefox_path);
@@ -74,7 +109,7 @@ module Host_manifest = struct
     print_endline (Yojson.Safe.pretty_to_string firefox_json);
     (* Chromium *)
     let chromium_json = Chromium.make ~path () |> Chromium.yojson_of_t in
-    let chromium_path = Chromium.path ~name () in
+    let chromium_path = Path.for_current_platform Chromium.path name default_dir in
     Unix_ext.mkdir_all (Filename.dirname chromium_path) 0o755;
     write_json chromium_path chromium_json;
     print_endline (Printf.sprintf "Chromium host manifest written to: %s" chromium_path);
