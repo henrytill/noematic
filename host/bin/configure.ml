@@ -22,6 +22,7 @@ module Host_manifest = struct
   open Ppx_yojson_conv_lib.Yojson_conv.Primitives
 
   let name = "com.github.henrytill.noematic"
+  let file = Printf.sprintf "%s.json" name
   let description = "Search your backlog"
   let ty = "stdio"
 
@@ -36,18 +37,11 @@ module Host_manifest = struct
       default : string list;
     }
 
-    let for_current_platform paths name default_dir =
-      let file = Printf.sprintf "%s.json" name in
+    let for_current_platform paths default_dir =
       match get_platform () with
-      | Linux ->
-          let path = paths.linux @ [ file ] in
-          List.fold_left Filename.concat (home_dir ()) path
-      | Darwin ->
-          let path = paths.darwin @ [ file ] in
-          List.fold_left Filename.concat (home_dir ()) path
-      | Other ->
-          let path = paths.default @ [ file ] in
-          List.fold_left Filename.concat default_dir path
+      | Linux -> List.fold_left Filename.concat (home_dir ()) paths.linux
+      | Darwin -> List.fold_left Filename.concat (home_dir ()) paths.darwin
+      | Other -> List.fold_left Filename.concat default_dir paths.default
       | Win32 | Cygwin -> failwith "unimplemented"
   end
 
@@ -65,9 +59,9 @@ module Host_manifest = struct
 
     let path : Path.t =
       {
-        linux = [ ".mozilla"; "native-messaging-hosts" ];
-        darwin = [ "Library"; "Application Support"; "Mozilla"; "NativeMessagingHosts" ];
-        default = [ "manifests"; "mozilla" ];
+        linux = [ ".mozilla"; "native-messaging-hosts"; file ];
+        darwin = [ "Library"; "Application Support"; "Mozilla"; "NativeMessagingHosts"; file ];
+        default = [ "manifests"; "mozilla"; file ];
       }
   end
 
@@ -85,9 +79,9 @@ module Host_manifest = struct
 
     let path : Path.t =
       {
-        linux = [ ".config"; "chromium"; "NativeMessagingHosts" ];
-        darwin = [ "Library"; "Application Support"; "Chromium"; "NativeMessagingHosts" ];
-        default = [ "manifests"; "chromium" ];
+        linux = [ ".config"; "chromium"; "NativeMessagingHosts"; file ];
+        darwin = [ "Library"; "Application Support"; "Chromium"; "NativeMessagingHosts"; file ];
+        default = [ "manifests"; "chromium"; file ];
       }
   end
 
@@ -101,7 +95,7 @@ module Host_manifest = struct
     let default_dir = Sys.getcwd () in
     (* Firefox *)
     let firefox_json = Firefox.make ~path () |> Firefox.yojson_of_t in
-    let firefox_path = Path.for_current_platform Firefox.path name default_dir in
+    let firefox_path = Path.for_current_platform Firefox.path default_dir in
     Unix_ext.mkdir_all (Filename.dirname firefox_path) 0o755;
     write_json firefox_path firefox_json;
     print_endline (Printf.sprintf "Firefox host manifest written to: %s" firefox_path);
@@ -109,7 +103,7 @@ module Host_manifest = struct
     print_endline (Yojson.Safe.pretty_to_string firefox_json);
     (* Chromium *)
     let chromium_json = Chromium.make ~path () |> Chromium.yojson_of_t in
-    let chromium_path = Path.for_current_platform Chromium.path name default_dir in
+    let chromium_path = Path.for_current_platform Chromium.path default_dir in
     Unix_ext.mkdir_all (Filename.dirname chromium_path) 0o755;
     write_json chromium_path chromium_json;
     print_endline (Printf.sprintf "Chromium host manifest written to: %s" chromium_path);
