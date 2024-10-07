@@ -20,9 +20,14 @@
     "default_title": "Noematic"
   },
   "permissions": [
-    "activeTab",
+    "bookmarks",
     "nativeMessaging",
-    "scripting"
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
   ],
   "browser_specific_settings": {
     "gecko": {

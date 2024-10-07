@@ -1,6 +1,6 @@
 body {
   font-family: 'Noto Sans', sans-serif;
-  width: 400px;
+  width: 200px;
 }
 
 #main {
@@ -22,7 +22,7 @@ footer {
   font-family: 'Noto Sans', sans-serif;
   border: 1px solid #dfe1e5;
   height: 32px;
-  width: 32%;
+  width: 98%;
   text-align: center;
   background-color: #eee;
   border-radius: 6px;

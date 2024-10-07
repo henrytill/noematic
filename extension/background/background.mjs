@@ -1,4 +1,4 @@
-import { NATIVE_MESSAGING_HOST } from '../common/common.mjs';
+import { NATIVE_MESSAGING_HOST, SCHEMA_VERSION } from '../common/common.mjs';
 import { MessageCollector } from '../common/message-collector.mjs';
 
 /**
@@ -40,6 +40,74 @@ const runtimeListener = (responderMap, hostPort, message, _sender, sendResponse)
   return true;
 };
 
+/**
+ * @param {chrome.tabs.Tab} tab
+ * @returns {Promise<{tab: chrome.tabs.Tab, active: boolean}>}
+ */
+const checkContentScriptActive = async (tab) => {
+  if (tab.id === undefined) {
+    return { tab, active: false };
+  }
+  try {
+    await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+    return { tab, active: true };
+  } catch (_) {
+    return { tab, active: false };
+  }
+};
+
+/**
+ * @param {{tab: chrome.tabs.Tab, active: boolean}} tab
+ * @returns {Promise<number>}
+ */
+const maybeInstallContentScript = async ({ tab, active }) => {
+  if (tab.id === undefined) {
+    return Promise.reject(new Error('No tab id'));
+  }
+  const tabId = tab.id;
+  if (active) {
+    return tabId;
+  }
+  const isChrome = Object.prototype.hasOwnProperty.call(globalThis, 'browser') === false;
+  const prefix = isChrome ? '.' : '..'; // This is garbage.
+  const files = [`${prefix}/content/content.js`];
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files,
+  });
+  return tabId;
+};
+
+/**
+ * @returns {Promise<chrome.tabs.Tab>}
+ */
+const getActiveTab = async () => {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs.length !== 1) {
+    throw new Error(`Expected 1 active tab, got ${tabs.length}`);
+  }
+  return tabs[0];
+};
+
+/**
+ * @param {string} _id
+ * @param {chrome.bookmarks.BookmarkTreeNode} bookmark
+ * @returns {void}
+ */
+const bookmarksOnCreatedListener = (_id, bookmark) => {
+  console.log('bookmark', bookmark);
+  const message = {
+    version: SCHEMA_VERSION,
+    action: 'saveRequest',
+    payload: { url: bookmark.url, title: bookmark.title },
+  };
+  getActiveTab()
+    .then((tab) => checkContentScriptActive(tab))
+    .then((result) => maybeInstallContentScript(result))
+    .then((tabId) => chrome.tabs.sendMessage(tabId, message))
+    .then((response) => console.log('response', response));
+};
+
 /** @type {ResponderMap} */
 const responderMap = new Map();
 
@@ -50,5 +118,7 @@ port.onMessage.addListener(nativeListener.bind(null, responderMap));
 port.onDisconnect.addListener((_port) => console.debug('Disconnected from native messaging host'));
 
 chrome.runtime.onMessage.addListener(runtimeListener.bind(null, responderMap, port));
+
+chrome.bookmarks.onCreated.addListener(bookmarksOnCreatedListener);
 
 console.debug('Noematic background handler installed');
