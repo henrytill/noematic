@@ -4,19 +4,21 @@ module Context = struct
     process : Message.Query.t -> string;
   }
 
+  let regex_pat = {|\W+|}
+
   let make_process regex query =
     Message.Query.to_string query |> Re.replace_string regex ~by:" " |> String.trim
 
   let in_memory () =
     let db = Sqlite3.db_open ":memory:" in
-    let process_regex = Re.Perl.compile_pat {|\W+|} in
+    let process_regex = Re.Perl.compile_pat regex_pat in
     let process = make_process process_regex in
     Db.init_tables db;
     { db; process }
 
   let persistent db_path =
     let db = Sqlite3.db_open db_path in
-    let process_regex = Re.Perl.compile_pat {|\W+|} in
+    let process_regex = Re.Perl.compile_pat regex_pat in
     let process = make_process process_regex in
     Db.init_tables db;
     { db; process }
