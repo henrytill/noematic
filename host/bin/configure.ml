@@ -39,12 +39,10 @@ module Host_manifest = struct
       default : string list;
     }
 
-    let for_platform platform paths default_dir =
-      let open Platform in
-      match platform with
-      | Linux -> List.fold_left Filename.concat (home_dir ()) paths.linux
-      | Darwin -> List.fold_left Filename.concat (home_dir ()) paths.darwin
-      | Other -> List.fold_left Filename.concat default_dir paths.default
+    let for_platform (path : t) (default_dir : string) : Platform.t -> string = function
+      | Linux -> List.fold_left Filename.concat (home_dir ()) path.linux
+      | Darwin -> List.fold_left Filename.concat (home_dir ()) path.darwin
+      | Other -> List.fold_left Filename.concat default_dir path.default
       | Win32 | Cygwin -> failwith "unimplemented"
   end
 
@@ -99,7 +97,7 @@ module Host_manifest = struct
     let default_dir = Sys.getcwd () in
     (* Firefox *)
     let firefox_json = Firefox.make ~path () |> Firefox.yojson_of_t in
-    let firefox_path = Path.for_platform platform Firefox.path default_dir in
+    let firefox_path = Path.for_platform Firefox.path default_dir platform in
     Unix_ext.mkdir_all (Filename.dirname firefox_path) 0o755;
     write_json firefox_path firefox_json;
     print_endline (Printf.sprintf "Firefox host manifest written to: %s" firefox_path);
@@ -107,7 +105,7 @@ module Host_manifest = struct
     print_endline (Yojson.Safe.pretty_to_string firefox_json);
     (* Chromium *)
     let chromium_json = Chromium.make ~path () |> Chromium.yojson_of_t in
-    let chromium_path = Path.for_platform platform Chromium.path default_dir in
+    let chromium_path = Path.for_platform Chromium.path default_dir platform in
     Unix_ext.mkdir_all (Filename.dirname chromium_path) 0o755;
     write_json chromium_path chromium_json;
     print_endline (Printf.sprintf "Chromium host manifest written to: %s" chromium_path);
