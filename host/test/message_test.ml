@@ -1,115 +1,81 @@
-open Noematic.Message
-
 let yojson = Alcotest.testable Yojson.Safe.pp Yojson.Safe.equal
 
-module Uri_ext = struct
-  let uri = Alcotest.testable Uri_ext.pp Uri_ext.equal
+module type JSON = sig
+  type t
 
-  let roundtrip () =
-    let expected = Uri_ext.of_string "https://www.archive.org/" in
-    Alcotest.(check uri) "same uri" expected Uri_ext.(yojson_of_t expected |> t_of_yojson)
+  val t_of_yojson : Yojson.Safe.t -> t
+  val yojson_of_t : t -> Yojson.Safe.t
 end
 
-module Version = struct
-  let version = Alcotest.testable Version.pp Version.equal
+let make_roundtrips (module M : JSON) (name : string) (cases : (string * Yojson.Safe.t) list) =
+  let f (name, ex) =
+    let thunk () = Alcotest.(check yojson) "same json" ex M.(t_of_yojson ex |> yojson_of_t) in
+    Alcotest.test_case (Printf.sprintf "roundtrip %s" name) `Quick thunk
+  in
+  (name, List.map f cases)
 
-  let roundtrip () =
-    Alcotest.(check version)
-      "same version"
-      Version.expected
-      Version.(yojson_of_t expected |> t_of_yojson)
-end
+let roundtrips_request =
+  make_roundtrips
+    (module Noematic.Message.Request)
+    "Request"
+    [
+      ( "saveRequest",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "saveRequest";
+            payload =
+              {
+                url = "https://en.wikipedia.org/wiki/Foobar";
+                title = "Title";
+                innerText = "Inner text";
+              };
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
+      ( "searchRequest",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "searchRequest";
+            payload = { query = "quux"; pageNum = 0; pageLength = 10 };
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
+    ]
 
-module Request = struct
-  let roundtrip_save_request () =
-    let expected =
-      [%yojson
-        {
-          version = "0.1.0";
-          action = "saveRequest";
-          payload =
-            {
-              url = "https://en.wikipedia.org/wiki/Foobar";
-              title = "Title";
-              innerText = "Inner text";
-            };
-          correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
-        }]
-    in
-    Alcotest.(check yojson) "same json" expected Request.(t_of_yojson expected |> yojson_of_t)
+let roundtrips_response =
+  make_roundtrips
+    (module Noematic.Message.Response)
+    "Response"
+    [
+      ( "saveResponse",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "saveResponse";
+            payload = [%aq `Null];
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
+      ( "searchResponseHeader",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "searchResponseHeader";
+            payload = { query = "quux"; pageNum = 0; pageLength = 10; hasMore = true };
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
+      ( "searchResponseSite",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "searchResponseSite";
+            payload =
+              {
+                url = "https://en.wikipedia.org/wiki/Foobar";
+                title = "Title";
+                snippet = "Foo bar baz <b>quux</b>";
+              };
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
+    ]
 
-  let roundtrip_search_request () =
-    let expected =
-      [%yojson
-        {
-          version = "0.1.0";
-          action = "searchRequest";
-          payload = { query = "quux"; pageNum = 0; pageLength = 10 };
-          correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
-        }]
-    in
-    Alcotest.(check yojson) "same json" expected Request.(t_of_yojson expected |> yojson_of_t)
-end
-
-module Response = struct
-  let roundtrip_save_response () =
-    let expected =
-      [%yojson
-        {
-          version = "0.1.0";
-          action = "saveResponse";
-          payload = [%aq `Null];
-          correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
-        }]
-    in
-    Alcotest.(check yojson) "same json" expected Response.(t_of_yojson expected |> yojson_of_t)
-
-  let roundtrip_search_response_header () =
-    let expected =
-      [%yojson
-        {
-          version = "0.1.0";
-          action = "searchResponseHeader";
-          payload = { query = "quux"; pageNum = 0; pageLength = 10; hasMore = true };
-          correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
-        }]
-    in
-    Alcotest.(check yojson) "same json" expected Response.(t_of_yojson expected |> yojson_of_t)
-
-  let roundtrip_search_response_site () =
-    let expected =
-      [%yojson
-        {
-          version = "0.1.0";
-          action = "searchResponseSite";
-          payload =
-            {
-              url = "https://en.wikipedia.org/wiki/Foobar";
-              title = "Title";
-              snippet = "Foo bar baz <b>quux</b>";
-            };
-          correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
-        }]
-    in
-    Alcotest.(check yojson) "same json" expected Response.(t_of_yojson expected |> yojson_of_t)
-end
-
-let tests =
-  let open Alcotest in
-  [
-    ("Uri_ext", [ test_case "roundtrip" `Quick Uri_ext.roundtrip ]);
-    ("Version", [ test_case "roundtrip" `Quick Version.roundtrip ]);
-    ( "Request",
-      [
-        test_case "roundtrip saveRequest" `Quick Request.roundtrip_save_request;
-        test_case "roundtrip searchRequest" `Quick Request.roundtrip_search_request;
-      ] );
-    ( "Response",
-      [
-        test_case "roundtrip saveResponse" `Quick Response.roundtrip_save_response;
-        test_case "roundtrip searchResponseHeader" `Quick Response.roundtrip_search_response_header;
-        test_case "roundtrip searchResponseSite" `Quick Response.roundtrip_search_response_site;
-      ] );
-  ]
-
-let () = Alcotest.run "Message" tests
+let () = Alcotest.run "Message" [ roundtrips_request; roundtrips_response ]
