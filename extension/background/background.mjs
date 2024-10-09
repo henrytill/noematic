@@ -34,7 +34,7 @@ const nativeListener = (responderMap, message) => {
 const runtimeListener = (responderMap, hostPort, message, _sender, sendResponse) => {
   const correlationId = crypto.randomUUID();
   message.correlationId = correlationId;
-  console.log('request', message);
+  console.debug('request', message);
   responderMap.set(correlationId, new MessageCollector(correlationId, sendResponse));
   hostPort.postMessage(message);
   return true;
@@ -95,7 +95,6 @@ const maybeInstallContentScript = async ({ tab, active }) => {
  * @returns {void}
  */
 const bookmarksOnCreatedListener = (_id, bookmark) => {
-  console.log('bookmark', bookmark);
   const message = {
     version: SCHEMA_VERSION,
     action: 'saveRequest',
@@ -105,7 +104,7 @@ const bookmarksOnCreatedListener = (_id, bookmark) => {
     .then((tab) => checkContentScriptActive(tab))
     .then((result) => maybeInstallContentScript(result))
     .then((tabId) => chrome.tabs.sendMessage(tabId, message))
-    .then((response) => console.log('response', response));
+    .then((response) => console.debug('response', response));
 };
 
 /**
@@ -120,7 +119,7 @@ const bookmarksOnRemovedListener = (responderMap, hostPort, _id, removeInfo) => 
   const correlationId = crypto.randomUUID();
   responderMap.set(
     correlationId,
-    new MessageCollector(correlationId, (response) => console.log('response', response)),
+    new MessageCollector(correlationId, (response) => console.debug('response', response)),
   );
   const message = {
     version: SCHEMA_VERSION,
@@ -128,6 +127,7 @@ const bookmarksOnRemovedListener = (responderMap, hostPort, _id, removeInfo) => 
     payload: { url: bookmark.url },
     correlationId,
   };
+  console.debug('request', message);
   hostPort.postMessage(message);
 };
 

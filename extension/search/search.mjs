@@ -46,7 +46,7 @@ const search = (value) => {
     })
     .then((response) => {
       handleSearchResponse(response);
-      console.log('response', response);
+      console.debug('response', response);
     });
 };
 

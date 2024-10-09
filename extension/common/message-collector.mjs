@@ -28,7 +28,7 @@ export class MessageCollector {
    */
   push(response) {
     this.responses.push(response);
-    console.log('response', response);
+    console.debug('response', response);
     return this.collect();
   }
 
