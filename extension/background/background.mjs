@@ -41,6 +41,17 @@ const runtimeListener = (responderMap, hostPort, message, _sender, sendResponse)
 };
 
 /**
+ * @returns {Promise<chrome.tabs.Tab>}
+ */
+const getActiveTab = async () => {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs.length !== 1) {
+    throw new Error(`Expected 1 active tab, got ${tabs.length}`);
+  }
+  return tabs[0];
+};
+
+/**
  * @param {chrome.tabs.Tab} tab
  * @returns {Promise<{tab: chrome.tabs.Tab, active: boolean}>}
  */
@@ -62,7 +73,7 @@ const checkContentScriptActive = async (tab) => {
  */
 const maybeInstallContentScript = async ({ tab, active }) => {
   if (tab.id === undefined) {
-    return Promise.reject(new Error('No tab id'));
+    throw new Error('No tab id');
   }
   const tabId = tab.id;
   if (active) {
@@ -76,17 +87,6 @@ const maybeInstallContentScript = async ({ tab, active }) => {
     files,
   });
   return tabId;
-};
-
-/**
- * @returns {Promise<chrome.tabs.Tab>}
- */
-const getActiveTab = async () => {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs.length !== 1) {
-    throw new Error(`Expected 1 active tab, got ${tabs.length}`);
-  }
-  return tabs[0];
 };
 
 /**
