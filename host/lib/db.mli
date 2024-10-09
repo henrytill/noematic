@@ -9,6 +9,7 @@ end
 
 val init_tables : Sqlite3.db -> unit
 val upsert : Sqlite3.db -> Message.Request.Save.t -> unit
+val remove : Sqlite3.db -> Message.Request.Remove.t -> unit
 
 val search_sites :
   Sqlite3.db ->

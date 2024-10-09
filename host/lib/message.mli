@@ -91,6 +91,14 @@ module Request : sig
     val yojson_of_t : t -> Yojson.Safe.t
   end
 
+  module Remove : sig
+    type t = { uri : Uri_ext.t }
+
+    val pp : Format.formatter -> t -> unit
+    val t_of_yojson : Yojson.Safe.t -> t
+    val yojson_of_t : t -> Yojson.Safe.t
+  end
+
   module Search : sig
     type t = {
       query : Query.t;
@@ -106,6 +114,7 @@ module Request : sig
   module Action : sig
     type t =
       | Save of { payload : Save.t }
+      | Remove of { payload : Remove.t }
       | Search of { payload : Search.t }
 
     val pp : Format.formatter -> t -> unit
@@ -124,6 +133,14 @@ end
 
 module Response : sig
   module Save : sig
+    type t = unit
+
+    val pp : Format.formatter -> t -> unit
+    val t_of_yojson : Yojson.Safe.t -> t
+    val yojson_of_t : t -> Yojson.Safe.t
+  end
+
+  module Remove : sig
     type t = unit
 
     val pp : Format.formatter -> t -> unit
@@ -159,6 +176,7 @@ module Response : sig
   module Action : sig
     type t =
       | Save of { payload : Save.t }
+      | Remove of { payload : Remove.t }
       | Search of { payload : Search.t }
       | Site of { payload : Site.t }
 

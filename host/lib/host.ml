@@ -35,6 +35,10 @@ let handle_request (context : Context.t) (request : Message.Request.t) : Message
       Db.upsert context.db payload;
       let action = Response.Action.Save { payload = () } in
       { version; action; correlation_id } :: []
+  | Request.Action.Remove { payload } ->
+      Db.remove context.db payload;
+      let action = Response.Action.Remove { payload = () } in
+      { version; action; correlation_id } :: []
   | Request.Action.Search { payload } ->
       let results, has_more = Db.search_sites context.db payload context.process in
       let header =

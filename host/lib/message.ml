@@ -81,6 +81,10 @@ module Request = struct
     [@@deriving show { with_path = false }, yojson]
   end
 
+  module Remove = struct
+    type t = { uri : Uri_ext.t [@key "url"] } [@@deriving show { with_path = false }, yojson]
+  end
+
   module Search = struct
     type t = {
       query : Query.t;
@@ -93,6 +97,7 @@ module Request = struct
   module Action = struct
     type t =
       | Save of { payload : Save.t }
+      | Remove of { payload : Remove.t }
       | Search of { payload : Search.t }
     [@@deriving show { with_path = false }]
   end
@@ -112,6 +117,9 @@ module Request = struct
       | "saveRequest" ->
           let payload = json |> member "payload" |> Save.t_of_yojson in
           Action.Save { payload }
+      | "removeRequest" ->
+          let payload = json |> member "payload" |> Remove.t_of_yojson in
+          Action.Remove { payload }
       | "searchRequest" ->
           let payload = json |> member "payload" |> Search.t_of_yojson in
           Action.Search { payload }
@@ -125,11 +133,13 @@ module Request = struct
     let action =
       match self.action with
       | Save _ -> `String "saveRequest"
+      | Remove _ -> `String "removeRequest"
       | Search _ -> `String "searchRequest"
     in
     let payload =
       match self.action with
       | Save { payload } -> Save.yojson_of_t payload
+      | Remove { payload } -> Remove.yojson_of_t payload
       | Search { payload } -> Search.yojson_of_t payload
     in
     let correlation_id = Correlation_id.yojson_of_t self.correlation_id in
@@ -144,6 +154,10 @@ end
 
 module Response = struct
   module Save = struct
+    type t = unit [@@deriving show { with_path = false }, yojson]
+  end
+
+  module Remove = struct
     type t = unit [@@deriving show { with_path = false }, yojson]
   end
 
@@ -169,6 +183,7 @@ module Response = struct
   module Action = struct
     type t =
       | Save of { payload : Save.t }
+      | Remove of { payload : Remove.t }
       | Search of { payload : Search.t }
       | Site of { payload : Site.t }
     [@@deriving show { with_path = false }, yojson]
@@ -189,6 +204,9 @@ module Response = struct
       | "saveResponse" ->
           let payload = json |> member "payload" |> Save.t_of_yojson in
           Action.Save { payload }
+      | "removeResponse" ->
+          let payload = json |> member "payload" |> Remove.t_of_yojson in
+          Action.Remove { payload }
       | "searchResponseHeader" ->
           let payload = json |> member "payload" |> Search.t_of_yojson in
           Action.Search { payload }
@@ -205,12 +223,14 @@ module Response = struct
     let action =
       match self.action with
       | Save _ -> `String "saveResponse"
+      | Remove _ -> `String "removeResponse"
       | Search _ -> `String "searchResponseHeader"
       | Site _ -> `String "searchResponseSite"
     in
     let payload =
       match self.action with
       | Save { payload } -> Save.yojson_of_t payload
+      | Remove { payload } -> Remove.yojson_of_t payload
       | Search { payload } -> Search.yojson_of_t payload
       | Site { payload } -> Site.yojson_of_t payload
     in

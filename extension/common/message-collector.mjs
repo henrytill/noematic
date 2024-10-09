@@ -45,6 +45,10 @@ export class MessageCollector {
         this.responder(head);
         return true;
       }
+      case 'removeResponse': {
+        this.responder(head);
+        return true;
+      }
       case 'searchResponseHeader': {
         const pageLength = head.payload.pageLength;
         if (pageLength !== this.responses.length - 1) {

@@ -216,6 +216,68 @@ let test_search_idempotent () =
   Alcotest.(check yojson) "same response (second)" expected actual;
   ignore (Unix.close_process (stdin, stdout))
 
+let test_remove () =
+  let stdin, stdout = Unix.open_process (noematic_exe ^ " -test") in
+  let save_request =
+    [%yojson
+      {
+        version = "0.1.0";
+        action = "saveRequest";
+        payload =
+          {
+            url = "https://en.wikipedia.org/wiki/Foobar";
+            title = "Title";
+            innerText = "Foo bar baz quux";
+          };
+        correlationId = [%aq correlation_id];
+      }]
+  in
+  write_request stdout save_request;
+  let _ = read_response stdin in
+  let remove_request =
+    [%yojson
+      {
+        version = "0.1.0";
+        action = "removeRequest";
+        payload = { url = "https://en.wikipedia.org/wiki/Foobar" };
+        correlationId = [%aq correlation_id];
+      }]
+  in
+  write_request stdout remove_request;
+  let expected_response =
+    [%yojson
+      {
+        version = "0.1.0";
+        action = "removeResponse";
+        payload = [%aq `Null];
+        correlationId = [%aq correlation_id];
+      }]
+  in
+  let actual_response = read_response stdin in
+  Alcotest.(check yojson) "same response" expected_response actual_response;
+  let search_request =
+    [%yojson
+      {
+        version = "0.1.0";
+        action = "searchRequest";
+        payload = { query = "quux"; pageNum = 0; pageLength = 10 };
+        correlationId = [%aq correlation_id];
+      }]
+  in
+  write_request stdout search_request;
+  let expected_header =
+    [%yojson
+      {
+        version = "0.1.0";
+        action = "searchResponseHeader";
+        payload = { query = "quux"; pageNum = 0; pageLength = 0; hasMore = false };
+        correlationId = [%aq correlation_id];
+      }]
+  in
+  let actual_header = read_response stdin in
+  Alcotest.(check yojson) "same response" expected_header actual_header;
+  ignore (Unix.close_process (stdin, stdout))
+
 let tests =
   let open Alcotest in
   [
@@ -226,6 +288,7 @@ let tests =
         test_case "Quotation" `Quick test_search_quotation;
         test_case "Idempotent" `Quick test_search_idempotent;
       ] );
+    ("Remove", [ test_case "Remove" `Quick test_remove ]);
   ]
 
 let () = Alcotest.run "Integration" tests

@@ -14,6 +14,13 @@ export type SaveResponse = {
   correlationId: UUID;
 };
 
+export type RemoveResponse = {
+  version: string;
+  action: 'removeResponse';
+  payload: null;
+  correlationId: UUID;
+};
+
 export type SearchResponseHeaderPayload = {
   query: string;
   pageNum: number;
@@ -41,7 +48,7 @@ export type SearchResponseSite = {
   correlationId: UUID;
 };
 
-export type Response = SaveResponse | SearchResponseHeader | SearchResponseSite;
+export type Response = SaveResponse | RemoveResponse | SearchResponseHeader | SearchResponseSite;
 
 export type Responses = {
   inner: Response[];

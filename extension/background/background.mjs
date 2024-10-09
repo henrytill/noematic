@@ -108,6 +108,29 @@ const bookmarksOnCreatedListener = (_id, bookmark) => {
     .then((response) => console.log('response', response));
 };
 
+/**
+ * @param {ResponderMap} responderMap
+ * @param {chrome.runtime.Port} hostPort
+ * @param {string} _id
+ * @param {chrome.bookmarks.BookmarkRemoveInfo} removeInfo
+ * @returns {void}
+ */
+const bookmarksOnRemovedListener = (responderMap, hostPort, _id, removeInfo) => {
+  const bookmark = removeInfo.node;
+  const correlationId = crypto.randomUUID();
+  responderMap.set(
+    correlationId,
+    new MessageCollector(correlationId, (response) => console.log('response', response)),
+  );
+  const message = {
+    version: SCHEMA_VERSION,
+    action: 'removeRequest',
+    payload: { url: bookmark.url },
+    correlationId,
+  };
+  hostPort.postMessage(message);
+};
+
 /** @type {ResponderMap} */
 const responderMap = new Map();
 
@@ -120,5 +143,7 @@ port.onDisconnect.addListener((_port) => console.debug('Disconnected from native
 chrome.runtime.onMessage.addListener(runtimeListener.bind(null, responderMap, port));
 
 chrome.bookmarks.onCreated.addListener(bookmarksOnCreatedListener);
+
+chrome.bookmarks.onRemoved.addListener(bookmarksOnRemovedListener.bind(null, responderMap, port));
 
 console.debug('Noematic background handler installed');

@@ -32,6 +32,14 @@ let roundtrips_request =
               };
             correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
           }] );
+      ( "removeRequest",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "removeRequest";
+            payload = { url = "https://en.wikipedia.org/wiki/Foobar" };
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
       ( "searchRequest",
         [%yojson
           {
@@ -52,6 +60,14 @@ let roundtrips_response =
           {
             version = "0.1.0";
             action = "saveResponse";
+            payload = [%aq `Null];
+            correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
+          }] );
+      ( "removeResponse",
+        [%yojson
+          {
+            version = "0.1.0";
+            action = "removeResponse";
             payload = [%aq `Null];
             correlationId = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
           }] );

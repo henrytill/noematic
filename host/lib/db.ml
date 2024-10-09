@@ -107,6 +107,15 @@ ON CONFLICT (url) DO UPDATE SET
   Rc.check (bind_text stmt 3 inner_text);
   Rc.check (step stmt)
 
+let remove db remove_payload =
+  let open Sqlite3 in
+  let stmt_string = {|DELETE FROM sites WHERE url = ?|} in
+  let stmt = prepare db stmt_string in
+  let open Message.Request.Remove in
+  let url = Message.Uri_ext.to_string remove_payload.uri in
+  Rc.check (bind_text stmt 1 url);
+  Rc.check (step stmt)
+
 let search_sites db search_payload process =
   let open Sqlite3 in
   let stmt_string =
