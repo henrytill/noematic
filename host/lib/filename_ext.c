@@ -3,6 +3,7 @@
 #include <caml/fail.h>
 #include <caml/memory.h>
 #include <caml/mlvalues.h>
+#include <stdlib.h>
 
 CAMLprim value caml_realpath(value path) {
   CAMLparam1(path);
