@@ -131,6 +131,27 @@ const bookmarksOnRemovedListener = (responderMap, hostPort, _id, removeInfo) => 
   hostPort.postMessage(message);
 };
 
+/**
+ * @param {chrome.tabs.Tab} tab
+ * @returns {Promise<boolean>}
+ */
+const isBookmarked = async (tab) => {
+  const bookmarks = await chrome.bookmarks.search({ url: tab.url });
+  return bookmarks.length > 0;
+};
+
+/**
+ * @param {number} _tabId
+ * @param {chrome.tabs.TabChangeInfo} changeInfo
+ * @param {chrome.tabs.Tab} tab
+ * @returns void
+ */
+const tabsOnUpdatedListener = (_tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete') {
+    isBookmarked(tab).then((p) => console.log('tab:', tab.id, 'bookmarked:', p));
+  }
+};
+
 /** @type {ResponderMap} */
 const responderMap = new Map();
 
@@ -145,5 +166,7 @@ chrome.runtime.onMessage.addListener(runtimeOnMessageListener.bind(null, respond
 chrome.bookmarks.onCreated.addListener(bookmarksOnCreatedListener);
 
 chrome.bookmarks.onRemoved.addListener(bookmarksOnRemovedListener.bind(null, responderMap, port));
+
+chrome.tabs.onUpdated.addListener(tabsOnUpdatedListener);
 
 console.debug('Noematic background handler installed');
