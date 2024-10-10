@@ -10,7 +10,7 @@ import { MessageCollector } from '../common/message-collector.mjs';
  * @param {import('../common/types.js').Response} message
  * @returns {void}
  */
-const nativeListener = (responderMap, message) => {
+const portOnMessageListener = (responderMap, message) => {
   const correlationId = message.correlationId;
   const collector = responderMap.get(correlationId);
   if (collector === undefined) {
@@ -31,7 +31,7 @@ const nativeListener = (responderMap, message) => {
  * @param {import('../common/types.js').Responder} sendResponse
  * @returns {boolean | undefined}
  */
-const runtimeListener = (responderMap, hostPort, message, _sender, sendResponse) => {
+const runtimeOnMessageListener = (responderMap, hostPort, message, _sender, sendResponse) => {
   const correlationId = crypto.randomUUID();
   message.correlationId = correlationId;
   console.debug('request', message);
@@ -136,11 +136,11 @@ const responderMap = new Map();
 
 const port = chrome.runtime.connectNative(NATIVE_MESSAGING_HOST);
 
-port.onMessage.addListener(nativeListener.bind(null, responderMap));
+port.onMessage.addListener(portOnMessageListener.bind(null, responderMap));
 
 port.onDisconnect.addListener((_port) => console.debug('Disconnected from native messaging host'));
 
-chrome.runtime.onMessage.addListener(runtimeListener.bind(null, responderMap, port));
+chrome.runtime.onMessage.addListener(runtimeOnMessageListener.bind(null, responderMap, port));
 
 chrome.bookmarks.onCreated.addListener(bookmarksOnCreatedListener);
 
