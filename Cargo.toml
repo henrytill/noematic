@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 
-members = ["host", "xtask"]
+members = ["configurator", "host", "xtask"]
 
 [workspace.package]
 license = "ISC"
