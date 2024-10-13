@@ -1,4 +1,4 @@
-AccessModifierOffset: -2
+AccessModifierOffset: -4
 AlignConsecutiveMacros: true
 AlignOperands: true
 AlignTrailingComments: true
@@ -12,14 +12,16 @@ AllowShortIfStatementsOnASingleLine: false
 AllowShortLoopsOnASingleLine: false
 BasedOnStyle: LLVM
 BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeBraces: Attach
+BreakBeforeBraces: WebKit
 BreakBeforeTernaryOperators: true
 ColumnLimit: 0
-ContinuationIndentWidth: 2
+ContinuationIndentWidth: 4
 DerivePointerAlignment: false
-IndentCaseLabels: true
+IndentCaseLabels: false
+IndentCaseBlocks: true
 IndentPPDirectives: AfterHash
-IndentWidth: 2
+IndentWidth: 4
+ObjCBlockIndentWidth: 4
 PointerAlignment: Right
 ReflowComments: true
 SortIncludes: true
