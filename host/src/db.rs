@@ -4,7 +4,10 @@ use anyhow::Error;
 use rusqlite::{params, Connection, Transaction};
 
 use self::schema_version::SchemaVersion;
-use crate::message::{Query, SaveRequestPayload, SearchRequestPayload, Site};
+use crate::message::{
+    Query, RemoveRequestPayload, SaveRequestPayload, SearchRequestPayload,
+    SearchResponseSitePayload,
+};
 
 const MSG_INVALID_SCHEMA_VERSION: &str = "Invalid schema version";
 
@@ -115,11 +118,17 @@ ON CONFLICT (url) DO UPDATE SET
     Ok(())
 }
 
+pub fn remove(connection: &Connection, payload: RemoveRequestPayload) -> Result<(), Error> {
+    let mut statement = connection.prepare("DELETE FROM sites WHERE url = ?")?;
+    statement.execute([payload.url])?;
+    Ok(())
+}
+
 pub fn search_sites(
     connection: &Connection,
     search_payload: SearchRequestPayload,
     process: impl Fn(Query) -> String,
-) -> Result<Vec<Site>, Error> {
+) -> Result<(Vec<SearchResponseSitePayload>, bool), Error> {
     let mut stmt = connection.prepare(
         "\
 SELECT s.url, s.title, snippet(sites_fts, 2, '<b>', '</b>', '...', 40)
@@ -127,16 +136,26 @@ FROM sites_fts
 JOIN sites s ON sites_fts.rowid = s.id
 WHERE sites_fts MATCH ?
 ORDER BY rank
+LIMIT ? OFFSET ?
 ",
     )?;
     let query_string = process(search_payload.query);
-    let mut rows = stmt.query([query_string])?;
+    let limit = search_payload.page_length + 1; // extra row for has_more
+    let offset = search_payload.page_num * search_payload.page_length;
+    let mut rows = stmt.query(params![query_string, limit, offset])?;
     let mut results = Vec::new();
+    let mut count = 0usize;
+    let mut has_more = false;
     while let Some(row) = rows.next()? {
+        count += 1;
+        if count > search_payload.page_length {
+            has_more = true;
+            break;
+        }
         let url = row.get(0)?;
         let title = row.get(1)?;
         let snippet = row.get(2)?;
-        results.push(Site { url, title, snippet });
+        results.push(SearchResponseSitePayload { url, title, snippet });
     }
-    Ok(results)
+    Ok((results, has_more))
 }

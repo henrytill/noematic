@@ -80,7 +80,9 @@ fn test_search() {
         "version": "0.1.0",
         "action": "searchRequest",
         "payload": {
-            "query": "quux"
+            "query": "quux",
+            "pageNum": 0,
+            "pageLength": 10,
         },
         "correlationId": CORRELATION_ID
     });
@@ -90,16 +92,28 @@ fn test_search() {
 
     let expected = json!({
         "version": "0.1.0",
-        "action": "searchResponse",
+        "action": "searchResponseHeader",
         "payload": {
             "query": "quux",
-            "results": [
-                {
-                    "url": "https://en.wikipedia.org/wiki/Foobar",
-                    "title": "Title",
-                    "snippet": "Foo bar baz <b>quux</b>",
-                }
-            ]
+            "pageNum": 0,
+            "pageLength": 1,
+            "hasMore": false,
+        },
+        "correlationId": CORRELATION_ID
+    });
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected, actual);
+
+    let expected = json!({
+        "version": "0.1.0",
+        "action": "searchResponseSite",
+        "payload": {
+            "url": "https://en.wikipedia.org/wiki/Foobar",
+            "title": "Title",
+            "snippet": "Foo bar baz <b>quux</b>",
         },
         "correlationId": CORRELATION_ID
     });
@@ -149,7 +163,9 @@ fn test_search_quotation() {
         "version": "0.1.0",
         "action": "searchRequest",
         "payload": {
-            "query": "\"\"foo-\"***bar\"\""
+            "query": "\"\"foo-\"***bar\"\"",
+            "pageNum": 0,
+            "pageLength": 10,
         },
         "correlationId": CORRELATION_ID
     });
@@ -159,16 +175,28 @@ fn test_search_quotation() {
 
     let expected = json!({
         "version": "0.1.0",
-        "action": "searchResponse",
+        "action": "searchResponseHeader",
         "payload": {
             "query": "\"\"foo-\"***bar\"\"",
-            "results": [
-                {
-                    "url": "https://en.wikipedia.org/wiki/Foobar",
-                    "title": "Title",
-                    "snippet": "<b>foo</b> <b>bar</b> baz quux",
-                }
-            ]
+            "pageNum": 0,
+            "pageLength": 1,
+            "hasMore": false,
+        },
+        "correlationId": CORRELATION_ID
+    });
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected, actual);
+
+    let expected = json!({
+        "version": "0.1.0",
+        "action": "searchResponseSite",
+        "payload": {
+            "url": "https://en.wikipedia.org/wiki/Foobar",
+            "title": "Title",
+            "snippet": "<b>foo</b> <b>bar</b> baz quux",
         },
         "correlationId": CORRELATION_ID
     });
@@ -218,7 +246,119 @@ fn search_idempotent() {
         "version": "0.1.0",
         "action": "searchRequest",
         "payload": {
-            "query": "quux"
+            "query": "quux",
+            "pageNum": 0,
+            "pageLength": 10,
+        },
+        "correlationId": CORRELATION_ID
+    });
+
+    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+    base::write_request(stdin, &search_request).expect("Failed to write request");
+
+    let expected_header = json!({
+        "version": "0.1.0",
+        "action": "searchResponseHeader",
+        "payload": {
+            "query": "quux",
+            "pageNum": 0,
+            "pageLength": 1,
+            "hasMore": false,
+        },
+        "correlationId": CORRELATION_ID
+    });
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected_header, actual);
+
+    let expected_site = json!({
+        "version": "0.1.0",
+        "action": "searchResponseSite",
+        "payload": {
+            "url": "https://en.wikipedia.org/wiki/Foobar",
+            "title": "Title",
+            "snippet": "Foo bar baz <b>quux</b>",
+        },
+        "correlationId": CORRELATION_ID
+    });
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected_site, actual);
+
+    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+    base::write_request(stdin, &search_request).expect("Failed to write request");
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected_header, actual);
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected_site, actual);
+}
+
+#[test]
+fn test_remove() {
+    let noematic = base::exe("noematic").unwrap();
+    let mut child = Command::new(noematic)
+        .arg("-test")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Failed to start child process");
+
+    let request = json!({
+        "version": "0.1.0",
+        "action": "saveRequest",
+        "payload": {
+            "url": "https://en.wikipedia.org/wiki/Foobar",
+            "title": "Title",
+            "innerText": "Inner text"
+        },
+        "correlationId": CORRELATION_ID
+    });
+    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+    base::write_request(stdin, &request).expect("Failed to write request");
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let _ = base::read_response(stdout).expect("Failed to read response");
+
+    let request = json!({
+        "version": "0.1.0",
+        "action": "removeRequest",
+        "payload": {
+            "url": "https://en.wikipedia.org/wiki/Foobar",
+        },
+        "correlationId": CORRELATION_ID
+    });
+    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+    base::write_request(stdin, &request).expect("Failed to write request");
+
+    let expected = json!({
+        "version": "0.1.0",
+        "action": "removeResponse",
+        "payload": {},
+        "correlationId": CORRELATION_ID
+    });
+
+    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
+    let actual = base::read_response(stdout).expect("Failed to read response");
+
+    assert_eq!(expected, actual);
+
+    let search_request = json!({
+        "version": "0.1.0",
+        "action": "searchRequest",
+        "payload": {
+            "query": "quux",
+            "pageNum": 0,
+            "pageLength": 10,
         },
         "correlationId": CORRELATION_ID
     });
@@ -228,27 +368,15 @@ fn search_idempotent() {
 
     let expected = json!({
         "version": "0.1.0",
-        "action": "searchResponse",
+        "action": "searchResponseHeader",
         "payload": {
             "query": "quux",
-            "results": [
-                {
-                    "url": "https://en.wikipedia.org/wiki/Foobar",
-                    "title": "Title",
-                    "snippet": "Foo bar baz <b>quux</b>",
-                }
-            ]
+            "pageNum": 0,
+            "pageLength": 0,
+            "hasMore": false,
         },
         "correlationId": CORRELATION_ID
     });
-
-    let stdout = child.stdout.as_mut().expect("Failed to open stdout");
-    let actual = base::read_response(stdout).expect("Failed to read response");
-
-    assert_eq!(expected, actual);
-
-    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-    base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let stdout = child.stdout.as_mut().expect("Failed to open stdout");
     let actual = base::read_response(stdout).expect("Failed to read response");

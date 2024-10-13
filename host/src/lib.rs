@@ -13,8 +13,8 @@ use regex::Regex;
 use serde_json::Value;
 
 use message::{
-    Action, MessageVersion, Query, Request, Response, ResponseAction, SaveResponsePayload,
-    SearchResponsePayload,
+    Action, MessageVersion, Query, RemoveResponsePayload, Request, Response, ResponseAction,
+    SaveResponsePayload, SearchResponseHeaderPayload,
 };
 
 const FIELD_VERSION: &str = "version";
@@ -106,7 +106,9 @@ impl Context {
 ///     let version = MessageVersion::parse("0.1.0").unwrap();
 ///     let action = {
 ///         let query = Query::new(String::from("hello"));
-///         let payload = SearchRequestPayload { query };
+///         let page_num = 0;
+///         let page_length = 10;
+///         let payload = SearchRequestPayload { query, page_length, page_num };
 ///         Action::SearchRequest { payload }
 ///     };
 ///     let correlation_id = CorrelationId::new(String::from("218ecc9f-a91a-4b55-8b50-2b6672daa9a5"));
@@ -114,7 +116,7 @@ impl Context {
 /// };
 /// let response = noematic::handle_request(&mut context, request).unwrap();
 /// ```
-pub fn handle_request(context: &mut Context, request: Request) -> Result<Response, Error> {
+pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Response>, Error> {
     let version = request.version;
     let correlation_id = request.correlation_id;
 
@@ -128,18 +130,40 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Respons
                 let action = ResponseAction::SaveResponse { payload };
                 Response { version, action, correlation_id }
             };
-            Ok(response)
+            Ok(vec![response])
+        }
+        Action::RemoveRequest { payload } => {
+            db::remove(connection, payload)?;
+            let response = {
+                let payload = RemoveResponsePayload {};
+                let action = ResponseAction::RemoveResponse { payload };
+                Response { version, action, correlation_id }
+            };
+            Ok(vec![response])
         }
         Action::SearchRequest { payload } => {
             let process = context.process.as_ref();
             let query = payload.query.clone();
-            let results = db::search_sites(connection, payload, process)?;
-            let response = {
-                let payload = SearchResponsePayload { query, results };
-                let action = ResponseAction::SearchResponse { payload };
+            let page_num = payload.page_num;
+            let (results, has_more) = db::search_sites(connection, payload, process)?;
+            let header = {
+                let page_length = results.len();
+                let version = version.clone();
+                let correlation_id = correlation_id.clone();
+                let payload =
+                    SearchResponseHeaderPayload { query, page_num, page_length, has_more };
+                let action = ResponseAction::SearchResponseHeader { payload };
                 Response { version, action, correlation_id }
             };
-            Ok(response)
+            let mut ret = vec![header];
+            for payload in results {
+                let version = version.clone();
+                let correlation_id = correlation_id.clone();
+                let action = ResponseAction::SearchResponseSite { payload };
+                let response = Response { version, action, correlation_id };
+                ret.push(response);
+            }
+            Ok(ret)
         }
     }
 }

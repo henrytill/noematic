@@ -114,8 +114,10 @@ fn main() -> Result<(), Error> {
         }
 
         let request: Request = serde_json::from_value(message_json)?;
-        let response = noematic::handle_request(&mut context, request)?;
-        write_response(&mut writer, response)?;
+        let responses = noematic::handle_request(&mut context, request)?;
+        for response in responses {
+            write_response(&mut writer, response)?;
+        }
     }
 
     Ok(())

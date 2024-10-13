@@ -18,7 +18,7 @@ use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 use serde::{Deserialize, Serialize};
 
 /// The version of the message format.
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct MessageVersion(semver::Version);
 
 impl MessageVersion {
@@ -110,6 +110,8 @@ pub struct Request {
 pub enum Action {
     #[serde(rename = "saveRequest")]
     SaveRequest { payload: SaveRequestPayload },
+    #[serde(rename = "removeRequest")]
+    RemoveRequest { payload: RemoveRequestPayload },
     #[serde(rename = "searchRequest")]
     SearchRequest { payload: SearchRequestPayload },
 }
@@ -123,10 +125,20 @@ pub struct SaveRequestPayload {
     pub inner_text: InnerText,
 }
 
+/// The payload for the `removeRequest` action.
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RemoveRequestPayload {
+    pub url: Url,
+}
+
 /// The payload for the `searchRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SearchRequestPayload {
     pub query: Query,
+    #[serde(rename = "pageNum")]
+    pub page_num: usize,
+    #[serde(rename = "pageLength")]
+    pub page_length: usize,
 }
 
 /// Messages that are sent from the host to the client (extension).
@@ -145,26 +157,36 @@ pub struct Response {
 pub enum ResponseAction {
     #[serde(rename = "saveResponse")]
     SaveResponse { payload: SaveResponsePayload },
-    #[serde(rename = "searchResponse")]
-    SearchResponse { payload: SearchResponsePayload },
+    #[serde(rename = "removeResponse")]
+    RemoveResponse { payload: RemoveResponsePayload },
+    #[serde(rename = "searchResponseHeader")]
+    SearchResponseHeader { payload: SearchResponseHeaderPayload },
+    #[serde(rename = "searchResponseSite")]
+    SearchResponseSite { payload: SearchResponseSitePayload },
 }
 
 /// The payload for the `saveResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SaveResponsePayload {}
 
-/// The payload for the `searchResponse` action.
+/// The payload for the `saveResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Site {
-    pub url: Url,
-    pub title: Title,
-    #[serde(rename = "snippet")]
-    pub snippet: Snippet,
+pub struct RemoveResponsePayload {}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SearchResponseHeaderPayload {
+    pub query: Query,
+    #[serde(rename = "pageNum")]
+    pub page_num: usize,
+    #[serde(rename = "pageLength")]
+    pub page_length: usize,
+    #[serde(rename = "hasMore")]
+    pub has_more: bool,
 }
 
-/// The payload for the `searchResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SearchResponsePayload {
-    pub query: Query,
-    pub results: Vec<Site>,
+pub struct SearchResponseSitePayload {
+    pub url: Url,
+    pub title: Title,
+    pub snippet: Snippet,
 }
