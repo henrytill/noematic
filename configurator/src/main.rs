@@ -3,11 +3,14 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::Error;
 use clap::Parser;
 use serde::Serialize;
 use serde_json::{ser::PrettyFormatter, Serializer, Value};
 
 use host_manifest::{Chromium, Firefox, ManifestPath};
+
+const HOST_BINARY_NAME: &str = "noematic";
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -17,18 +20,19 @@ struct Args {
     binary: Option<PathBuf>,
 }
 
-fn main() -> Result<(), anyhow::Error> {
+fn main() -> Result<(), Error> {
     let args = Args::parse();
 
     let path = match args.binary {
         Some(path) => fs::canonicalize(path)?,
         None => {
             let prefix = default_prefix()?;
-            host_manifest::host_binary_path(prefix)?
+            default_binary_path(prefix)?
         }
     };
 
     let default_dir = env::current_dir()?;
+    println!("default_dir: {}", default_dir.display());
 
     {
         let manifest = serde_json::to_value(Firefox::new(&path))?;
@@ -49,23 +53,25 @@ fn main() -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-fn exe_dir() -> Result<PathBuf, anyhow::Error> {
+fn default_prefix() -> Result<PathBuf, Error> {
     let exe = env::current_exe()?;
     let parent = exe
         .parent()
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Executable directory not found"))?;
-    Ok(PathBuf::from(parent))
-}
-
-fn default_prefix() -> Result<PathBuf, anyhow::Error> {
-    let exe_dir = exe_dir()?;
-    let parent = exe_dir
+    let parent = parent
         .parent()
         .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Parent directory not found"))?;
     Ok(PathBuf::from(parent))
 }
 
-fn pretty_value(value: &Value) -> Result<String, anyhow::Error> {
+fn default_binary_path(prefix: impl AsRef<Path>) -> Result<PathBuf, Error> {
+    let mut ret = PathBuf::from(prefix.as_ref());
+    ret.push("bin");
+    ret.push(HOST_BINARY_NAME);
+    Ok(ret)
+}
+
+fn pretty_value(value: &Value) -> Result<String, Error> {
     let mut buf = Vec::new();
     let formatter = PrettyFormatter::with_indent(b"    ");
     let mut ser = Serializer::with_formatter(&mut buf, formatter);
@@ -74,7 +80,7 @@ fn pretty_value(value: &Value) -> Result<String, anyhow::Error> {
     Ok(ret)
 }
 
-fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), anyhow::Error> {
+fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
     let json = pretty_value(value)?;
     if let Some(parent) = path.as_ref().parent() {
         if !parent.exists() {
@@ -91,19 +97,11 @@ mod host_manifest {
     use serde::Serialize;
 
     const NAME: &str = "com.github.henrytill.noematic";
-    const HOST_BINARY_NAME: &str = "noematic";
     const DESCRIPTION: &str = "Search your backlog";
     const TYPE: &str = "stdio";
 
     fn file() -> String {
         format!("{}.json", NAME)
-    }
-
-    pub fn host_binary_path(prefix: impl AsRef<Path>) -> Result<PathBuf, anyhow::Error> {
-        let mut ret = PathBuf::from(prefix.as_ref());
-        ret.push("bin");
-        ret.push(HOST_BINARY_NAME);
-        Ok(ret)
     }
 
     pub struct ManifestPath {
@@ -147,7 +145,7 @@ mod host_manifest {
     }
 
     impl Firefox {
-        const ALLOWED_EXTENSIONS: [&'static str; 1] = ["henrytill@gmail.com"];
+        const ALLOWED: [&'static str; 1] = ["henrytill@gmail.com"];
 
         pub fn new(path: impl AsRef<Path>) -> Firefox {
             Firefox {
@@ -155,7 +153,7 @@ mod host_manifest {
                 description: DESCRIPTION,
                 path: PathBuf::from(path.as_ref()),
                 ty: TYPE,
-                allowed_extensions: Firefox::ALLOWED_EXTENSIONS,
+                allowed_extensions: Firefox::ALLOWED,
             }
         }
 
@@ -173,7 +171,6 @@ mod host_manifest {
     }
 
     #[derive(Serialize)]
-
     pub struct Chromium {
         name: &'static str,
         description: &'static str,
@@ -184,8 +181,7 @@ mod host_manifest {
     }
 
     impl Chromium {
-        const ALLOWED_ORIGINS: [&'static str; 1] =
-            ["chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/"];
+        const ALLOWED: [&'static str; 1] = ["chrome-extension://gebmhafgijeggbfhdojjefpibglhdjhh/"];
 
         pub fn new(path: impl AsRef<Path>) -> Chromium {
             Chromium {
@@ -193,7 +189,7 @@ mod host_manifest {
                 description: DESCRIPTION,
                 path: PathBuf::from(path.as_ref()),
                 ty: TYPE,
-                allowed_origins: Chromium::ALLOWED_ORIGINS,
+                allowed_origins: Chromium::ALLOWED,
             }
         }
 
