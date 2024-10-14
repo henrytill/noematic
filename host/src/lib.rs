@@ -59,11 +59,13 @@ fn make_process(re: Regex) -> impl Fn(Query) -> String {
 }
 
 impl Context {
+    const REGEX_WHITESPACE: &'static str = r"\W+";
+
     pub fn in_memory() -> Result<Context, Error> {
         let mut connection = rusqlite::Connection::open_in_memory()?;
         db::init_tables(&mut connection)?;
         let connection = Connection::InMemory(connection);
-        let process_regex = Regex::new(r"\W+").unwrap();
+        let process_regex = Regex::new(Context::REGEX_WHITESPACE)?;
         let process = Box::new(make_process(process_regex));
         let context = Context { connection, process };
         Ok(context)
@@ -73,7 +75,7 @@ impl Context {
         let mut connection = rusqlite::Connection::open(db_path.as_ref())?;
         db::init_tables(&mut connection)?;
         let connection = Connection::Persistent(connection);
-        let process_regex = Regex::new(r"\W+").unwrap();
+        let process_regex = Regex::new(Context::REGEX_WHITESPACE)?;
         let process = Box::new(make_process(process_regex));
         let context = Context { connection, process };
         Ok(context)
