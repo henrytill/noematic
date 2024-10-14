@@ -39,7 +39,7 @@ mod task {
     }
 
     fn npm_run(working_dir: impl AsRef<Path>, cmd: &str) -> Result<(), Error> {
-        let cmd = ["--prefix", "extension", "run", cmd];
+        let cmd = ["run", cmd];
         let status = Command::new(NPM).current_dir(working_dir).args(cmd).status()?;
         if !status.success() {
             let code = status.code().unwrap();
