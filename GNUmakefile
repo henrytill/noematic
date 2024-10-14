@@ -11,6 +11,7 @@ FILES =
 FILES += background/background.mjs
 FILES += common/common.mjs
 FILES += common/message-collector.mjs
+FILES += content/content.js
 FILES += icons/noematic-48.png
 FILES += popup/popup.css
 FILES += popup/popup.html
