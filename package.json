@@ -10,10 +10,10 @@
     "check": "tsc",
     "lint": "eslint extension",
     "fmt": "prettier --write extension tests",
-    "clean": "rm -rf dist",
-    "build": "dune build && dune install --prefix=dist",
+    "clean": "make clean",
+    "build": "make",
     "test": "playwright test",
-    "configure": "dune exec ./host/bin/configure.exe -- --prefix=$(pwd)/dist"
+    "configure": "cargo run -q --bin configurator -- --binary ./target/debug/noematic"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

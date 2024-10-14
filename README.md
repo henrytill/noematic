@@ -29,15 +29,15 @@ Noematic is currently comprised of two components:
 On Linux:
 
 ```sh
-opam switch create . ocaml-base-compiler.5.2.0 --deps-only --with-test
+cargo build
 npm run build
 ```
 
 The extension build products can be loaded from:
 
 ```
-dist/share/noematic/extension/firefox
-dist/share/noematic/extension/chromium
+dist/share/chromium/extensions/noematic
+dist/share/mozilla/extensions/noematic
 ```
 
 ### Native Manifest File

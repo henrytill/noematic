@@ -9,10 +9,14 @@ export const test = base.extend<{
 }>({
   // eslint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
-    const buildPrefix = process.env.CI
-      ? [__dirname, '..', 'result']
-      : [__dirname, '..', '_build', 'install', 'default'];
-    const pathToExtension = path.join(...buildPrefix, 'share', 'noematic', 'extension', 'chromium');
+    const buildPrefix = process.env.CI ? [__dirname, '..', 'result'] : [__dirname, '..', 'dist'];
+    const pathToExtension = path.join(
+      ...buildPrefix,
+      'share',
+      'chromium',
+      'extensions',
+      'noematic',
+    );
     const args = [
       `--disable-extensions-except=${pathToExtension}`,
       `--load-extension=${pathToExtension}`,
