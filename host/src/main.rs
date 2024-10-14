@@ -9,7 +9,7 @@ use directories::ProjectDirs;
 use serde_json::Value;
 
 use noematic::{
-    message::{MessageVersion, Request, Response},
+    message::{MessageVersion, Request},
     Context,
 };
 
@@ -70,14 +70,11 @@ fn read_message_bytes(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> 
     read_bytes(reader, length).map(Some).map_err(Into::into)
 }
 
-/// Serializes a response, prefixed by its serialized length, to the writer.
-fn write_response(writer: &mut impl Write, response: Response) -> Result<(), Error> {
-    let response_bytes = serde_json::to_string(&response)?.into_bytes();
-    let response_length = u32::try_from(response_bytes.len())
-        .or(Err(Error::msg(MSG_UNSUPPORTED_LENGTH)))?
-        .to_ne_bytes();
-    writer.write_all(&response_length)?;
-    writer.write_all(&response_bytes)?;
+/// Writes a bytestring, prefixed by its length, to the writer.
+fn write_message_bytes(writer: &mut impl Write, bytes: &[u8]) -> Result<(), Error> {
+    let len = u32::try_from(bytes.len()).or(Err(Error::msg(MSG_UNSUPPORTED_LENGTH)))?.to_ne_bytes();
+    writer.write_all(&len)?;
+    writer.write_all(bytes)?;
     writer.flush()?;
     Ok(())
 }
@@ -117,7 +114,8 @@ fn main() -> Result<(), Error> {
         let request: Request = serde_json::from_value(message_json)?;
         let responses = noematic::handle_request(&mut context, request)?;
         for response in responses {
-            write_response(&mut writer, response)?;
+            let response_bytes = serde_json::to_string(&response)?.into_bytes();
+            write_message_bytes(&mut writer, &response_bytes)?;
         }
     }
 
