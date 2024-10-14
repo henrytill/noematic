@@ -1,6 +1,5 @@
 mod schema_version;
 
-use anyhow::Error;
 use rusqlite::{params, Connection, Transaction};
 
 use self::schema_version::SchemaVersion;
@@ -16,7 +15,7 @@ const CREATE_SQL: &str = include_str!("create.sql");
 #[allow(clippy::const_is_empty)]
 const _: () = assert!(!CREATE_SQL.is_empty());
 
-pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
+pub fn init_tables(connection: &mut Connection) -> Result<(), anyhow::Error> {
     let tx = connection.transaction()?;
     let maybe_version = get_version(&tx)?;
     match maybe_version {
@@ -26,7 +25,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
             insert_version(&tx, SchemaVersion::CURRENT)?;
         }
         Some(_) => {
-            return Err(Error::msg(MSG_INVALID_SCHEMA_VERSION));
+            return Err(anyhow::Error::msg(MSG_INVALID_SCHEMA_VERSION));
         }
         None => {
             tx.execute_batch(CREATE_SQL)?;
@@ -99,7 +98,10 @@ VALUES (?, ?, ?)
     Ok(version)
 }
 
-pub fn upsert_site(connection: &Connection, save_payload: SaveRequestPayload) -> Result<(), Error> {
+pub fn upsert_site(
+    connection: &Connection,
+    save_payload: SaveRequestPayload,
+) -> Result<(), rusqlite::Error> {
     let mut statement = connection.prepare(
         "\
 INSERT INTO sites (url, title, inner_text)
@@ -114,7 +116,10 @@ ON CONFLICT (url) DO UPDATE SET
     Ok(())
 }
 
-pub fn remove(connection: &Connection, payload: RemoveRequestPayload) -> Result<(), Error> {
+pub fn remove(
+    connection: &Connection,
+    payload: RemoveRequestPayload,
+) -> Result<(), rusqlite::Error> {
     let mut statement = connection.prepare("DELETE FROM sites WHERE url = ?")?;
     statement.execute([payload.url])?;
     Ok(())
@@ -124,7 +129,7 @@ pub fn search_sites(
     connection: &Connection,
     search_payload: SearchRequestPayload,
     process: impl Fn(Query) -> String,
-) -> Result<(Vec<SearchResponseSitePayload>, bool), Error> {
+) -> Result<(Vec<SearchResponseSitePayload>, bool), rusqlite::Error> {
     let mut stmt = connection.prepare(
         "\
 SELECT s.url, s.title, snippet(sites_fts, 2, '<b>', '</b>', '...', 40)
