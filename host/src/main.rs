@@ -1,6 +1,7 @@
 use std::{
     env, fs,
     io::{self, BufReader, BufWriter, Read, Write},
+    mem,
 };
 
 use anyhow::Error;
@@ -13,7 +14,7 @@ use noematic::{
 };
 
 // We use unchecked casts to convert u32 to usize.
-const _: () = assert!(usize::MAX >= u32::MAX as usize);
+const _: () = assert!(mem::size_of::<usize>() >= mem::size_of::<u32>());
 
 const MSG_MISSING_HOME_DIR: &str = "Missing home directory";
 const MSG_UNSUPPORTED_VERSION: &str = "Unsupported version";
