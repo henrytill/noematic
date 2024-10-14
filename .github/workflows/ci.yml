@@ -16,7 +16,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: DeterminateSystems/magic-nix-cache-action@main
       - run: nix build -L
-      - run: ./result/bin/configurator
+      - run: ./result/bin/noematic-configure
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run check
