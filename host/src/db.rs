@@ -16,23 +16,6 @@ const CREATE_SQL: &str = include_str!("create.sql");
 #[allow(clippy::const_is_empty)]
 const _: () = assert!(!CREATE_SQL.is_empty());
 
-const SELECT_VERSION_TABLE_EXISTS: &str = "\
-SELECT EXISTS
-(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')
-";
-
-const SELECT_VERSION_EXISTS: &str = "\
-SELECT EXISTS
-(SELECT 1 FROM schema_version)
-";
-
-const SELECT_LATEST_VERSION: &str = "\
-SELECT major, minor, patch
-FROM schema_version
-ORDER BY applied_at DESC
-LIMIT 1
-";
-
 pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
     let tx = connection.transaction()?;
     let maybe_version = get_version(&tx)?;
@@ -55,11 +38,17 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), Error> {
 }
 
 fn get_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Error> {
-    let table_exists: bool = tx.query_row(SELECT_VERSION_TABLE_EXISTS, [], |row| row.get(0))?;
+    let table_exists: bool = {
+        let query = "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')";
+        tx.query_row(query, [], |row| row.get(0))?
+    };
     if !table_exists {
         return Ok(None);
     }
-    let version_exists: bool = tx.query_row(SELECT_VERSION_EXISTS, [], |row| row.get(0))?;
+    let version_exists: bool = {
+        let query = "SELECT EXISTS (SELECT 1 FROM schema_version)";
+        tx.query_row(query, [], |row| row.get(0))?
+    };
     if version_exists {
         let maybe_version = select_version(tx)?;
         return Ok(maybe_version);
@@ -68,7 +57,14 @@ fn get_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Erro
 }
 
 fn select_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Error> {
-    let mut statement = tx.prepare(SELECT_LATEST_VERSION)?;
+    let mut statement = tx.prepare(
+        "\
+SELECT major, minor, patch
+FROM schema_version
+ORDER BY applied_at DESC
+LIMIT 1
+",
+    )?;
     let mut rows = statement.query(())?;
     if let Some(row) = rows.next()? {
         let major: u64 = row.get(0)?;
