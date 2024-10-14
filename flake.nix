@@ -20,6 +20,7 @@
           cargoLock = {
             lockFile = ./Cargo.lock;
           };
+          buildNoDefaultFeatures = true;
           buildInputs = with pkgs; [ sqlite ];
           src = builtins.path {
             path = ./.;
