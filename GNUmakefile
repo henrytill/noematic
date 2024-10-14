@@ -24,8 +24,6 @@ FILES += search/search.html
 FILES += search/search.mjs
 FILES += search/shared.css
 
-SRCS = $(addprefix extension/,$(FILES))
-
 MOZILLA_DIR = $(DESTDIR)$(datadir)/mozilla/extensions/noematic
 MOZILLA_TARGETS = $(addprefix $(MOZILLA_DIR)/,$(FILES))
 MOZILLA_TARGETS += $(MOZILLA_DIR)/manifest.json
