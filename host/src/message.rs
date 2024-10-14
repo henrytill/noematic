@@ -96,72 +96,65 @@ wrap_string!(Query);
 
 /// Messages that are sent from the client (extension) to the host.
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Request {
     pub version: MessageVersion,
     #[serde(flatten)]
     pub action: Action,
-    #[serde(rename = "correlationId")]
     pub correlation_id: CorrelationId,
 }
 
 /// The actions that the client (extension) can send to the host.
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "action")]
+#[serde(tag = "action", rename_all = "camelCase")]
 pub enum Action {
-    #[serde(rename = "saveRequest")]
     SaveRequest { payload: SaveRequestPayload },
-    #[serde(rename = "removeRequest")]
     RemoveRequest { payload: RemoveRequestPayload },
-    #[serde(rename = "searchRequest")]
     SearchRequest { payload: SearchRequestPayload },
 }
 
 /// The payload for the `saveRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct SaveRequestPayload {
     pub url: Url,
     pub title: Title,
-    #[serde(rename = "innerText")]
     pub inner_text: InnerText,
 }
 
 /// The payload for the `removeRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct RemoveRequestPayload {
     pub url: Url,
 }
 
 /// The payload for the `searchRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchRequestPayload {
     pub query: Query,
-    #[serde(rename = "pageNum")]
     pub page_num: usize,
-    #[serde(rename = "pageLength")]
     pub page_length: usize,
 }
 
 /// Messages that are sent from the host to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Response {
     pub version: MessageVersion,
     #[serde(flatten)]
     pub action: ResponseAction,
-    #[serde(rename = "correlationId")]
     pub correlation_id: CorrelationId,
 }
 
 /// The actions that the host can send to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "action")]
+#[serde(tag = "action", rename_all = "camelCase")]
 pub enum ResponseAction {
-    #[serde(rename = "saveResponse")]
     SaveResponse { payload: SaveResponsePayload },
-    #[serde(rename = "removeResponse")]
     RemoveResponse { payload: RemoveResponsePayload },
-    #[serde(rename = "searchResponseHeader")]
     SearchResponseHeader { payload: SearchResponseHeaderPayload },
-    #[serde(rename = "searchResponseSite")]
     SearchResponseSite { payload: SearchResponseSitePayload },
 }
 
@@ -174,17 +167,16 @@ pub struct SaveResponsePayload {}
 pub struct RemoveResponsePayload {}
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchResponseHeaderPayload {
     pub query: Query,
-    #[serde(rename = "pageNum")]
     pub page_num: usize,
-    #[serde(rename = "pageLength")]
     pub page_length: usize,
-    #[serde(rename = "hasMore")]
     pub has_more: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct SearchResponseSitePayload {
     pub url: Url,
     pub title: Title,
