@@ -4,6 +4,7 @@ use std::process::{Command, Stdio};
 
 use serde_json::json;
 
+const VERSION: &str = "0.1.0";
 const CORRELATION_ID: &str = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
 
 #[test]
@@ -17,7 +18,7 @@ fn test_save() {
         .expect("Failed to start child process");
 
     let request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveRequest",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -30,7 +31,7 @@ fn test_save() {
     base::write_request(stdin, &request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveResponse",
         "payload": {},
         "correlationId": CORRELATION_ID
@@ -52,7 +53,7 @@ fn test_search() {
         .expect("Failed to start child process");
 
     let save_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveRequest",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -65,7 +66,7 @@ fn test_search() {
     base::write_request(stdin, &save_request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveResponse",
         "payload": {},
         "correlationId": CORRELATION_ID
@@ -77,7 +78,7 @@ fn test_search() {
     assert_eq!(expected, actual);
 
     let search_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchRequest",
         "payload": {
             "query": "quux",
@@ -91,7 +92,7 @@ fn test_search() {
     base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseHeader",
         "payload": {
             "query": "quux",
@@ -108,7 +109,7 @@ fn test_search() {
     assert_eq!(expected, actual);
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseSite",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -135,7 +136,7 @@ fn test_search_quotation() {
         .expect("Failed to start child process");
 
     let save_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveRequest",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -148,7 +149,7 @@ fn test_search_quotation() {
     base::write_request(stdin, &save_request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveResponse",
         "payload": {},
         "correlationId": CORRELATION_ID
@@ -160,7 +161,7 @@ fn test_search_quotation() {
     assert_eq!(expected, actual);
 
     let search_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchRequest",
         "payload": {
             "query": "\"\"foo-\"***bar\"\"",
@@ -174,7 +175,7 @@ fn test_search_quotation() {
     base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseHeader",
         "payload": {
             "query": "\"\"foo-\"***bar\"\"",
@@ -191,7 +192,7 @@ fn test_search_quotation() {
     assert_eq!(expected, actual);
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseSite",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -218,7 +219,7 @@ fn search_idempotent() {
         .expect("Failed to start child process");
 
     let save_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveRequest",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -231,7 +232,7 @@ fn search_idempotent() {
     base::write_request(stdin, &save_request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveResponse",
         "payload": {},
         "correlationId": CORRELATION_ID
@@ -243,7 +244,7 @@ fn search_idempotent() {
     assert_eq!(expected, actual);
 
     let search_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchRequest",
         "payload": {
             "query": "quux",
@@ -257,7 +258,7 @@ fn search_idempotent() {
     base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected_header = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseHeader",
         "payload": {
             "query": "quux",
@@ -274,7 +275,7 @@ fn search_idempotent() {
     assert_eq!(expected_header, actual);
 
     let expected_site = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseSite",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -314,7 +315,7 @@ fn test_remove() {
         .expect("Failed to start child process");
 
     let request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "saveRequest",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -330,7 +331,7 @@ fn test_remove() {
     let _ = base::read_response(stdout).expect("Failed to read response");
 
     let request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "removeRequest",
         "payload": {
             "url": "https://en.wikipedia.org/wiki/Foobar",
@@ -341,7 +342,7 @@ fn test_remove() {
     base::write_request(stdin, &request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "removeResponse",
         "payload": {},
         "correlationId": CORRELATION_ID
@@ -353,7 +354,7 @@ fn test_remove() {
     assert_eq!(expected, actual);
 
     let search_request = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchRequest",
         "payload": {
             "query": "quux",
@@ -367,7 +368,7 @@ fn test_remove() {
     base::write_request(stdin, &search_request).expect("Failed to write request");
 
     let expected = json!({
-        "version": "0.1.0",
+        "version": VERSION,
         "action": "searchResponseHeader",
         "payload": {
             "query": "quux",
