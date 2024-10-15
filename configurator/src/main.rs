@@ -5,8 +5,7 @@ use std::{
 
 use anyhow::Error;
 use clap::Parser;
-use serde::Serialize;
-use serde_json::{ser::PrettyFormatter, Serializer, Value};
+use serde_json::Value;
 
 use host_manifest::{Chromium, Firefox, ManifestPath};
 
@@ -39,7 +38,7 @@ fn main() -> Result<(), Error> {
         let manifest_path = ManifestPath::for_platform(Firefox::path(), &default_dir);
         write(&manifest_path, &manifest)?;
         println!("Firefox host manifest written to: {}", manifest_path.display());
-        println!("Firefox host manifest contents: {}", pretty_value(&manifest)?)
+        println!("Firefox host manifest contents: {}", serde_json::to_string_pretty(&manifest)?)
     }
 
     {
@@ -47,7 +46,7 @@ fn main() -> Result<(), Error> {
         let manifest_path = ManifestPath::for_platform(Chromium::path(), &default_dir);
         write(&manifest_path, &manifest)?;
         println!("Chromium host manifest written to: {}", manifest_path.display());
-        println!("Chromium host manifest contents: {}", pretty_value(&manifest)?)
+        println!("Chromium host manifest contents: {}", serde_json::to_string_pretty(&manifest)?)
     }
 
     Ok(())
@@ -71,17 +70,8 @@ fn default_binary_path(prefix: impl AsRef<Path>) -> Result<PathBuf, Error> {
     Ok(ret)
 }
 
-fn pretty_value(value: &Value) -> Result<String, Error> {
-    let mut buf = Vec::new();
-    let formatter = PrettyFormatter::with_indent(b"    ");
-    let mut ser = Serializer::with_formatter(&mut buf, formatter);
-    value.serialize(&mut ser)?;
-    let ret = String::from_utf8(buf)?;
-    Ok(ret)
-}
-
 fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
-    let json = pretty_value(value)?;
+    let json = serde_json::to_string_pretty(value)?;
     if let Some(parent) = path.as_ref().parent() {
         if !parent.exists() {
             fs::create_dir_all(parent)?;
