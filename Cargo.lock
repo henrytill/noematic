@@ -233,6 +233,7 @@ name = "noematic"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
  "directories",
  "regex",
  "rusqlite",

@@ -4,6 +4,7 @@ use std::process::{Command, Stdio};
 
 use serde_json::json;
 
+const COMMAND_ARG: &str = "--test";
 const VERSION: &str = "0.1.0";
 const CORRELATION_ID: &str = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
 
@@ -11,7 +12,7 @@ const CORRELATION_ID: &str = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
 fn test_save() {
     let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
-        .arg("-test")
+        .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -46,7 +47,7 @@ fn test_save() {
 fn test_search() {
     let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
-        .arg("-test")
+        .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -129,7 +130,7 @@ fn test_search() {
 fn test_search_quotation() {
     let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
-        .arg("-test")
+        .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -212,7 +213,7 @@ fn test_search_quotation() {
 fn search_idempotent() {
     let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
-        .arg("-test")
+        .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -308,7 +309,7 @@ fn search_idempotent() {
 fn test_remove() {
     let noematic = base::exe("noematic").unwrap();
     let mut child = Command::new(noematic)
-        .arg("-test")
+        .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()

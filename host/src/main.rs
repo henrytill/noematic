@@ -1,10 +1,11 @@
 use std::{
-    env, fs,
+    fs,
     io::{self, BufReader, BufWriter, Read, Write},
     mem,
 };
 
 use anyhow::Error;
+use clap::Parser;
 use directories::ProjectDirs;
 use serde_json::Value;
 
@@ -20,23 +21,12 @@ const MSG_MISSING_HOME_DIR: &str = "Missing home directory";
 const MSG_UNSUPPORTED_VERSION: &str = "Unsupported version";
 const MSG_UNSUPPORTED_LENGTH: &str = "Unsupported length";
 
-#[derive(Debug, Default)]
+#[derive(Debug, Parser)]
+#[command(version, about, long_about = None)]
 struct Args {
+    /// Run with in-memory database
+    #[arg(short, long)]
     test: bool,
-}
-
-impl Args {
-    #[allow(clippy::single_match)]
-    fn parse(args: &[String]) -> Result<Args, Error> {
-        let mut ret = Args::default();
-        for arg in args.iter().skip(1) {
-            match arg.as_str() {
-                "-test" => ret.test = true,
-                _ => (),
-            }
-        }
-        Ok(ret)
-    }
 }
 
 /// Reads the length prefix of a message.
@@ -85,8 +75,7 @@ fn get_project_dirs() -> Result<ProjectDirs, Error> {
 }
 
 fn main() -> Result<(), Error> {
-    let args: Vec<String> = env::args().collect();
-    let args = Args::parse(&args)?;
+    let args = Args::parse();
 
     let mut context = if args.test {
         Context::in_memory()?

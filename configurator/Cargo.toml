@@ -10,7 +10,7 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow.workspace = true
-clap = { version = "4.5.20", default-features = false, features = ["std", "derive", "help", "string", "usage"] }
+clap.workspace = true
 directories.workspace = true
 serde.workspace = true
 serde_json = { workspace = true, features = ["preserve_order"] }
