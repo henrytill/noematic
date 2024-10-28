@@ -54,8 +54,8 @@ fn read_bytes(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
 /// Returns `None` if the reader is at EOF.
 fn read_message_bytes(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
     let length = match read_length(reader)? {
-        None => return Ok(None),
         Some(length) => length,
+        None => return Ok(None),
     };
     read_bytes(reader, length).map(Some).map_err(Into::into)
 }
