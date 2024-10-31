@@ -101,8 +101,8 @@ const bookmarksOnCreatedListener = (_id, bookmark) => {
     payload: { url: bookmark.url, title: bookmark.title },
   };
   getActiveTab()
-    .then((tab) => checkContentScriptActive(tab))
-    .then((result) => maybeInstallContentScript(result))
+    .then(checkContentScriptActive)
+    .then(maybeInstallContentScript)
     .then((tabId) => chrome.tabs.sendMessage(tabId, message))
     .then((response) => console.debug('response', response));
 };
