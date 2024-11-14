@@ -27,6 +27,8 @@ struct Args {
     /// Run with in-memory database
     #[arg(short, long)]
     test: bool,
+    /// Id
+    id: Option<String>,
 }
 
 /// Reads the length prefix of a message.
