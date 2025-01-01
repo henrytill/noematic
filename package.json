@@ -16,7 +16,7 @@
     "configure": "cargo run -q --bin noematic-configure -- --binary ./target/debug/noematic"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^9.17.0",
     "@playwright/test": "^1.49.0",
     "@types/chrome": "^0.0.287",
     "@types/node": "^22.10.1",
