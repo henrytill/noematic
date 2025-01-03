@@ -26,7 +26,7 @@ fn main() -> Result<(), Error> {
         Some(path) => fs::canonicalize(path)?,
         None => {
             let prefix = default_prefix()?;
-            default_binary_path(prefix)?
+            default_binary_path(prefix)
         }
     };
 
@@ -52,7 +52,7 @@ fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn default_prefix() -> Result<PathBuf, Error> {
+fn default_prefix() -> Result<PathBuf, io::Error> {
     let exe = env::current_exe()?;
     let parent = exe
         .parent()
@@ -63,11 +63,11 @@ fn default_prefix() -> Result<PathBuf, Error> {
     Ok(PathBuf::from(parent))
 }
 
-fn default_binary_path(prefix: impl AsRef<Path>) -> Result<PathBuf, Error> {
+fn default_binary_path(prefix: impl AsRef<Path>) -> PathBuf {
     let mut ret = PathBuf::from(prefix.as_ref());
     ret.push("bin");
     ret.push(HOST_BINARY_NAME);
-    Ok(ret)
+    ret
 }
 
 fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
