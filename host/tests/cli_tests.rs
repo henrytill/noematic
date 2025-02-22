@@ -41,6 +41,9 @@ fn test_save() {
     let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
+
+    let status = child.wait().expect("Failed to wait for child process");
+    assert!(status.success())
 }
 
 #[test]
@@ -124,6 +127,9 @@ fn test_search() {
     let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
+
+    let status = child.wait().expect("Failed to wait for child process");
+    assert!(status.success())
 }
 
 #[test]
@@ -207,6 +213,9 @@ fn test_search_quotation() {
     let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
+
+    let status = child.wait().expect("Failed to wait for child process");
+    assert!(status.success())
 }
 
 #[test]
@@ -303,6 +312,9 @@ fn search_idempotent() {
     let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected_site, actual);
+
+    let status = child.wait().expect("Failed to wait for child process");
+    assert!(status.success())
 }
 
 #[test]
@@ -384,4 +396,7 @@ fn test_remove() {
     let actual = base::read_response(stdout).expect("Failed to read response");
 
     assert_eq!(expected, actual);
+
+    let status = child.wait().expect("Failed to wait for child process");
+    assert!(status.success())
 }
