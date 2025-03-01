@@ -21,7 +21,7 @@
     "@types/chrome": "^0.0.307",
     "@types/node": "^22.13.8",
     "eslint": "^9.21.0",
-    "globals": "^15.15.0",
+    "globals": "^16.0.0",
     "prettier": "^3.5.2",
     "typescript": "^5.8.2"
   }
