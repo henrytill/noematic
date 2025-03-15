@@ -65,15 +65,14 @@ LIMIT 1
 ",
     )?;
     let mut rows = statement.query(())?;
-    match rows.next()? {
-        Some(row) => {
-            let major: u64 = row.get(0)?;
-            let minor: u64 = row.get(1)?;
-            let patch: u64 = row.get(2)?;
-            let version = SchemaVersion::new(major, minor, patch);
-            Ok(Some(version))
-        }
-        _ => Ok(None),
+    if let Some(row) = rows.next()? {
+        let major: u64 = row.get(0)?;
+        let minor: u64 = row.get(1)?;
+        let patch: u64 = row.get(2)?;
+        let version = SchemaVersion::new(major, minor, patch);
+        Ok(Some(version))
+    } else {
+        Ok(None)
     }
 }
 
