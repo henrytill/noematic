@@ -111,7 +111,7 @@ const bookmarksOnCreatedListener = (_id, bookmark) => {
  * @param {ResponderMap} responderMap
  * @param {chrome.runtime.Port} hostPort
  * @param {string} _id
- * @param {chrome.bookmarks.BookmarkRemoveInfo} removeInfo
+ * @param {{parentId: string, index: number, node: chrome.bookmarks.BookmarkTreeNode}} removeInfo
  * @returns {void}
  */
 const bookmarksOnRemovedListener = (responderMap, hostPort, _id, removeInfo) => {
