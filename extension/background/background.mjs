@@ -142,7 +142,7 @@ const isBookmarked = async (tab) => {
 
 /**
  * @param {number} _tabId
- * @param {chrome.tabs.TabChangeInfo} changeInfo
+ * @param {chrome.tabs.OnUpdatedInfo} changeInfo
  * @param {chrome.tabs.Tab} tab
  * @returns void
  */
