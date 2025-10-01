@@ -12,6 +12,6 @@ clap.workspace = true
 directories.workspace = true
 regex = "1.10.2"
 rusqlite = { version = "0.37.0", features = ["bundled"] }
-semver = { version = "1.0.20", features = ["serde"] }
+semver = { version = "1.0.27", features = ["serde"] }
 serde.workspace = true
 serde_json.workspace = true
