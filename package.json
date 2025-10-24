@@ -1,5 +1,6 @@
 {
   "name": "noematic",
+  "version": "0.1.0",
   "private": true,
   "license": "ISC",
   "author": {
@@ -10,10 +11,7 @@
     "check": "tsc",
     "lint": "eslint extension",
     "fmt": "prettier --write extension tests",
-    "clean": "make clean",
-    "build": "make",
-    "test": "playwright test",
-    "configure": "cargo run -q --bin noematic-configure -- --binary ./target/debug/noematic"
+    "test": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

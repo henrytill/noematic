@@ -32,8 +32,9 @@ CHROMIUM_DIR = $(DESTDIR)$(datadir)/chromium/extensions/noematic
 CHROMIUM_TARGETS = $(addprefix $(CHROMIUM_DIR)/,$(FILES))
 CHROMIUM_TARGETS += $(CHROMIUM_DIR)/manifest.json
 
-.PHONY: all
-all: $(MOZILLA_TARGETS) $(CHROMIUM_TARGETS)
+all:
+
+install: $(MOZILLA_TARGETS) $(CHROMIUM_TARGETS)
 
 $(MOZILLA_DIR)/manifest.json:: extension/manifest.firefox.json
 	$(INSTALL_DATA) -D $< $@
@@ -47,6 +48,7 @@ $(MOZILLA_DIR)/%:: extension/%
 $(CHROMIUM_DIR)/%:: extension/%
 	$(INSTALL_DATA) -D $< $@
 
-.PHONY: clean
 clean:
 	rm -rf $(DESTDIR)
+
+.PHONY: all install clean

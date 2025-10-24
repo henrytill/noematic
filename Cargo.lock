@@ -468,7 +468,3 @@ checksum = "6f109e41dd4a3c848907eb83d5a42ea98b3769495597450cf6d153507b166f0f"
 dependencies = [
  "windows-link",
 ]
-
-[[package]]
-name = "xtask"
-version = "0.1.0"
