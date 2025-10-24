@@ -11,11 +11,13 @@
     "check": "tsc",
     "lint": "eslint extension",
     "fmt": "prettier --write extension tests",
-    "test": "playwright test"
+    "pretest": "make install",
+    "test": "playwright test",
+    "clean": "make clean"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
-    "@playwright/test": "^1.55.1",
+    "@playwright/test": "1.54.1",
     "@types/chrome": "^0.1.16",
     "@types/node": "^24.6.1",
     "eslint": "^9.36.0",

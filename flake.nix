@@ -74,11 +74,14 @@
             cargo-deny
             importNpmLock.hooks.linkNodeModulesHook
             nodejs
+            playwright-driver.browsers
           ];
           npmDeps = pkgs.importNpmLock.buildNodeModules {
             npmRoot = ./.;
             inherit (pkgs) nodejs;
           };
+          PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
+          PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = true;
         };
       }
     );
