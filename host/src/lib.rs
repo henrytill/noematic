@@ -13,7 +13,7 @@ use regex::Regex;
 use serde_json::Value;
 
 use message::{
-    Action, MessageVersion, Query, RemoveResponsePayload, Request, Response, ResponseAction,
+    MessageVersion, Query, RemoveResponsePayload, Request, RequestAction, Response, ResponseAction,
     SaveResponsePayload, SearchResponseHeaderPayload,
 };
 
@@ -107,7 +107,7 @@ impl Context {
 ///
 /// ```
 /// use noematic::Context;
-/// use noematic::message::{Action, CorrelationId, MessageVersion, Query, Request, SearchRequestPayload};
+/// use noematic::message::{CorrelationId, MessageVersion, Query, Request, RequestAction, SearchRequestPayload};
 ///
 /// let mut context = Context::in_memory().unwrap();
 /// let request = {
@@ -117,7 +117,7 @@ impl Context {
 ///         let page_num = 0;
 ///         let page_length = 10;
 ///         let payload = SearchRequestPayload { query, page_length, page_num };
-///         Action::SearchRequest { payload }
+///         RequestAction::SearchRequest { payload }
 ///     };
 ///     let correlation_id = CorrelationId::new(String::from("218ecc9f-a91a-4b55-8b50-2b6672daa9a5"));
 ///     Request { version, action, correlation_id }
@@ -131,7 +131,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
     let connection = context.connection.as_ref();
 
     match request.action {
-        Action::SaveRequest { payload } => {
+        RequestAction::SaveRequest { payload } => {
             db::upsert_site(connection, payload)?;
             let response = {
                 let payload = SaveResponsePayload {};
@@ -144,7 +144,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
             };
             Ok(vec![response])
         }
-        Action::RemoveRequest { payload } => {
+        RequestAction::RemoveRequest { payload } => {
             db::remove(connection, payload)?;
             let response = {
                 let payload = RemoveResponsePayload {};
@@ -157,7 +157,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
             };
             Ok(vec![response])
         }
-        Action::SearchRequest { payload } => {
+        RequestAction::SearchRequest { payload } => {
             let process = context.process.as_ref();
             let query = payload.query.clone();
             let page_num = payload.page_num;

@@ -94,25 +94,6 @@ wrap_string!(InnerText);
 wrap_string!(Snippet);
 wrap_string!(Query);
 
-/// Messages that are sent from the client (extension) to the host.
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Request {
-    pub version: MessageVersion,
-    #[serde(flatten)]
-    pub action: Action,
-    pub correlation_id: CorrelationId,
-}
-
-/// The actions that the client (extension) can send to the host.
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(tag = "action", rename_all = "camelCase")]
-pub enum Action {
-    SaveRequest { payload: SaveRequestPayload },
-    RemoveRequest { payload: RemoveRequestPayload },
-    SearchRequest { payload: SearchRequestPayload },
-}
-
 /// The payload for the `saveRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -138,32 +119,23 @@ pub struct SearchRequestPayload {
     pub page_length: usize,
 }
 
-/// Messages that are sent from the host to the client (extension).
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct Response {
-    pub version: MessageVersion,
-    #[serde(flatten)]
-    pub action: ResponseAction,
-    pub correlation_id: CorrelationId,
-}
-
-/// The actions that the host can send to the client (extension).
+/// The actions that the client (extension) can send to the host.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "camelCase")]
-pub enum ResponseAction {
-    SaveResponse {
-        payload: SaveResponsePayload,
-    },
-    RemoveResponse {
-        payload: RemoveResponsePayload,
-    },
-    SearchResponseHeader {
-        payload: SearchResponseHeaderPayload,
-    },
-    SearchResponseSite {
-        payload: SearchResponseSitePayload,
-    },
+pub enum RequestAction {
+    SaveRequest { payload: SaveRequestPayload },
+    RemoveRequest { payload: RemoveRequestPayload },
+    SearchRequest { payload: SearchRequestPayload },
+}
+
+/// Messages that are sent from the client (extension) to the host.
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Request {
+    pub version: MessageVersion,
+    #[serde(flatten)]
+    pub action: RequestAction,
+    pub correlation_id: CorrelationId,
 }
 
 /// The payload for the `saveResponse` action.
@@ -189,4 +161,32 @@ pub struct SearchResponseSitePayload {
     pub url: Url,
     pub title: Title,
     pub snippet: Snippet,
+}
+
+/// The actions that the host can send to the client (extension).
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "action", rename_all = "camelCase")]
+pub enum ResponseAction {
+    SaveResponse {
+        payload: SaveResponsePayload,
+    },
+    RemoveResponse {
+        payload: RemoveResponsePayload,
+    },
+    SearchResponseHeader {
+        payload: SearchResponseHeaderPayload,
+    },
+    SearchResponseSite {
+        payload: SearchResponseSitePayload,
+    },
+}
+
+/// Messages that are sent from the host to the client (extension).
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct Response {
+    pub version: MessageVersion,
+    #[serde(flatten)]
+    pub action: ResponseAction,
+    pub correlation_id: CorrelationId,
 }
