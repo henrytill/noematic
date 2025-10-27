@@ -67,7 +67,10 @@ impl Context {
         let connection = Connection::InMemory(connection);
         let process_regex = Regex::new(Context::REGEX_WHITESPACE)?;
         let process = Box::new(make_process(process_regex));
-        let context = Context { connection, process };
+        let context = Context {
+            connection,
+            process,
+        };
         Ok(context)
     }
 
@@ -77,7 +80,10 @@ impl Context {
         let connection = Connection::Persistent(connection);
         let process_regex = Regex::new(Context::REGEX_WHITESPACE)?;
         let process = Box::new(make_process(process_regex));
-        let context = Context { connection, process };
+        let context = Context {
+            connection,
+            process,
+        };
         Ok(context)
     }
 }
@@ -130,7 +136,11 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
             let response = {
                 let payload = SaveResponsePayload {};
                 let action = ResponseAction::SaveResponse { payload };
-                Response { version, action, correlation_id }
+                Response {
+                    version,
+                    action,
+                    correlation_id,
+                }
             };
             Ok(vec![response])
         }
@@ -139,7 +149,11 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
             let response = {
                 let payload = RemoveResponsePayload {};
                 let action = ResponseAction::RemoveResponse { payload };
-                Response { version, action, correlation_id }
+                Response {
+                    version,
+                    action,
+                    correlation_id,
+                }
             };
             Ok(vec![response])
         }
@@ -152,17 +166,29 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
                 let page_length = results.len();
                 let version = version.clone();
                 let correlation_id = correlation_id.clone();
-                let payload =
-                    SearchResponseHeaderPayload { query, page_num, page_length, has_more };
+                let payload = SearchResponseHeaderPayload {
+                    query,
+                    page_num,
+                    page_length,
+                    has_more,
+                };
                 let action = ResponseAction::SearchResponseHeader { payload };
-                Response { version, action, correlation_id }
+                Response {
+                    version,
+                    action,
+                    correlation_id,
+                }
             };
             let mut ret = vec![header];
             for payload in results {
                 let version = version.clone();
                 let correlation_id = correlation_id.clone();
                 let action = ResponseAction::SearchResponseSite { payload };
-                let response = Response { version, action, correlation_id };
+                let response = Response {
+                    version,
+                    action,
+                    correlation_id,
+                };
                 ret.push(response);
             }
             Ok(ret)
@@ -205,7 +231,9 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
 /// assert_eq!(version, MessageVersion::new(0, 1, 0));
 /// ```
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
-    let version = value[FIELD_VERSION].as_str().ok_or_else(|| Error::msg(MSG_MISSING_VERSION))?;
+    let version = value[FIELD_VERSION]
+        .as_str()
+        .ok_or_else(|| Error::msg(MSG_MISSING_VERSION))?;
     let version = MessageVersion::parse(version)?;
     Ok(version)
 }

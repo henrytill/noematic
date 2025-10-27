@@ -37,16 +37,28 @@ fn main() -> Result<(), Error> {
         let manifest = serde_json::to_value(Firefox::new(&path))?;
         let manifest_path = ManifestPath::for_platform(Firefox::path(), &default_dir);
         write(&manifest_path, &manifest)?;
-        println!("Firefox host manifest written to: {}", manifest_path.display());
-        println!("Firefox host manifest contents: {}", serde_json::to_string_pretty(&manifest)?)
+        println!(
+            "Firefox host manifest written to: {}",
+            manifest_path.display()
+        );
+        println!(
+            "Firefox host manifest contents: {}",
+            serde_json::to_string_pretty(&manifest)?
+        )
     }
 
     {
         let manifest = serde_json::to_value(Chromium::new(&path))?;
         let manifest_path = ManifestPath::for_platform(Chromium::path(), &default_dir);
         write(&manifest_path, &manifest)?;
-        println!("Chromium host manifest written to: {}", manifest_path.display());
-        println!("Chromium host manifest contents: {}", serde_json::to_string_pretty(&manifest)?)
+        println!(
+            "Chromium host manifest written to: {}",
+            manifest_path.display()
+        );
+        println!(
+            "Chromium host manifest contents: {}",
+            serde_json::to_string_pretty(&manifest)?
+        )
     }
 
     Ok(())
@@ -150,7 +162,13 @@ mod host_manifest {
         pub fn path() -> ManifestPath {
             let f = file();
             let linux = [".mozilla", "native-messaging-hosts", &f];
-            let macos = ["Library", "Application Support", "Mozilla", "NativeMessagingHosts", &f];
+            let macos = [
+                "Library",
+                "Application Support",
+                "Mozilla",
+                "NativeMessagingHosts",
+                &f,
+            ];
             let default = ["manifests", "mozilla", &f];
             ManifestPath {
                 linux: linux.into_iter().collect::<std::path::PathBuf>(),
@@ -186,7 +204,13 @@ mod host_manifest {
         pub fn path() -> ManifestPath {
             let f = file();
             let linux = [".config", "chromium", "NativeMessagingHosts", &f];
-            let macos = ["Library", "Application Support", "Chromium", "NativeMessagingHosts", &f];
+            let macos = [
+                "Library",
+                "Application Support",
+                "Chromium",
+                "NativeMessagingHosts",
+                &f,
+            ];
             let default = ["manifests", "chromium", &f];
             ManifestPath {
                 linux: linux.into_iter().collect::<std::path::PathBuf>(),

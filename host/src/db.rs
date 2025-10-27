@@ -1,6 +1,6 @@
 mod schema_version;
 
-use rusqlite::{params, Connection, Transaction};
+use rusqlite::{Connection, Transaction, params};
 
 use self::schema_version::SchemaVersion;
 use crate::message::{
@@ -112,7 +112,11 @@ ON CONFLICT (url) DO UPDATE SET
     updated_at = CURRENT_TIMESTAMP
 ",
     )?;
-    statement.execute(params![save_payload.url, save_payload.title, save_payload.inner_text])?;
+    statement.execute(params![
+        save_payload.url,
+        save_payload.title,
+        save_payload.inner_text
+    ])?;
     Ok(())
 }
 
@@ -156,7 +160,11 @@ LIMIT ? OFFSET ?
         let url = row.get(0)?;
         let title = row.get(1)?;
         let snippet = row.get(2)?;
-        results.push(SearchResponseSitePayload { url, title, snippet });
+        results.push(SearchResponseSitePayload {
+            url,
+            title,
+            snippet,
+        });
     }
     Ok((results, has_more))
 }

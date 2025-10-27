@@ -152,10 +152,18 @@ pub struct Response {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "camelCase")]
 pub enum ResponseAction {
-    SaveResponse { payload: SaveResponsePayload },
-    RemoveResponse { payload: RemoveResponsePayload },
-    SearchResponseHeader { payload: SearchResponseHeaderPayload },
-    SearchResponseSite { payload: SearchResponseSitePayload },
+    SaveResponse {
+        payload: SaveResponsePayload,
+    },
+    RemoveResponse {
+        payload: RemoveResponsePayload,
+    },
+    SearchResponseHeader {
+        payload: SearchResponseHeaderPayload,
+    },
+    SearchResponseSite {
+        payload: SearchResponseSitePayload,
+    },
 }
 
 /// The payload for the `saveResponse` action.
