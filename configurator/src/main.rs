@@ -84,10 +84,10 @@ fn default_binary_path(prefix: impl AsRef<Path>) -> PathBuf {
 
 fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
     let json = serde_json::to_string_pretty(value)?;
-    if let Some(parent) = path.as_ref().parent() {
-        if !parent.exists() {
-            fs::create_dir_all(parent)?;
-        }
+    if let Some(parent) = path.as_ref().parent()
+        && !parent.exists()
+    {
+        fs::create_dir_all(parent)?;
     }
     fs::write(path, json).map_err(Into::into)
 }
