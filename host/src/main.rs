@@ -1,6 +1,6 @@
 use std::{
     fs,
-    io::{self, BufReader, BufWriter, Read, Write},
+    io::{self, BufRead, BufReader, BufWriter, Write},
     mem,
 };
 
@@ -34,7 +34,7 @@ struct Args {
 /// Reads the length prefix of a message.
 ///
 /// Returns `None` if the reader is at EOF.
-fn read_length(reader: &mut impl Read) -> io::Result<Option<u32>> {
+fn read_length(reader: &mut impl BufRead) -> io::Result<Option<u32>> {
     let mut bytes = [0; 4];
     match reader.read_exact(&mut bytes) {
         Ok(_) => Ok(Some(u32::from_ne_bytes(bytes))),
@@ -44,7 +44,7 @@ fn read_length(reader: &mut impl Read) -> io::Result<Option<u32>> {
 }
 
 /// Reads a bytestring of the given length.
-fn read_bytes(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
+fn read_bytes(reader: &mut impl BufRead, length: u32) -> io::Result<Vec<u8>> {
     let length = length as usize;
     let mut ret = vec![0; length];
     reader.read_exact(&mut ret)?;
@@ -54,7 +54,7 @@ fn read_bytes(reader: &mut impl Read, length: u32) -> io::Result<Vec<u8>> {
 /// Reads a length `n`-prefixed bytestring into a vector of length `n`.
 ///
 /// Returns `None` if the reader is at EOF.
-fn read_message_bytes(reader: &mut impl Read) -> Result<Option<Vec<u8>>, Error> {
+fn read_message_bytes(reader: &mut impl BufRead) -> Result<Option<Vec<u8>>, Error> {
     let length = match read_length(reader)? {
         Some(length) => length,
         None => return Ok(None),
