@@ -15,46 +15,6 @@ const CREATE_SQL: &str = include_str!("create.sql");
 #[allow(clippy::const_is_empty)]
 const _: () = assert!(!CREATE_SQL.is_empty());
 
-pub fn init_tables(connection: &mut Connection) -> Result<(), anyhow::Error> {
-    let tx = connection.transaction()?;
-    let maybe_version = get_version(&tx)?;
-    match maybe_version {
-        Some(version) if version == SchemaVersion::CURRENT => {}
-        Some(version) if version < SchemaVersion::CURRENT => {
-            migrate(&tx, version, SchemaVersion::CURRENT)?;
-            insert_version(&tx, SchemaVersion::CURRENT)?;
-        }
-        Some(_) => {
-            return Err(anyhow::Error::msg(MSG_INVALID_SCHEMA_VERSION));
-        }
-        None => {
-            tx.execute_batch(CREATE_SQL)?;
-            insert_version(&tx, SchemaVersion::CURRENT)?;
-        }
-    }
-    tx.commit()?;
-    Ok(())
-}
-
-fn get_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Error> {
-    let table_exists: bool = {
-        let query = "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')";
-        tx.query_row(query, [], |row| row.get(0))?
-    };
-    if !table_exists {
-        return Ok(None);
-    }
-    let version_exists: bool = {
-        let query = "SELECT EXISTS (SELECT 1 FROM schema_version)";
-        tx.query_row(query, [], |row| row.get(0))?
-    };
-    if version_exists {
-        let maybe_version = select_version(tx)?;
-        return Ok(maybe_version);
-    }
-    Ok(None)
-}
-
 fn select_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Error> {
     let mut statement = tx.prepare(
         "\
@@ -74,6 +34,25 @@ LIMIT 1
     } else {
         Ok(None)
     }
+}
+
+fn get_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Error> {
+    let table_exists: bool = {
+        let query = "SELECT EXISTS (SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'schema_version')";
+        tx.query_row(query, [], |row| row.get(0))?
+    };
+    if !table_exists {
+        return Ok(None);
+    }
+    let version_exists: bool = {
+        let query = "SELECT EXISTS (SELECT 1 FROM schema_version)";
+        tx.query_row(query, [], |row| row.get(0))?
+    };
+    if version_exists {
+        let maybe_version = select_version(tx)?;
+        return Ok(maybe_version);
+    }
+    Ok(None)
 }
 
 fn migrate(
@@ -96,6 +75,27 @@ VALUES (?, ?, ?)
     )?;
     statement.execute([version.major(), version.minor(), version.patch()])?;
     Ok(version)
+}
+
+pub fn init_tables(connection: &mut Connection) -> Result<(), anyhow::Error> {
+    let tx = connection.transaction()?;
+    let maybe_version = get_version(&tx)?;
+    match maybe_version {
+        Some(version) if version == SchemaVersion::CURRENT => {}
+        Some(version) if version < SchemaVersion::CURRENT => {
+            migrate(&tx, version, SchemaVersion::CURRENT)?;
+            insert_version(&tx, SchemaVersion::CURRENT)?;
+        }
+        Some(_) => {
+            return Err(anyhow::Error::msg(MSG_INVALID_SCHEMA_VERSION));
+        }
+        None => {
+            tx.execute_batch(CREATE_SQL)?;
+            insert_version(&tx, SchemaVersion::CURRENT)?;
+        }
+    }
+    tx.commit()?;
+    Ok(())
 }
 
 pub fn upsert_site(
