@@ -1,23 +1,6 @@
-//! The message format used to communicate between the host and the client (extension).
-//!
-//! See the [`Request`] and [`Response`] types for the message format.
-//!
-//! The message format is a simple JSON-based protocol.
-//!
-//! The message format is versioned. The version is a semantic version string. The version is
-//! included in the message to allow for future changes to the message format.
-//!
-//! The message format is designed to be extensible. The `action` field is a string that indicates
-//! the type of message. The `payload` field is an object that contains the data for the message.
-//!
-//! The `correlationId` field is a string that is used to correlate requests and responses. The
-//! `correlationId` is included in the response to a request to allow the client to match the
-//! response to the request.
-
 use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 use serde::{Deserialize, Serialize};
 
-/// The version of the message format.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, PartialOrd, Ord, Clone)]
 pub struct MessageVersion(semver::Version);
 
@@ -40,10 +23,8 @@ impl From<semver::Version> for MessageVersion {
     }
 }
 
-/// Wraps a [`String`] in a newtype
 macro_rules! wrap_string {
     ($name:ident) => {
-        /// A newtype that wraps a [`String`].
         #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
         pub struct $name(String);
 
@@ -94,7 +75,6 @@ wrap_string!(InnerText);
 wrap_string!(Snippet);
 wrap_string!(Query);
 
-/// The payload for the `saveRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SaveRequestPayload {
@@ -103,14 +83,12 @@ pub struct SaveRequestPayload {
     pub inner_text: InnerText,
 }
 
-/// The payload for the `removeRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoveRequestPayload {
     pub url: Url,
 }
 
-/// The payload for the `searchRequest` action.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchRequestPayload {
@@ -119,7 +97,6 @@ pub struct SearchRequestPayload {
     pub page_length: usize,
 }
 
-/// The actions that the client (extension) can send to the host.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "camelCase")]
 pub enum RequestAction {
@@ -128,7 +105,6 @@ pub enum RequestAction {
     SearchRequest { payload: SearchRequestPayload },
 }
 
-/// Messages that are sent from the client (extension) to the host.
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Request {
@@ -138,11 +114,9 @@ pub struct Request {
     pub correlation_id: CorrelationId,
 }
 
-/// The payload for the `saveResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SaveResponsePayload {}
 
-/// The payload for the `saveResponse` action.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RemoveResponsePayload {}
 
@@ -163,7 +137,6 @@ pub struct SearchResponseSitePayload {
     pub snippet: Snippet,
 }
 
-/// The actions that the host can send to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "action", rename_all = "camelCase")]
 pub enum ResponseAction {
@@ -181,7 +154,6 @@ pub enum ResponseAction {
     },
 }
 
-/// Messages that are sent from the host to the client (extension).
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Response {

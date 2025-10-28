@@ -1,8 +1,3 @@
-//! The library for the Noematic application.
-//!
-//! The library contains the core functionality of the application, including handling requests and
-//! responses, and managing the database.
-
 mod db;
 pub mod message;
 
@@ -35,17 +30,6 @@ impl AsRef<rusqlite::Connection> for Connection {
     }
 }
 
-/// The context of the application.
-///
-/// The context contains the state of the application and is used to handle requests.
-///
-/// # Examples
-///
-/// ```
-/// use noematic::Context;
-///
-/// let context = Context::in_memory().unwrap();
-/// ```
 pub struct Context {
     connection: Connection,
     process: Box<dyn Fn(Query) -> String>,
@@ -88,42 +72,6 @@ impl Context {
     }
 }
 
-/// Handles a request and returns a response.
-///
-/// # Arguments
-///
-/// * `context` - The context of the application.
-/// * `request` - The request to handle.
-///
-/// # Returns
-///
-/// A response to the request.
-///
-/// # Errors
-///
-/// If an error occurs while handling the request.
-///
-/// # Example
-///
-/// ```
-/// use noematic::Context;
-/// use noematic::message::{CorrelationId, MessageVersion, Query, Request, RequestAction, SearchRequestPayload};
-///
-/// let mut context = Context::in_memory().unwrap();
-/// let request = {
-///     let version = MessageVersion::parse("0.1.0").unwrap();
-///     let action = {
-///         let query = Query::new(String::from("hello"));
-///         let page_num = 0;
-///         let page_length = 10;
-///         let payload = SearchRequestPayload { query, page_length, page_num };
-///         RequestAction::SearchRequest { payload }
-///     };
-///     let correlation_id = CorrelationId::new(String::from("218ecc9f-a91a-4b55-8b50-2b6672daa9a5"));
-///     Request { version, action, correlation_id }
-/// };
-/// let response = noematic::handle_request(&mut context, request).unwrap();
-/// ```
 pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Response>, Error> {
     let version = request.version;
     let correlation_id = request.correlation_id;
@@ -196,40 +144,6 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
     }
 }
 
-/// Extracts the message version from the message.
-///
-/// # Arguments
-///
-/// * `value` - The parsed message to extract the message version from.
-///
-/// # Returns
-///
-/// The version of the message.
-///
-/// # Errors
-///
-/// * If the message does not contain a version.
-/// * If the version string does not parse to a valid [`MessageVersion`].
-///
-/// # Example
-///
-/// ```
-/// use serde_json::json;
-/// use noematic::message::MessageVersion;
-///
-/// let request = json!({
-///     "version": "0.1.0",
-///     "action": "saveRequest",
-///     "payload": {
-///         "url": "https://en.wikipedia.org/wiki/Foobar",
-///         "title": "Foobar - Wikipedia",
-///         "innerText": "..."
-///     },
-///     "correlationId": "218ecc9f-a91a-4b55-8b50-2b6672daa9a5"
-/// });
-/// let version = noematic::extract_version(&request).unwrap();
-/// assert_eq!(version, MessageVersion::new(0, 1, 0));
-/// ```
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
     let version = value[FIELD_VERSION]
         .as_str()
