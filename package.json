@@ -16,7 +16,7 @@
     "clean": "make clean"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^9.39.0",
     "@playwright/test": "1.54.1",
     "@types/chrome": "^0.1.16",
     "@types/node": "^24.6.1",
