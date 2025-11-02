@@ -14,10 +14,8 @@
     let
       pname = "noematic";
       version = "0.1.0";
-      src = builtins.path {
-        path = ./.;
-        name = "noematic-src";
-      };
+      src = self;
+      npmRoot = self;
       mkExt =
         pkgs:
         pkgs.stdenvNoCC.mkDerivation {
@@ -77,7 +75,7 @@
             playwright-driver.browsers
           ];
           npmDeps = pkgs.importNpmLock.buildNodeModules {
-            npmRoot = ./.;
+            inherit npmRoot;
             inherit (pkgs) nodejs;
           };
           PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
