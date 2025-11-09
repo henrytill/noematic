@@ -19,6 +19,34 @@ struct Args {
     binary: Option<PathBuf>,
 }
 
+fn default_prefix() -> Result<PathBuf, io::Error> {
+    let exe = env::current_exe()?;
+    let parent = exe
+        .parent()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Executable directory not found"))?;
+    let parent = parent
+        .parent()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Parent directory not found"))?;
+    Ok(PathBuf::from(parent))
+}
+
+fn default_binary_path(prefix: impl AsRef<Path>) -> PathBuf {
+    let mut ret = PathBuf::from(prefix.as_ref());
+    ret.push("bin");
+    ret.push(HOST_BINARY_NAME);
+    ret
+}
+
+fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
+    let json = serde_json::to_string_pretty(value)?;
+    if let Some(parent) = path.as_ref().parent()
+        && !parent.exists()
+    {
+        fs::create_dir_all(parent)?;
+    }
+    fs::write(path, json).map_err(Into::into)
+}
+
 fn main() -> Result<(), Error> {
     let args = Args::parse();
 
@@ -62,34 +90,6 @@ fn main() -> Result<(), Error> {
     }
 
     Ok(())
-}
-
-fn default_prefix() -> Result<PathBuf, io::Error> {
-    let exe = env::current_exe()?;
-    let parent = exe
-        .parent()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Executable directory not found"))?;
-    let parent = parent
-        .parent()
-        .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Parent directory not found"))?;
-    Ok(PathBuf::from(parent))
-}
-
-fn default_binary_path(prefix: impl AsRef<Path>) -> PathBuf {
-    let mut ret = PathBuf::from(prefix.as_ref());
-    ret.push("bin");
-    ret.push(HOST_BINARY_NAME);
-    ret
-}
-
-fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
-    let json = serde_json::to_string_pretty(value)?;
-    if let Some(parent) = path.as_ref().parent()
-        && !parent.exists()
-    {
-        fs::create_dir_all(parent)?;
-    }
-    fs::write(path, json).map_err(Into::into)
 }
 
 mod host_manifest {
@@ -171,9 +171,9 @@ mod host_manifest {
             ];
             let default = ["manifests", "mozilla", &f];
             ManifestPath {
-                linux: linux.into_iter().collect::<std::path::PathBuf>(),
-                macos: macos.into_iter().collect::<std::path::PathBuf>(),
-                default: default.into_iter().collect::<std::path::PathBuf>(),
+                linux: linux.into_iter().collect::<PathBuf>(),
+                macos: macos.into_iter().collect::<PathBuf>(),
+                default: default.into_iter().collect::<PathBuf>(),
             }
         }
     }
@@ -213,9 +213,9 @@ mod host_manifest {
             ];
             let default = ["manifests", "chromium", &f];
             ManifestPath {
-                linux: linux.into_iter().collect::<std::path::PathBuf>(),
-                macos: macos.into_iter().collect::<std::path::PathBuf>(),
-                default: default.into_iter().collect::<std::path::PathBuf>(),
+                linux: linux.into_iter().collect::<PathBuf>(),
+                macos: macos.into_iter().collect::<PathBuf>(),
+                default: default.into_iter().collect::<PathBuf>(),
             }
         }
     }
