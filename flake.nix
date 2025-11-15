@@ -73,6 +73,7 @@
             importNpmLock.hooks.linkNodeModulesHook
             nodejs
             playwright-driver.browsers
+            yaml-language-server
           ];
           npmDeps = pkgs.importNpmLock.buildNodeModules {
             inherit npmRoot;
