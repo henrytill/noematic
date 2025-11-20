@@ -1,3 +1,6 @@
+#![warn(clippy::pedantic)]
+#![deny(clippy::unwrap_in_result)]
+
 use std::{
     env, fs, io,
     path::{Path, PathBuf},
@@ -50,12 +53,11 @@ fn write(path: impl AsRef<Path>, value: &Value) -> Result<(), Error> {
 fn main() -> Result<(), Error> {
     let args = Args::parse();
 
-    let path = match args.binary {
-        Some(path) => fs::canonicalize(path)?,
-        None => {
-            let prefix = default_prefix()?;
-            default_binary_path(prefix)
-        }
+    let path = if let Some(path) = args.binary {
+        fs::canonicalize(path)?
+    } else {
+        let prefix = default_prefix()?;
+        default_binary_path(prefix)
     };
 
     let default_dir = env::current_dir()?;
@@ -72,7 +74,7 @@ fn main() -> Result<(), Error> {
         println!(
             "Firefox host manifest contents: {}",
             serde_json::to_string_pretty(&manifest)?
-        )
+        );
     }
 
     {
@@ -86,7 +88,7 @@ fn main() -> Result<(), Error> {
         println!(
             "Chromium host manifest contents: {}",
             serde_json::to_string_pretty(&manifest)?
-        )
+        );
     }
 
     Ok(())
@@ -103,7 +105,7 @@ mod host_manifest {
     const TYPE: &str = "stdio";
 
     fn file() -> String {
-        format!("{}.json", NAME)
+        format!("{NAME}.json")
     }
 
     pub struct ManifestPath {

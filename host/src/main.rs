@@ -1,3 +1,6 @@
+#![warn(clippy::pedantic)]
+#![deny(clippy::unwrap_in_result)]
+
 use std::{
     fs,
     io::{self, BufRead, BufReader, BufWriter, Write},
@@ -37,7 +40,7 @@ struct Args {
 fn read_length(reader: &mut impl BufRead) -> io::Result<Option<u32>> {
     let mut bytes = [0; 4];
     match reader.read_exact(&mut bytes) {
-        Ok(_) => Ok(Some(u32::from_ne_bytes(bytes))),
+        Ok(()) => Ok(Some(u32::from_ne_bytes(bytes))),
         Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => Ok(None),
         Err(e) => Err(e),
     }
@@ -55,9 +58,8 @@ fn read_bytes(reader: &mut impl BufRead, length: u32) -> io::Result<Vec<u8>> {
 ///
 /// Returns `None` if the reader is at EOF.
 fn read_message_bytes(reader: &mut impl BufRead) -> Result<Option<Vec<u8>>, Error> {
-    let length = match read_length(reader)? {
-        Some(length) => length,
-        None => return Ok(None),
+    let Some(length) = read_length(reader)? else {
+        return Ok(None);
     };
     read_bytes(reader, length).map(Some).map_err(Into::into)
 }

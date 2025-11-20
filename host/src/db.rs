@@ -55,13 +55,7 @@ fn get_version(tx: &Transaction) -> Result<Option<SchemaVersion>, rusqlite::Erro
     Ok(None)
 }
 
-fn migrate(
-    _tx: &Transaction,
-    _from_version: SchemaVersion,
-    _to_version: SchemaVersion,
-) -> Result<(), rusqlite::Error> {
-    Ok(())
-}
+fn migrate(_tx: &Transaction, _from_version: SchemaVersion, _to_version: SchemaVersion) {}
 
 fn insert_version(
     tx: &Transaction,
@@ -83,7 +77,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), anyhow::Error> {
     match maybe_version {
         Some(version) if version == SchemaVersion::CURRENT => {}
         Some(version) if version < SchemaVersion::CURRENT => {
-            migrate(&tx, version, SchemaVersion::CURRENT)?;
+            migrate(&tx, version, SchemaVersion::CURRENT);
             insert_version(&tx, SchemaVersion::CURRENT)?;
         }
         Some(_) => {
@@ -100,7 +94,7 @@ pub fn init_tables(connection: &mut Connection) -> Result<(), anyhow::Error> {
 
 pub fn upsert_site(
     connection: &Connection,
-    save_payload: SaveRequestPayload,
+    save_payload: &SaveRequestPayload,
 ) -> Result<(), rusqlite::Error> {
     let mut statement = connection.prepare(
         "\

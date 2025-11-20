@@ -1,3 +1,6 @@
+#![warn(clippy::pedantic)]
+#![deny(clippy::unwrap_in_result)]
+
 mod db;
 pub mod message;
 
@@ -24,8 +27,7 @@ enum Connection {
 impl AsRef<rusqlite::Connection> for Connection {
     fn as_ref(&self) -> &rusqlite::Connection {
         match self {
-            Connection::InMemory(connection) => connection,
-            Connection::Persistent(connection) => connection,
+            Connection::InMemory(connection) | Connection::Persistent(connection) => connection,
         }
     }
 }
@@ -45,6 +47,9 @@ fn make_process(re: Regex) -> impl Fn(Query) -> String {
 impl Context {
     const REGEX_WHITESPACE: &'static str = r"\W+";
 
+    /// # Errors
+    ///
+    /// Returns an error if the database initialization or regex compilation fails.
     pub fn in_memory() -> Result<Context, Error> {
         let mut connection = rusqlite::Connection::open_in_memory()?;
         db::init_tables(&mut connection)?;
@@ -58,6 +63,9 @@ impl Context {
         Ok(context)
     }
 
+    /// # Errors
+    ///
+    /// Returns an error if the database cannot be opened, initialization fails, or regex compilation fails.
     pub fn persistent(db_path: impl AsRef<Path>) -> Result<Context, Error> {
         let mut connection = rusqlite::Connection::open(db_path.as_ref())?;
         db::init_tables(&mut connection)?;
@@ -72,6 +80,9 @@ impl Context {
     }
 }
 
+/// # Errors
+///
+/// Returns an error if the database operations fail.
 pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Response>, Error> {
     let version = request.version;
     let correlation_id = request.correlation_id;
@@ -80,7 +91,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
 
     match request.action {
         RequestAction::SaveRequest { payload } => {
-            db::upsert_site(connection, payload)?;
+            db::upsert_site(connection, &payload)?;
             let response = {
                 let payload = SaveResponsePayload {};
                 let action = ResponseAction::SaveResponse { payload };
@@ -144,6 +155,9 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
     }
 }
 
+/// # Errors
+///
+/// Returns an error if the version field is missing or cannot be parsed.
 pub fn extract_version(value: &Value) -> Result<MessageVersion, Error> {
     let version = value[FIELD_VERSION]
         .as_str()

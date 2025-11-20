@@ -5,10 +5,14 @@ use serde::{Deserialize, Serialize};
 pub struct MessageVersion(semver::Version);
 
 impl MessageVersion {
+    #[must_use]
     pub const fn new(major: u64, minor: u64, patch: u64) -> MessageVersion {
         MessageVersion(semver::Version::new(major, minor, patch))
     }
 
+    /// # Errors
+    ///
+    /// Returns an error if the version string cannot be parsed as a semantic version.
     pub fn parse(version: &str) -> Result<MessageVersion, semver::Error> {
         let version = semver::Version::parse(version)?;
         Ok(MessageVersion(version))
