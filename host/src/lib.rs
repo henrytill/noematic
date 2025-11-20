@@ -34,10 +34,10 @@ impl AsRef<rusqlite::Connection> for Connection {
 
 pub struct Context {
     connection: Connection,
-    process: Box<dyn Fn(Query) -> String>,
+    process: Box<dyn Fn(&Query) -> String>,
 }
 
-fn make_process(re: Regex) -> impl Fn(Query) -> String {
+fn make_process(re: Regex) -> impl Fn(&Query) -> String {
     move |query| {
         let input = query.as_str();
         re.replace_all(input, " ").trim().to_string()
@@ -104,7 +104,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
             Ok(vec![response])
         }
         RequestAction::RemoveRequest { payload } => {
-            db::remove(connection, payload)?;
+            db::remove(connection, &payload)?;
             let response = {
                 let payload = RemoveResponsePayload {};
                 let action = ResponseAction::RemoveResponse { payload };
@@ -120,7 +120,7 @@ pub fn handle_request(context: &mut Context, request: Request) -> Result<Vec<Res
             let process = context.process.as_ref();
             let query = payload.query.clone();
             let page_num = payload.page_num;
-            let (results, has_more) = db::search_sites(connection, payload, process)?;
+            let (results, has_more) = db::search_sites(connection, &payload, process)?;
             let header = {
                 let page_length = results.len();
                 let version = version.clone();

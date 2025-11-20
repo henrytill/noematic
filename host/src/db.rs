@@ -116,17 +116,17 @@ ON CONFLICT (url) DO UPDATE SET
 
 pub fn remove(
     connection: &Connection,
-    payload: RemoveRequestPayload,
+    payload: &RemoveRequestPayload,
 ) -> Result<(), rusqlite::Error> {
     let mut statement = connection.prepare("DELETE FROM sites WHERE url = ?")?;
-    statement.execute([payload.url])?;
+    statement.execute(params![payload.url])?;
     Ok(())
 }
 
 pub fn search_sites(
     connection: &Connection,
-    search_payload: SearchRequestPayload,
-    process: impl Fn(Query) -> String,
+    search_payload: &SearchRequestPayload,
+    process: impl Fn(&Query) -> String,
 ) -> Result<(Vec<SearchResponseSitePayload>, bool), rusqlite::Error> {
     let mut stmt = connection.prepare(
         "\
@@ -138,7 +138,7 @@ ORDER BY rank
 LIMIT ? OFFSET ?
 ",
     )?;
-    let query_string = process(search_payload.query);
+    let query_string = process(&search_payload.query);
     let limit = search_payload.page_length + 1; // extra row for has_more
     let offset = search_payload.page_num * search_payload.page_length;
     let mut rows = stmt.query(params![query_string, limit, offset])?;
