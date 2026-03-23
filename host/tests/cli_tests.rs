@@ -10,7 +10,7 @@ const CORRELATION_ID: &str = "218ecc9f-a91a-4b55-8b50-2b6672daa9a5";
 
 #[test]
 fn test_save() {
-    let noematic = base::exe("noematic").unwrap();
+    let noematic = base::exe();
     let mut child = Command::new(noematic)
         .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
@@ -48,7 +48,7 @@ fn test_save() {
 
 #[test]
 fn test_search() {
-    let noematic = base::exe("noematic").unwrap();
+    let noematic = base::exe();
     let mut child = Command::new(noematic)
         .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
@@ -134,7 +134,7 @@ fn test_search() {
 
 #[test]
 fn test_search_quotation() {
-    let noematic = base::exe("noematic").unwrap();
+    let noematic = base::exe();
     let mut child = Command::new(noematic)
         .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
@@ -220,7 +220,7 @@ fn test_search_quotation() {
 
 #[test]
 fn search_idempotent() {
-    let noematic = base::exe("noematic").unwrap();
+    let noematic = base::exe();
     let mut child = Command::new(noematic)
         .arg(COMMAND_ARG)
         .stdin(Stdio::piped())
@@ -319,7 +319,7 @@ fn search_idempotent() {
 
 #[test]
 fn test_remove() {
-    let noematic = base::exe("noematic").unwrap();
+    let noematic = base::exe();
     let mut child = Command::new(noematic)
         .arg(COMMAND_ARG)
         .stdin(Stdio::piped())

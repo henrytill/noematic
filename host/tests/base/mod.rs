@@ -6,25 +6,14 @@ use std::{
 use anyhow::Error;
 use serde_json::Value;
 
-pub fn exe(name: &str) -> Result<PathBuf, Error> {
-    let current_exe = std::env::current_exe()?;
-    let current_dir = current_exe
-        .parent()
-        .ok_or_else(|| Error::msg(format!("Missing parent: {}", current_exe.to_string_lossy())))?;
-    let mut path = current_dir
-        .parent()
-        .map(PathBuf::from)
-        .ok_or_else(|| Error::msg(format!("Missing parent: {}", current_exe.to_string_lossy())))?;
-    path.push(name);
-    path.set_extension(std::env::consts::EXE_EXTENSION);
-    if path.exists() {
-        Ok(path)
-    } else {
-        Err(Error::msg(format!(
-            "Missing executable: {}",
-            path.to_string_lossy()
-        )))
-    }
+/// Returns the path to the `noematic` binary under test.
+///
+/// Uses `CARGO_BIN_EXE_noematic`, which Cargo sets at compile time for
+/// integration tests. This correctly handles custom build directories
+/// (e.g. `build.build-dir` config or new Cargo layout features) unlike
+/// manually deriving the path from `current_exe`.
+pub fn exe() -> PathBuf {
+    PathBuf::from(env!("CARGO_BIN_EXE_noematic"))
 }
 
 pub fn write_request(writer: &mut impl Write, request: &Value) -> Result<(), Error> {
