@@ -50,6 +50,14 @@ On Linux, native manifests for both browsers can be installed (after building) u
 npm run configure
 ```
 
+### Nix
+
+To check the version of `playwright-driver.browsers` provided by the pinned nixpkgs:
+
+```sh
+nix eval nixpkgs#playwright-driver.version --raw
+```
+
 ### Useful Documentation
 
 - <https://developer.chrome.com/docs/extensions/reference/runtime/>
