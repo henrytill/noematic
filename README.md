@@ -55,7 +55,7 @@ npm run configure
 To check the version of `playwright-driver.browsers` provided by the pinned nixpkgs:
 
 ```sh
-nix eval nixpkgs#playwright-driver.version --raw
+nix eval --inputs-from . nixpkgs#playwright-driver.version --raw
 ```
 
 ### Useful Documentation
